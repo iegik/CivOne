@@ -73,7 +73,8 @@ namespace CivOne.Units
 			set
 			{
 				if (_sentry == value) return;
-				if (!(_sentry = value) || !Game.Started) return;
+                _sentry = value;
+				if (!_sentry || !Game.Started) return;
 				MovesLeft = 0;
 				PartMoves = 0;
 				MovementDone(Map[X, Y]);
