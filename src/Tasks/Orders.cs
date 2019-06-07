@@ -91,12 +91,22 @@ namespace CivOne.Tasks
 			{
 				if (_player.IsHuman)
 				{
-					CityView cityView = new CityView(_city, founded: true);
-					cityView.Closed += CityFounded;
-					cityView.Skipped += CityViewed;
-					Common.AddScreen(cityView);
-					return;
-				}
+                    if (Settings.Animations != Enums.GameOption.Off)
+                    {
+                        CityView cityView = new CityView(_city, founded: true);
+                        cityView.Closed += CityFounded;
+                        cityView.Skipped += CityViewed;
+                        Common.AddScreen(cityView);
+                        return;
+                    }
+                    else
+                    {
+                        CityManager cityManager = new CityManager(_city);
+                        cityManager.Closed += CityManagerClosed;
+                        Common.AddScreen(cityManager);
+                        return;
+                    }
+                }
 				if (_unit != null)
 				{
 					Game.DisbandUnit(_unit);
