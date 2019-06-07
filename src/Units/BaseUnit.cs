@@ -276,18 +276,28 @@ namespace CivOne.Units
 
 					if (Human == capturedCity.Owner || Human == Owner)
 					{
-						Show captureCity = Show.CaptureCity(capturedCity);
-						captureCity.Done += (s1, a1) =>
-						{
-							changeOwner();
-							
-							if (capturedCity.Size == 0 || Human != Owner) return;
-							GameTask.Insert(Show.CityManager(capturedCity));
-						};
-						GameTask.Insert(captureCity);
+                        // TODO KBR consider implementing 'no animations' as a go-directly-to-done option inside the Show?
+                        if (Settings.Animations != GameOption.Off) // KBR no animations
+                        {
+                            Show captureCity = Show.CaptureCity(capturedCity);
+                            captureCity.Done += (s1, a1) =>
+                            {
+                                changeOwner();
 
-						if (advancesToSteal.Any())
-							GameTask.Enqueue(Tasks.Show.SelectAdvanceAfterCityCapture(Player, advancesToSteal));
+                                if (capturedCity.Size == 0 || Human != Owner) return;
+                                GameTask.Insert(Show.CityManager(capturedCity));
+                            };
+                            GameTask.Insert(captureCity);
+                        }
+                        else
+                        {
+                            changeOwner();
+                            if (capturedCity.Size > 0 && Human == Owner)
+                                GameTask.Insert(Show.CityManager(capturedCity));
+                        }
+
+                        if (advancesToSteal.Any())
+							GameTask.Enqueue(Show.SelectAdvanceAfterCityCapture(Player, advancesToSteal));
 					}
 					else
 					{
