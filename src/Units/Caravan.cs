@@ -74,7 +74,14 @@ namespace CivOne.Units
 			ITile moveTarget = Map[X, Y][relX, relY];
 			City city = moveTarget.City;
 
-			if (city == null || city == Home || (city.Owner == Owner && Home != null && moveTarget.DistanceTo(Home) < 10))
+            // KBR Caravan can build wonder even in home city
+            if (city != null && city.Owner == Owner && Game.Human == Owner)
+            {
+                GameTask.Enqueue(Show.CaravanChoice(this, city));
+                return true;
+            }
+
+            if (city == null || city == Home || (city.Owner == Owner && Home != null && moveTarget.DistanceTo(Home) < 10))
 			{
 				MovementTo(relX, relY);
 				return true;
@@ -84,11 +91,6 @@ namespace CivOne.Units
 			{
 				EstablishTradeRoute(moveTarget.City);
 				return true;
-			}
-
-			if (Game.Human == Owner)
-			{
-				GameTask.Enqueue(Show.CaravanChoice(this, city));
 			}
 
 			return true;

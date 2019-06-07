@@ -45,8 +45,7 @@ namespace CivOne.Screens.Dialogs
 
 		protected override void FirstUpdate()
 		{
-			int choices = 2;
-			if (_city.CurrentProduction is IWonder) choices++;
+			int choices = _city.IsBuildingWonder ? 3 : 2;
 
 			Menu menu = new Menu(Palette, Selection(3, 12, 130, (choices * Resources.GetFontHeight(FONT_ID)) + 4))
 			{
@@ -61,7 +60,7 @@ namespace CivOne.Screens.Dialogs
 			menu.Items.Add("Keep moving").OnSelect(KeepMoving);
 			menu.Items.Add("Establish trade route").OnSelect(EstablishTradeRoute).SetEnabled(AllowEstablishTradeRoute);
 
-			if (_city.CurrentProduction is IWonder)
+			if (_city.IsBuildingWonder)
 			{
 				menu.Items.Add("Help build WONDER.").OnSelect(HelpBuildWonder);
 			}

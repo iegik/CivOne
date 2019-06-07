@@ -90,6 +90,8 @@ namespace CivOne
  		public bool IsInDisorder => _size > 0 && UnhappyCitizens > HappyCitizens;
 		public bool WasInDisorder {get; set;} = false;
 
+        public bool IsBuildingWonder => CurrentProduction is IWonder;
+
 		internal int ShieldCosts
 		{
 			get

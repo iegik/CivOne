@@ -432,7 +432,9 @@ namespace CivOne.Units
 					}
 				}
 			}
-			if (moveTarget.City != null && moveTarget.City.Owner != Owner)
+
+            // KBR Caravan needs to be able to move into owner city
+			if (moveTarget.City != null && (moveTarget.City.Owner != Owner || this is Caravan))
 			{
 				return Confront(relX, relY);
 			}
