@@ -190,13 +190,18 @@ namespace CivOne.Tiles
 			if (tile.Type != Terrain.River && settings.Improvements)
 			{
 				if (!GFX256 && tile.DrawIrrigation()) output.AddLayer(MapTile.Irrigation);
-				if (tile.DrawMine()) output.AddLayer(MapTile.Mine);
+                // KBR mine drawing goes on top of roads
+				//if (tile.DrawMine()) output.AddLayer(MapTile.Mine);
 			}
 			if (settings.Roads)
 			{
 				if (tile.DrawRoad()) output.AddLayer(MapTile.Road[tile.DrawRoadDirections()]);
 				if (tile.DrawRailRoad()) output.AddLayer(MapTile.RailRoad[tile.DrawRailRoadDirections()]);
 			}
+            // KBR mine drawing goes on top of roads
+            if (tile.Type != Terrain.River && settings.Improvements && tile.DrawMine())
+                output.AddLayer(MapTile.Mine);
+
 			if (tile.DrawFortress()) output.AddLayer(MapTile.Fortress);
 			if (tile.DrawHut()) output.AddLayer(MapTile.Hut);
 
