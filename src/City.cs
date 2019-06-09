@@ -694,7 +694,7 @@ namespace CivOne
 				}
 				else
 				{
-					if (Player == Human)
+					if (Player == Human && Settings.Animations != GameOption.Off) // KBR don't show if animations off
 						{
 							Show disorderCity = Show.DisorderCity(this);
  							GameTask.Insert(disorderCity);
