@@ -27,19 +27,21 @@ namespace CivOne.Screens.Dialogs
 			return output;
 		}
 
-        private static int EXTRA = 52;
+        private static int PORTRAIT_SIZE = 52;
         private static int MINIMUM = 94;
 
-		private static int DialogWidth(string[] message)
+        private static string[] advisorNames = new string[] { "Defense Minister", "Domestic Advisor", "Foreign Minister", "Science Advisor" };
+
+        private static int DialogWidth(string[] message)
 		{
-            int maxWidth = TextBitmaps(message).Max(b => b.Width) + EXTRA;
-			maxWidth = System.Math.Max(maxWidth, MINIMUM);
+            int advisorWidth = TextBitmaps(advisorNames).Max(b => b.Width) + PORTRAIT_SIZE;
+            int maxWidth = TextBitmaps(message).Max(b => b.Width) + PORTRAIT_SIZE;
+			maxWidth = System.Math.Max(System.Math.Max(maxWidth, advisorWidth), MINIMUM);
 			return maxWidth;
 		}
 
 		public AdvisorMessage(Advisor advisor, string[] message, bool leftAlign) : base((leftAlign ? 38 : 58), 72, DialogWidth(message), 62)
 		{
-			string[] advisorNames = new string[] { "Defense Minister", "Domestic Advisor", "Foreign Minister", "Science Advisor" };
 			bool modernGovernment = Human.HasAdvance<Invention>();
 			IBitmap governmentPortrait = Icons.GovernmentPortrait(Human.Government, advisor, modernGovernment);
 			
