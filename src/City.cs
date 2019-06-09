@@ -730,10 +730,11 @@ namespace CivOne
 				}
 				else
 				{
-					// we love the king day
-				}
- 				GameTask.Insert(Show.WeLovePresidentDayCity(this));
-			}
+                    // we love the king day
+                    if (Human == Owner && Settings.Animations != GameOption.Off)
+                        GameTask.Insert(Show.WeLovePresidentDayCity(this));
+                }
+            }
  			Food += IsInDisorder ? 0 : FoodIncome;
 
 			if (Food < 0)
