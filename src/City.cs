@@ -539,6 +539,7 @@ namespace CivOne
 				while (_specialists.Count < Size - (ResourceTiles.Count() - 1)) _specialists.Add(Citizen.Entertainer);
 				while (_specialists.Count > Size - (ResourceTiles.Count() - 1)) _specialists.Remove(_specialists.Last());
 
+                // KBR TODO verify luxury makes happy first, then clears unhappy
 				int happyCount = (int)Math.Floor((double)Luxuries / 2);
 				if (Player.HasWonder<HangingGardens>() && !Game.WonderObsolete<HangingGardens>()) happyCount++;
 				if (Player.HasWonder<CureForCancer>()) happyCount++;
@@ -565,7 +566,17 @@ namespace CivOne
 					if (HasBuilding<Cathedral>()) unhappyCount -= 4;
 				}
 
-				int content = 0;
+                // KBR 20190612 Martial law : reduce unhappy count for every attack-capable unit in city [max 3]
+                if (Player.AnarchyDespotism || Player.MonarchyCommunist)
+                {
+                    var attackUnitsInCity = Game.Instance.GetUnits()
+                        .Where(u => u.X == this.X && u.Y == this.Y && u.Attack > 0)
+                        .Count();
+                    attackUnitsInCity = Math.Min(attackUnitsInCity, 3);
+                    unhappyCount -= attackUnitsInCity;
+                }
+
+                int content = 0;
 				int unhappy = 0;
 				int working = (ResourceTiles.Count() - 1);
 				int specialist = 0;
