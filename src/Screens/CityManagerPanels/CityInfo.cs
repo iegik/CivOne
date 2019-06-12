@@ -58,17 +58,32 @@ namespace CivOne.Screens.CityManagerPanels
 					.FillRectangle(5, 15, 122, 1, 1)
 					.FillRectangle(5, 31, 122, 1, 1)
 					.As<Picture>();
-				
+
+                int hC = _city.HappyCitizens;
+                int cC = _city.ContentCitizens;
+                int uC = _city.UnhappyCitizens;
+                int eC = _city.Entertainers;
+                int sC = _city.Scientists;
+                int bC = _city.Taxmen;
+
 				for (int yy = 1; yy < 30; yy+= 16)
-				for (int i = 0; i < _city.Size; i++)
-				{
-					if (i < _city.ResourceTiles.Count() - 1)
-					{
-						output.AddLayer(Icons.Citizen((i % 2 == 0) ? Citizen.ContentMale : Citizen.ContentFemale), 7 + (8 * i), yy);
-						continue;
-					}
-					output.AddLayer(Icons.Citizen(Citizen.Entertainer), 7 + (8 * i), yy);
-				}
+                {
+                    int dex = 0;
+                    for (int x = 0; x < hC; x++)
+                        output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.HappyMale : Citizen.HappyFemale), 7 + (8 * dex++), yy);
+                    for (int x = 0; x < cC; x++)
+                        output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.ContentMale : Citizen.ContentFemale), 7 + (8 * dex++), yy);
+                    for (int x = 0; x < uC; x++)
+                        output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.UnhappyMale : Citizen.UnhappyFemale), 7 + (8 * dex++), yy);
+                    for (int x = 0; x < eC; x++)
+                        output.AddLayer(Icons.Citizen(Citizen.Entertainer), 7 + (8 * dex++), yy);
+                    for (int x = 0; x < sC; x++)
+                        output.AddLayer(Icons.Citizen(Citizen.Scientist), 7 + (8 * dex++), yy);
+                    for (int x = 0; x < bC; x++)
+                        output.AddLayer(Icons.Citizen(Citizen.Taxman), 7 + (8 * dex++), yy);
+                }
+                // TODO KBR draw icon for layers
+
 				return output;
 			}
 		}

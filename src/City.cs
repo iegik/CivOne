@@ -85,9 +85,13 @@ namespace CivOne
 
 		public int HappyCitizens => Citizens.Count(c => c == Citizen.HappyMale || c == Citizen.HappyFemale);
 		public int UnhappyCitizens => Citizens.Count(c => c == Citizen.UnhappyMale || c == Citizen.UnhappyFemale);
+        public int ContentCitizens => Citizens.Count(c => c == Citizen.ContentFemale || c == Citizen.ContentMale);
 
-		public int ContentCitizens => Citizens.Count(c => c == Citizen.ContentFemale || c == Citizen.ContentMale);
- 		public bool IsInDisorder => _size > 0 && UnhappyCitizens > HappyCitizens;
+        public int Entertainers => _specialists.Count(c => c == Citizen.Entertainer);
+        public int Scientists => _specialists.Count(c => c == Citizen.Scientist);
+        public int Taxmen => _specialists.Count(c => c == Citizen.Taxman);
+
+        public bool IsInDisorder => _size > 0 && UnhappyCitizens > HappyCitizens;
 		public bool WasInDisorder {get; set;} = false;
 
         public bool IsBuildingWonder => CurrentProduction is IWonder;
