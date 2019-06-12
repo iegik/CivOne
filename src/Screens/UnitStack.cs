@@ -81,6 +81,7 @@ namespace CivOne.Screens
 					
 					Game.ActiveUnit = _units[uid];
 					_units[uid].Busy = false;
+                    _units[uid].Goto = System.Drawing.Point.Empty; // KBR 20190612 clear Goto
 					return true;
 				}
 			}
