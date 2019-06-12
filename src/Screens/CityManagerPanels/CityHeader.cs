@@ -84,8 +84,8 @@ namespace CivOne.Screens.CityManagerPanels
 
 		public void Update()
 		{
-			if (HeaderUpdate != null) HeaderUpdate(this, null);
-			_update = true;
+            HeaderUpdate?.Invoke(this, null);
+            _update = true;
 		}
 
 		public void Close()

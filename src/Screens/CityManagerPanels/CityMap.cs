@@ -105,8 +105,8 @@ namespace CivOne.Screens.CityManagerPanels
 
 			_city.SetResourceTile(_city.CityRadius[tileX, tileY]);
 			_update = true;
-			if (MapUpdate != null) MapUpdate(this, null);
-			return true;
+            MapUpdate?.Invoke(this, null);
+            return true;
 		}
 
 		public CityMap(City city) : base(82, 82)

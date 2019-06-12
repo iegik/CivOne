@@ -7,18 +7,17 @@
 // You should have received a copy of the CC0 legalcode along with this
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using CivOne.Enums;
 using CivOne.Events;
 using CivOne.Graphics;
 using CivOne.Screens.CityManagerPanels;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
 
 namespace CivOne.Screens
 {
-	[Expand]
+    [Expand]
 	internal class CityManager : BaseScreen
 	{
 		private readonly City _city;
@@ -170,20 +169,23 @@ namespace CivOne.Screens
 			_cityHeader.Update();
 			_cityMap.Update();
 			_cityProduction.Update();
-		}
+            _cityInfo.Update(); // KBR 20190612 change to buildings impacts Happy view in Info
+        }
 
-		private void HeaderUpdate(object sender, EventArgs args)
+        private void HeaderUpdate(object sender, EventArgs args)
 		{
 			_cityResources.Update();
+            _cityInfo.Update(); // KBR 20190612 change to header impacts Happy view in Info
 		}
 
 		private void MapUpdate(object sender, EventArgs args)
 		{
 			_cityHeader.Update();
 			_cityResources.Update();
-		}
+            _cityInfo.Update(); // KBR 20190612 change to workers impacts Happy view in Info
+        }
 
-		private void Resize(object sender, ResizeEventArgs args)
+        private void Resize(object sender, ResizeEventArgs args)
 		{
 			this.Clear(5);
 

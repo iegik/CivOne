@@ -208,5 +208,10 @@ namespace CivOne.Screens.CityManagerPanels
 			_city = city;
 			_units = Game.GetUnits().Where(u => u.X == city.X && u.Y == city.Y).ToArray();
 		}
-	}
+
+        public void Update()
+        {
+            _update = true;
+        }
+    }
 }
