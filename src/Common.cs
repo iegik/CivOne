@@ -26,8 +26,6 @@ namespace CivOne
 	internal class Common
 	{
 		private static Resources Resources => Resources.Instance;
-		private static IRuntime Runtime => RuntimeHandler.Runtime;
-		private static Settings Settings => Settings.Instance;
 		private static void Log(string text, params object[] parameters) => RuntimeHandler.Runtime.Log(text, parameters);
 
 		public static Random Random = new Random((int)DateTime.Now.Ticks);
@@ -55,8 +53,8 @@ namespace CivOne
 		{
 			get
 			{
-				if (_screens.Any(x => HasAttribute<Modal>(x)))
-					return _screens.Last(x => HasAttribute<Modal>(x));
+				if (_screens.Any(HasAttribute<Modal>))
+					return _screens.Last(HasAttribute<Modal>);
 				return _screens.LastOrDefault();
 			}
 		}
@@ -84,19 +82,18 @@ namespace CivOne
 
 		public static GamePlay GamePlay => (GamePlay)_screens.FirstOrDefault(x => x is GamePlay);
 
-		public static Palette GamePlayPalette => GamePlay.Palette.Copy();
-
 		internal static void SetRandomSeedFromName(string name)
 		{
 			short number = 0;
-			foreach (byte charByte in name)
-			{
-				number += charByte;
-			}
+			foreach (char c in name)
+            {
+                byte charByte = (byte) c;
+                number += charByte;
+            }
 			SetRandomSeed(number);
 		}
-		
-		internal static void SetRandomSeed(short seed) => Random = new Random(seed);
+
+        private static void SetRandomSeed(short seed) => Random = new Random(seed);
 		
 		internal static void AddScreen(IScreen screen) => _screens.Add(screen);
 		
@@ -152,7 +149,7 @@ namespace CivOne
 				if (sb.Length > 0 && i % 3 == 0) sb.Append(',');
 				sb.Append(input[i]);
 			}
-			return sb.ToString().TrimStart(new char[] { '0', ',' });
+			return sb.ToString().TrimStart('0', ',');
 		}
 
 		public static ushort YearToTurn(int year)
@@ -181,8 +178,8 @@ namespace CivOne
 			int year = TurnToYear(turn);
 			if (zeroAd && year == 1) year = 0;
 			if (year < 0)
-				return string.Format("{0} BC", -year);
-			return string.Format("{0} AD", year);
+				return $"{-year} BC";
+			return $"{year} AD";
 		}
 
 		public static string DifficultyName(int difficuly)
@@ -262,7 +259,7 @@ namespace CivOne
 				if (_palette16 == null)
 				{
 					byte[] shades = new byte[] { 0, 104, 183, 255 };
-					_palette16 = new Colour[]
+					_palette16 = new[]
 					{
 						Colour.Transparent,
 						new Colour(shades[0], shades[0], shades[2]),

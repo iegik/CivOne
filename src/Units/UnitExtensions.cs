@@ -8,7 +8,6 @@
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 using System.Drawing;
-// using CivOne.Graphics;
 using CivOne.Graphics.Sprites;
 using CivOne.IO;
 
