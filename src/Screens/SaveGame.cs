@@ -239,6 +239,8 @@ namespace CivOne.Screens
 		{
 			if (_menu != null)
 				return _menu.MouseDown(args);
+            if (_saving)
+                Destroy();
 			return false;
 		}
 		
