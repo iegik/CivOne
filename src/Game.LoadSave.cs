@@ -192,7 +192,7 @@ namespace CivOne
 				foreach (byte fortifiedUnit in cityData.FortifiedUnits)
 				{
 					IUnit unit = CreateUnit((UnitType)fortifiedUnit, city.X, city.Y);
-					unit.Status = (byte)(1 << 3);
+					unit.Status = (byte)(8 + (unit.Veteran ? 32 : 0));
 					unit.Owner = city.Owner;
 					unit.SetHome(city);
 					_units.Add(unit);
