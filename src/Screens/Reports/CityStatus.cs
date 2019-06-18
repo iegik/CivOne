@@ -42,8 +42,8 @@ namespace CivOne.Screens.Reports
 
 				this.DrawText(city.Name, FONT_ID, 15, 8, yy)
 					.DrawText($"{city.Size}-{city.FoodTotal}{FOOD} {city.ShieldTotal}{SHIELD} {city.TradeTotal}{TRADE}", FONT_ID, 15, 80, yy)
-					.DrawText(production, FONT_ID, 15, 172, yy)
-					.DrawText($"({city.Shields}/{city.CurrentProduction.Price * 10})", FONT_ID, 7, 172 + productionWidth + 7, yy);
+					.DrawText(production, FONT_ID, 15, 157, yy)
+					.DrawText($" ({city.Shields}/{city.CurrentProduction.Price * 10})", FONT_ID, 7, 157 + productionWidth + 12, yy);
 				yy += fontHeight;
 			}
 
