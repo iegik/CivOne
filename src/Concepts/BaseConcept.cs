@@ -44,10 +44,5 @@ namespace CivOne.Concepts
 			
 			return output;
 		}
-		
-		protected BaseConcept()
-		{
-			
-		}
-	}
+    }
 }

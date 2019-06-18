@@ -8,7 +8,6 @@
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using CivOne.Advances;
 using CivOne.Enums;
@@ -55,7 +54,7 @@ namespace CivOne.Civilizations
 		{
 			StartX = 255;
 			StartY = 255;
-			CityNames = new string[]
+			CityNames = new[]
 			{
 				"Mecca",
 				"Naples",

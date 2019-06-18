@@ -18,7 +18,7 @@ namespace CivOne.Civilizations
 		{
 			StartX = 42;
 			StartY = 42;
-			CityNames = new string[]
+			CityNames = new[]
 			{
 				"Zimbabwe",
 				"Ulundi",

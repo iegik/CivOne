@@ -17,8 +17,8 @@ using CivOne.Units;
 
 namespace CivOne
 {
-	public partial class Game : BaseInstance
-	{
+	public partial class Game
+    {
 		private void AddStartingUnits(byte player)
 		{
 			// Translated from this post by darkpanda, might contain errors:

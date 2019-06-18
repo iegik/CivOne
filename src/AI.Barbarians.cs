@@ -173,7 +173,6 @@ namespace CivOne
 					}
 				}
 				Game.DisbandUnit(unit);
-				return;
 			}
 			else
 			{

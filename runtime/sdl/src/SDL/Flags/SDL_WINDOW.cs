@@ -9,11 +9,14 @@
 
 using System;
 
+// ReSharper disable InconsistentNaming
+
 namespace CivOne
 {
 	internal static partial class SDL
 	{
-		private enum SDL_WINDOW : uint
+		[Flags]
+        private enum SDL_WINDOW : uint
 		{
 			FULLSCREEN = 0x001,
 			OPENGL = 0x002,

@@ -18,7 +18,7 @@ namespace CivOne.Civilizations
 		{
 			StartX = 5;
 			StartY = 23;
-			CityNames = new string[]
+			CityNames = new[]
 			{
 				"Tenochtitlan",
 				"Chiauhtia",

@@ -45,10 +45,10 @@ namespace CivOne
 				ITile tile = unit.Tile;
 
 				bool hasCity = (tile.City != null);
-				bool validCity = (tile is Grassland || tile is River || tile is Plains) && (tile.City == null);
-				bool validIrrigaton = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && (tile.City == null) && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
-				bool validMine = (tile is Mountains || tile is Hills) && (tile.City == null) && (!tile.Mine) && (!tile.Irrigation);
-				bool validRoad = (tile.City == null) && tile.Road;
+				bool validCity = (tile is Grassland || tile is River || tile is Plains) && !hasCity;
+				bool validIrrigaton = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && !hasCity && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
+				bool validMine = (tile is Mountains || tile is Hills) && !hasCity && (!tile.Mine) && (!tile.Irrigation);
+				bool validRoad = !hasCity && tile.Road;
 				int nearestCity = 255;
 				int nearestOwnCity = 255;
 				
@@ -99,14 +99,13 @@ namespace CivOne
 					return;
 				}
 				unit.SkipTurn();
-				return;
 			}
 			else if (unit is Militia || unit is Phalanx || unit is Musketeers || unit is Riflemen || unit is MechInf)
 			{
 				unit.Fortify = true;
 				while (unit.Tile.City != null && unit.Tile.Units.Count(x => x is Militia || x is Phalanx || x is Musketeers || x is Riflemen || x is MechInf) > 2)
 				{
-					IUnit disband = null;
+					IUnit disband;
 					IUnit[] units = unit.Tile.Units.Where(x => x != unit).ToArray();
 					if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Militia)) != null) { Game.DisbandUnit(disband); continue; }
 					if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Phalanx)) != null) { Game.DisbandUnit(disband); continue; }

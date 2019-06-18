@@ -7,23 +7,24 @@
 // You should have received a copy of the CC0 legalcode along with this
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-using System;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using CivOne.Graphics;
 using CivOne.IO;
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+
+// ReSharper disable InconsistentNaming
 
 namespace CivOne
 {
-	internal static partial class SDL
+    internal static partial class SDL
 	{
 		internal abstract partial class Window : IDisposable
 		{
 			private readonly IntPtr _handle, _renderer;
 
-			private bool _running = true, _redraw = false;
+			private bool _running = true; 
+            private bool _redraw;
 
 			private void Log(string message) => OnLog?.Invoke(message);
 
@@ -68,7 +69,7 @@ namespace CivOne
 				}
 			}
 
-			private bool _pixelScale = false;
+			private bool _pixelScale;
 			protected bool PixelScale
 			{
 				get => _pixelScale;
@@ -175,14 +176,18 @@ namespace CivOne
 				}
 			}
 
-			public Window(string title, int width, int height, bool fullscreen, bool softwareRender = false)
+            protected Window(string title, int width, int height, bool fullscreen, bool softwareRender = false)
 			{
 				_title = title;
 
 				SDL_Init(SDL_INIT.VIDEO | SDL_INIT.AUDIO);
 
 				SDL_WINDOW flags = SDL_WINDOW.RESIZABLE;
-				if (_fullscreen = fullscreen) flags |= SDL_WINDOW.FULLSCREEN_DESKTOP;
+
+                // ReSharper disable once AssignmentInConditionalExpression
+                if (_fullscreen = fullscreen) 
+                    flags |= SDL_WINDOW.FULLSCREEN_DESKTOP;
+
 				_handle = SDL_CreateWindow(title, 100, 100, width, height, flags);
 				_renderer = softwareRender ? IntPtr.Zero : SDL_CreateRenderer(_handle, -1, SDL_RENDERER_FLAGS.SDL_RENDERER_ACCELERATED);
 				if (_renderer == null || _renderer == IntPtr.Zero)

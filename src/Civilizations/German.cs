@@ -18,7 +18,7 @@ namespace CivOne.Civilizations
 		{
 			StartX = 38;
 			StartY = 15;
-			CityNames = new string[]
+			CityNames = new[]
 			{
 				"Berlin",
 				"Leipzig",

@@ -92,7 +92,7 @@ namespace CivOne
         public int Taxmen => _specialists.Count(c => c == Citizen.Taxman);
 
         public bool IsInDisorder => _size > 0 && UnhappyCitizens > HappyCitizens;
-		public bool WasInDisorder {get; set;} = false;
+		public bool WasInDisorder {get; set;}
 
         public bool IsBuildingWonder => CurrentProduction is IWonder;
 
