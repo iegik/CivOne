@@ -729,6 +729,7 @@ namespace CivOne.Units
 				_fortify = true;
 			}
 			MovesLeft = Move;
+            PartMoves = 0; // KBR
 			Explore();
 		}
 
