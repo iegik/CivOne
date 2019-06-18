@@ -13,10 +13,13 @@ namespace CivOne
 	{
 		public byte Id;
 		public byte Status;
-		public byte X, Y;
+		public byte X;
+        public byte Y;
 		public byte TypeId;
-		public byte RemainingMoves, SpecialMoves;
-		public byte GotoX, GotoY;
+		public byte RemainingMoves;
+        public byte SpecialMoves;
+		public byte GotoX; 
+        public byte GotoY;
 		public byte Visibility;
 		public byte NextUnitId;
 		public byte HomeCityId;

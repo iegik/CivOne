@@ -137,7 +137,7 @@ namespace CivOne
 			return output.ToArray();
 		}
 
-		private UnitData[][] GetUnits()
+		private unsafe UnitData[][] GetUnits()
 		{
 			SaveData.Unit[] units = GetArray<SaveData.Unit>(nameof(SaveData.Units), 8 * 128);
 			UnitData[][] output = new UnitData[8][];

@@ -41,13 +41,26 @@ namespace CivOne.Units
 		public int BuildingMine { get; private set; }
 		public int BuildingFortress { get; private set; }
 
+        public int CleaningPollution { get; private set; }
+
 		internal void SetStatus(bool[] bits)
 		{
 			BuildingRoad = (bits[1] && !bits[6] && !bits[7]) ? 2 : 0;
 			BuildingIrrigation = (!bits[1] && bits[6] && !bits[7]) ? 3 : 0;
 			BuildingMine = (!bits[1] && !bits[6] && bits[7]) ? 4 : 0;
 			BuildingFortress = (!bits[1] && bits[6] && bits[7]) ? 5 : 0;
-		}
+            CleaningPollution = (bits[1] && !bits[6] && bits[7]) ? 5 : 0; // TODO verify pollution cost
+        }
+
+        internal void GetStatus(ref byte result)
+        {
+            // translate internal state to save file format
+            if (BuildingRoad != 0) result |= 2;
+            if (BuildingIrrigation != 0) result |= 64;
+            if (BuildingMine != 0) result |= 128;
+            if (BuildingFortress != 0) result |= (64 + 128);
+            if (CleaningPollution != 0) result |= (2 + 128);
+        }
 
 		public bool BuildRoad()
 		{

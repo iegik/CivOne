@@ -18,8 +18,8 @@ using CivOne.Wonders;
 
 namespace CivOne
 {
-	public partial class Game : BaseInstance
-	{
+	public partial class Game
+    {
 		public static void LoadGame(string sveFile, string mapFile)
 		{
 			if (_instance != null)

@@ -407,7 +407,7 @@ namespace CivOne.Units
 		private IList<IAdvance> GetAdvancesToSteal(Player victim)
 		{
 			return victim.Advances
-			.Where(p => !Player.Advances.Any(p2 => p2.Id == p.Id))
+			.Where(p => Player.Advances.All(p2 => p2.Id != p.Id))
 			.OrderBy(a => Common.Random.Next(0, 1000))
 			.Take(3)
 			.ToList();
@@ -697,10 +697,22 @@ namespace CivOne.Units
 
 		public byte Status
 		{
-			get
-			{
-				return 0;
-			}
+            get
+            {
+                byte result = 0;
+                if (Sentry)
+                    result |= 0x1;
+                if (FortifyActive)
+                    result |= 0x4;
+                if (_fortify)
+                    result |= 0x8;
+                if (Veteran)
+                    result |= 0x32;
+
+                (this as Settlers)?.GetStatus(ref result);
+
+                return result;
+            }
 			set
 			{
 				bool[] bits = new bool[8];
