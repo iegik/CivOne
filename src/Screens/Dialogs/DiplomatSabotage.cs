@@ -23,13 +23,10 @@ namespace CivOne.Screens.Dialogs
 	{
 		private const int FONT_ID = 0;
 
-		private readonly City _enemyCity;
-		private readonly Diplomat _diplomat;
-
-		internal DiplomatSabotage(City enemyCity, Diplomat diplomat) : base(60, 80, 220, 56)
+        internal DiplomatSabotage(City enemyCity, Diplomat diplomat) : base(60, 80, 175, 56)
 		{
-			_enemyCity = enemyCity ?? throw new ArgumentNullException(nameof(enemyCity));
-			_diplomat = diplomat ?? throw new ArgumentNullException(nameof(diplomat));
+            var enemyCity1 = enemyCity ?? throw new ArgumentNullException(nameof(enemyCity));
+			var diplomat1 = diplomat ?? throw new ArgumentNullException(nameof(diplomat));
 
 			IBitmap spyPortrait = Icons.Spy;
 
@@ -43,8 +40,10 @@ namespace CivOne.Screens.Dialogs
 			DialogBox.AddLayer(spyPortrait, 2, 2);
 
 			DialogBox.DrawText($"Spies Report", 0, 15, 45, 5);
-			DialogBox.DrawText(_diplomat.Sabotage(_enemyCity), 0, 15, 45, 5 + Resources.GetFontHeight(FONT_ID));
-			DialogBox.DrawText($"in {_enemyCity.Name}", 0, 15, 45, 5 + (2 * Resources.GetFontHeight(FONT_ID)));
+			DialogBox.DrawText(diplomat1.Sabotage(enemyCity1), 0, 15, 45, 5 + Resources.GetFontHeight(FONT_ID));
+			DialogBox.DrawText($"in {enemyCity1.Name}", 0, 15, 45, 5 + (2 * Resources.GetFontHeight(FONT_ID)));
+
+            // TODO KBR set width based on text
 		}
 	}
 }
