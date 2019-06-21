@@ -88,7 +88,7 @@ namespace CivOne.Screens.Dialogs
 			if (CanBribe(unitToBribe, gold))
 				choices = 2;
 
-			return (choices * Resources.GetFontHeight(FONT_ID)) + 30;
+			return (choices * Resources.GetFontHeight(FONT_ID)) + 31;
 		}
 
 		internal DiplomatBribe(BaseUnitLand unitToBribe, Diplomat diplomat) : base(100, 80, 135, DialogHeight(unitToBribe, diplomat.Player.Gold))
