@@ -88,7 +88,8 @@ namespace CivOne.Screens.Dialogs
 		{
 			int choices = 6;
 
-			Menu menu = new Menu(Palette, Selection(3, 5 + (2 * Resources.GetFontHeight(FONT_ID)), 130, ((2 * Resources.GetFontHeight(FONT_ID)) + (choices * Resources.GetFontHeight(FONT_ID)) + 9)))
+            int high = (2 * Resources.GetFontHeight(FONT_ID)) + (choices * Resources.GetFontHeight(FONT_ID)) + 8;
+			Menu menu = new Menu(Palette, Selection(3, 5 + (2 * Resources.GetFontHeight(FONT_ID)), 125, high ))
 			{
 				X = 103,
 				Y = 100,
@@ -111,12 +112,12 @@ namespace CivOne.Screens.Dialogs
 
 		private static int DialogHeight()
 		{
-			int choices = 6;
+			int choices = 6 + 3;
 
-			return (choices * Resources.GetFontHeight(FONT_ID)) + 30;
+			return (choices * Resources.GetFontHeight(FONT_ID));
 		}
 
-		internal DiplomatCity(City enemyCity, Diplomat diplomat) : base(100, 80, 155, DialogHeight())
+		internal DiplomatCity(City enemyCity, Diplomat diplomat) : base(100, 80, 145, DialogHeight())
 		{
 			_enemyCity = enemyCity ?? throw new ArgumentNullException(nameof(enemyCity));
 			_diplomat = diplomat ?? throw new ArgumentNullException(nameof(diplomat));
