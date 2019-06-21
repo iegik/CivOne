@@ -108,7 +108,12 @@ namespace CivOne.Screens.Dialogs
 			menu.Items.Add("Meet with King").OnSelect(MeetWithKing).SetEnabled(!(_enemyCity.Player.Civilization is Barbarian));
 			
 			AddMenu(menu);
-		}
+
+            // TODO KBR does diplomat lose a turn on cancel?
+            // TODO KBR is there any dialog-based menu which DOESN'T want these established?
+            menu.Cancel += Cancel;
+            menu.MissClick += Cancel;
+        }
 
 		private static int DialogHeight()
 		{
