@@ -96,7 +96,8 @@ namespace CivOne.Units
 			{
 				IUnit unit = units[0];
 
-				if (Human == unit.Owner && unit.Owner != Owner && unit is BaseUnitLand)
+                // TODO kbr bribe ocean unit
+				if (Human == Owner && unit.Owner != Owner && unit is BaseUnitLand)
 				{
 					GameTask.Enqueue(Show.DiplomatBribe(unit as BaseUnitLand, this));
 					return true;
