@@ -20,7 +20,9 @@ using CivOne.UserInterface;
 namespace CivOne.Screens.Debug
 {
 	internal class SpawnUnit : BaseScreen
-	{
+    {
+        private const int UNIT_COUNT = 14; // number of units to show per menu page
+
 		private readonly IUnit[] _units = Reflect.GetUnits().OrderBy(x => (int)x.Type).ToArray();
 
 		private readonly Menu _civSelect;
@@ -67,7 +69,7 @@ namespace CivOne.Screens.Debug
 		{
 			Palette = Common.Screens.Last().OriginalColours;
 
-			IUnit[] units = _units.OrderBy(x => x.Name).Skip(_index).Take(14).ToArray();
+			IUnit[] units = _units.OrderBy(x => x.Name).Skip(_index).Take(UNIT_COUNT).ToArray();
 
 			int fontHeight = Resources.GetFontHeight(0);
 			int hh = (fontHeight * (units.Length + 2)) + 5;
@@ -119,8 +121,8 @@ namespace CivOne.Screens.Debug
 
 		private void SpawnUnit_More(object sender, EventArgs args)
 		{
-			_index += 15;
-			if (_index > _units.Count()) _index = 0;
+			_index += UNIT_COUNT;
+			if (_index >= _units.Count()) _index = 0;
 			CloseMenus();
 		}
 
@@ -133,9 +135,8 @@ namespace CivOne.Screens.Debug
 
 		private void SpawnUnit_Cancel(object sender, EventArgs args)
 		{
-			if (Cancel != null)
-				Cancel(this, null);
-			Destroy();
+            Cancel?.Invoke(this, null);
+            Destroy();
 		}
 
 		private bool ValidTile
