@@ -67,7 +67,7 @@ namespace CivOne.Screens.Debug
 		{
 			Palette = Common.Screens.Last().OriginalColours;
 
-			IUnit[] units = _units.Skip(_index).Take(15).ToArray();
+			IUnit[] units = _units.OrderBy(x => x.Name).Skip(_index).Take(14).ToArray();
 
 			int fontHeight = Resources.GetFontHeight(0);
 			int hh = (fontHeight * (units.Length + 2)) + 5;
@@ -100,7 +100,7 @@ namespace CivOne.Screens.Debug
 
 			foreach (IUnit unit in units)
 			{
-				_unitSelect.Items.Add(unit.Name).OnSelect(SpawnUnit_Accept);
+				_unitSelect.Items.Add(unit.Name, unit.ProductionId).OnSelect(SpawnUnit_Accept);
 			}
 
 			_unitSelect.Items.Add($" ---MORE---").OnSelect(SpawnUnit_More);
@@ -125,8 +125,9 @@ namespace CivOne.Screens.Debug
 		}
 
 		private void SpawnUnit_Accept(object sender, EventArgs args)
-		{
-			_selectedUnit = _units[_unitSelect.ActiveItem + _index];
+        {
+            int prodId = _unitSelect.Items[_unitSelect.ActiveItem].Value;
+			_selectedUnit = _units[prodId];
 			CloseMenus();
 		}
 
