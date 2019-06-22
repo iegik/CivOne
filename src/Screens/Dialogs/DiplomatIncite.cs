@@ -14,6 +14,7 @@ using CivOne.Tiles;
 using CivOne.Units;
 using CivOne.UserInterface;
 using CivOne.Buildings;
+using CivOne.Enums;
 using CivOne.Tasks;
 
 namespace CivOne.Screens.Dialogs
@@ -25,9 +26,9 @@ namespace CivOne.Screens.Dialogs
 		private readonly City _cityToIncite;
 		private readonly Diplomat _diplomat;
 
-		private int _inciteCost;
+		private readonly int _inciteCost;
 
-		private bool _canIncite;
+		private readonly bool _canIncite;
 
 		private void DontIncite(object sender, EventArgs args)
 		{
@@ -39,7 +40,7 @@ namespace CivOne.Screens.Dialogs
 			Player previousOwner = Game.GetPlayer(_cityToIncite.Owner);
 
 			Show captureCity = Show.CaptureCity(_cityToIncite);
-			captureCity.Done += (s1, a1) =>
+			EventHandler capture_done = (s1, a1) =>
 			{
 				Game.DisbandUnit(_diplomat);
 				_cityToIncite.Owner = _diplomat.Owner;
@@ -59,11 +60,19 @@ namespace CivOne.Screens.Dialogs
 					GameTask.Insert(Tasks.Show.CityManager(_cityToIncite));
 				}
 			};
+            captureCity.Done += capture_done;
 
 			if (Human == _cityToIncite.Owner || Human == _diplomat.Owner)
-			{
-				GameTask.Insert(captureCity);
-			}
+            {
+                if (Settings.Animations != GameOption.Off)
+                    GameTask.Insert(captureCity);
+                else
+                    capture_done(null, null);
+            }
+            else
+            {
+                capture_done(null, null); // non-human city incite
+            }
 
 			Cancel();
 		}
