@@ -33,6 +33,9 @@ namespace CivOne.Units
 			int cost = (cityToIncite.Player.Gold + 1000) / (distance + 3);
 
 			// todo: if city is in disorder need to halve the cost
+            if (cityToIncite.IsInDisorder)
+                cost /= 2;
+
 			return cost;
 		}
 
