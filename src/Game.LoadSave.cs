@@ -190,9 +190,20 @@ namespace CivOne
 				_cities.Add(city);
 
 				foreach (byte fortifiedUnit in cityData.FortifiedUnits)
-				{
-					IUnit unit = CreateUnit((UnitType)fortifiedUnit, city.X, city.Y);
-					unit.Status = (byte)(8 + (unit.Veteran ? 32 : 0));
+                {
+                    // KBR 20190622 corrected restore of "fortified" units
+                    // Unit id is actually in lower 6 bits
+                    // see https://forums.civfanatics.com/threads/sve-file-format.493581/page-4
+                    int unitId = fortifiedUnit & 0x3F;
+                    bool fortified = (fortifiedUnit & 0x40) != 0;
+                    bool veteran = (fortifiedUnit & 0x80) != 0;
+
+                    IUnit unit = CreateUnit((UnitType)unitId, city.X, city.Y);
+                    if (unit == null)
+                        continue; // TODO log this failure!
+
+					unit.Status = (byte)(fortified ? 8 : 0 + (veteran ? 32 : 0));
+
 					unit.Owner = city.Owner;
 					unit.SetHome(city);
 					_units.Add(unit);
