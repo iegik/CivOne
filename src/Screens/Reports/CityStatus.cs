@@ -27,6 +27,8 @@ namespace CivOne.Screens.Reports
 
 		protected override bool HasUpdate(uint gameTick)
 		{
+            const int MAGIC = 157;
+
 			if (!_update) return false;
 
 			this.FillRectangle(0, 32, 320, 168, 8);
@@ -42,8 +44,8 @@ namespace CivOne.Screens.Reports
 
 				this.DrawText(city.Name, FONT_ID, 15, 8, yy)
 					.DrawText($"{city.Size}-{city.FoodTotal}{FOOD} {city.ShieldTotal}{SHIELD} {city.TradeTotal}{TRADE}", FONT_ID, 15, 80, yy)
-					.DrawText(production, FONT_ID, 15, 157, yy)
-					.DrawText($" ({city.Shields}/{city.CurrentProduction.Price * 10})", FONT_ID, 7, 157 + productionWidth + 12, yy);
+					.DrawText(production, FONT_ID, 15, MAGIC, yy)
+					.DrawText($"({city.Shields}/{city.CurrentProduction.Price * 10})", FONT_ID, 7, MAGIC + productionWidth + 12, yy);
 				yy += fontHeight;
 			}
 
