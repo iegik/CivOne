@@ -20,7 +20,7 @@ namespace CivOne.Screens
 
 		private float _fadeStep = 1.0F;
 		
-		private float FadeStep
+		internal float FadeStep
 		{
 			get
 			{
@@ -34,7 +34,7 @@ namespace CivOne.Screens
 			}
 		}
 		
-		private Colour FadeColour(Colour colour1, Colour colour2)
+		internal Colour FadeColour(Colour colour1, Colour colour2)
 		{
 			int r = (int)(((float)colour1.R * (1.0F - _fadeStep)) + ((float)colour2.R * _fadeStep));
 			int g = (int)(((float)colour1.G * (1.0F - _fadeStep)) + ((float)colour2.G * _fadeStep));

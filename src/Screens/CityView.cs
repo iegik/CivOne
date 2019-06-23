@@ -41,14 +41,16 @@ namespace CivOne.Screens
 		
 		private int _noiseCounter = NOISE_COUNT + 15;
 
-		private int _houseType = 0;
+		private int _houseType;
 
 		private readonly Picture _overlay;
 		private readonly Picture[] _invadersOrRevolters;
 
 		private bool _update = true;
 		
-		private int _x = 80, _y = 138;
+		private int _x = 80;
+        private int _y = 138;
+
 		private float _fadeStep = 1.0f;
 		private bool _skip = false;
 
@@ -56,18 +58,12 @@ namespace CivOne.Screens
 
 		public event EventHandler Skipped;
 		
-		private Colour FadeColour(Colour colour1, Colour colour2)
-		{
-			int r = (int)(((float)colour1.R * (1.0F - _fadeStep)) + ((float)colour2.R * _fadeStep));
-			int g = (int)(((float)colour1.G * (1.0F - _fadeStep)) + ((float)colour2.G * _fadeStep));
-			int b = (int)(((float)colour1.B * (1.0F - _fadeStep)) + ((float)colour2.B * _fadeStep));
-			return new Colour(r, g, b);
-		}
-		
 		private void FadeColours()
 		{
-			if (Settings.GraphicsMode != GraphicsMode.Graphics256) return;
-			
+			if (!GFX256) return;
+
+            FadeStep = _fadeStep;
+
 			Palette palette = _background.Palette;
 			for (int i = 1; i < 256; i++)
 				palette[i] = FadeColour(new Colour(0, 0, 0), _background.OriginalColours[i]);

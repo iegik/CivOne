@@ -23,26 +23,12 @@ namespace CivOne.Screens
 		private readonly Picture[] _pictures;
 
 		private float _fadeStep = 0.0F;
-		private int _introTicks = 0;
+		private int _introTicks;
 		private int _introLine = 1;
 		
-		private int _introPicture = 0;
-		private int _introPictureNext = 0;
-		
-		private float FadeStep
-		{
-			get
-			{
-				return _fadeStep;
-			}
-			set
-			{
-				_fadeStep = value;
-				if (_fadeStep < 0.0F) _fadeStep = 0.0F;
-				if (_fadeStep > 1.0F) _fadeStep = 1.0F;
-			}
-		}
-		
+		private int _introPicture;
+		private int _introPictureNext;
+        
 		private int IntroPicture
 		{
 			get
@@ -54,18 +40,12 @@ namespace CivOne.Screens
 				_introPictureNext = value;
 			}
 		}
-		
-		private Colour FadeColour(Colour colour1, Colour colour2)
-		{
-			int r = (int)(((float)colour1.R * (1.0F - _fadeStep)) + ((float)colour2.R * _fadeStep));
-			int g = (int)(((float)colour1.G * (1.0F - _fadeStep)) + ((float)colour2.G * _fadeStep));
-			int b = (int)(((float)colour1.B * (1.0F - _fadeStep)) + ((float)colour2.B * _fadeStep));
-			return new Colour(r, g, b);
-		}
-		
+        
 		private void FadeColours()
 		{
-			if (Settings.GraphicsMode != GraphicsMode.Graphics256) return;
+			if (!GFX256) return;
+
+            FadeStep = _fadeStep;
 			
 			using (Palette palette = _pictures[_introPicture].Palette.Copy())
 			{
@@ -230,7 +210,7 @@ namespace CivOne.Screens
 					return true;
 				}
 			}
-			if (args.Key == Key.Space || args.Key == Key.Enter)
+			if (args.Key == Key.Space || args.Key == Key.Enter || args.Key == Key.Escape)
 			{
 				Destroy();
 				Common.AddScreen(new NewGame());
