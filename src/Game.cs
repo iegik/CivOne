@@ -249,7 +249,10 @@ namespace CivOne
 				.ToArray();
 			if (player.CityNamesSkipped >= available.Length)
 				return 0;
-			return available[player.CityNamesSkipped];
+
+            var nameId = available[player.CityNamesSkipped];
+            Log($"AI: {player.LeaderName} of the {player.TribeNamePlural} decides to found {CityNames[nameId]}.");
+            return nameId;
 		}
 
 		internal City AddCity(Player player, int nameId, int x, int y)
