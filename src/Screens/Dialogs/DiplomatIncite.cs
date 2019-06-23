@@ -64,10 +64,11 @@ namespace CivOne.Screens.Dialogs
 
 			if (Human == _cityToIncite.Owner || Human == _diplomat.Owner)
             {
-                if (Settings.Animations != GameOption.Off)
+                // TODO KBR not showing loses side-effects
+                //if (!Game.Animations)
                     GameTask.Insert(captureCity);
-                else
-                    capture_done(null, null);
+                //else
+                //    capture_done(null, null);
             }
             else
             {

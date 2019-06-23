@@ -275,10 +275,11 @@ namespace CivOne.Units
 
 					IList<IAdvance> advancesToSteal = GetAdvancesToSteal(capturedCity.Player);
 
-					if (Human == capturedCity.Owner || Human == Owner)
+                    // KBR TODO copy-pasta code
+                    if (Human == capturedCity.Owner || Human == Owner)
 					{
-                        // TODO KBR consider implementing 'no animations' as a go-directly-to-done option inside the Show?
-                        if (Settings.Animations != GameOption.Off) // KBR no animations
+                        // TODO KBR not showing loses side-effects
+                        //if (!Game.Animations) // KBR no animations
                         {
                             Show captureCity = Show.CaptureCity(capturedCity);
                             captureCity.Done += (s1, a1) =>
@@ -290,12 +291,12 @@ namespace CivOne.Units
                             };
                             GameTask.Insert(captureCity);
                         }
-                        else
-                        {
-                            changeOwner();
-                            if (capturedCity.Size > 0 && Human == Owner)
-                                GameTask.Insert(Show.CityManager(capturedCity));
-                        }
+                        //else
+                        //{
+                        //    changeOwner();
+                        //    if (capturedCity.Size > 0 && Human == Owner)
+                        //        GameTask.Insert(Show.CityManager(capturedCity));
+                        //}
 
                         if (advancesToSteal.Any())
 							GameTask.Enqueue(Show.SelectAdvanceAfterCityCapture(Player, advancesToSteal));

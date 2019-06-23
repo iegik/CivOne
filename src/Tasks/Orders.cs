@@ -91,7 +91,8 @@ namespace CivOne.Tasks
 			{
 				if (_player.IsHuman)
 				{
-                    if (Settings.Animations != Enums.GameOption.Off)
+                    // TODO KBR not showing may lose side-effects
+                    //if (!Game.Animations)
                     {
                         CityView cityView = new CityView(_city, founded: true);
                         cityView.Closed += CityFounded;
@@ -99,7 +100,7 @@ namespace CivOne.Tasks
                         Common.AddScreen(cityView);
                         return;
                     }
-                    else
+
                     {
                         CityManager cityManager = new CityManager(_city);
                         cityManager.Closed += CityManagerClosed;
