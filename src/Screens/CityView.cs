@@ -778,7 +778,11 @@ namespace CivOne.Screens
 				int totalGold = Game.GetPlayer(_city.Owner).Gold;
 				int cityLuxuries = _city.Luxuries;
 				if (cityLuxuries == 0) cityLuxuries = 1;
-				int captureGold = (int)Math.Floor(((float)totalGold / totalLuxuries) * cityLuxuries);
+
+                // KBR prevent divide-by-zero
+                int captureGold = 0;
+                if (totalLuxuries != 0)
+				    captureGold = (int)Math.Floor(((float)totalGold / totalLuxuries) * cityLuxuries);
 				if (captureGold < 0) captureGold = 0;
 
 				Game.GetPlayer(_city.Owner).Gold -= (short)captureGold;
