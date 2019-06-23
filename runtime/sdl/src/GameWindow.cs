@@ -128,35 +128,34 @@ namespace CivOne
 			_hasUpdate = true;
 			_mouseX = args.X;
 			_mouseY = args.Y;
-			if (Settings.AspectRatio == AspectRatio.ScaledFixed)
-			{
-				PointF scaleF = GetScaleF();
-				GetBorders(out int offsetX, out int offsetY, out _, out _);
-				args = new ScreenEventArgs(args.X - (int)((float)offsetX / scaleF.X), args.Y - (int)((float)offsetY / scaleF.Y), args.Buttons);
-			}
+            args = AdjustMousePos(args);
 			_runtime.InvokeMouseMove(args);
 		}
 
 		private void MouseDown(object sender, ScreenEventArgs args)
+        {
+            args = Transform(args);
+            args = AdjustMousePos(args);
+            _runtime.InvokeMouseDown(args);
+        }
+
+        private ScreenEventArgs AdjustMousePos(ScreenEventArgs args)
+        {
+            if (Settings.AspectRatio == AspectRatio.ScaledFixed)
+            {
+                PointF scaleF = GetScaleF();
+                GetBorders(out int offsetX, out int offsetY, out _, out _);
+                args = new ScreenEventArgs(args.X - (int) ((float) offsetX / scaleF.X),
+                    args.Y - (int) ((float) offsetY / scaleF.Y), args.Buttons);
+            }
+
+            return args;
+        }
+
+        private void MouseUp(object sender, ScreenEventArgs args)
 		{
-			args = Transform(args);
-			if (Settings.AspectRatio == AspectRatio.ScaledFixed)
-			{
-				PointF scaleF = GetScaleF();
-				GetBorders(out int offsetX, out int offsetY, out _, out _);
-				args = new ScreenEventArgs(args.X - (int)((float)offsetX / scaleF.X), args.Y - (int)((float)offsetY / scaleF.Y), args.Buttons);
-			}
-			_runtime.InvokeMouseDown(args);
-		}
-		private void MouseUp(object sender, ScreenEventArgs args)
-		{
-			args = Transform(args);
-			if (Settings.AspectRatio == AspectRatio.ScaledFixed)
-			{
-				PointF scaleF = GetScaleF();
-				GetBorders(out int offsetX, out int offsetY, out _, out _);
-				args = new ScreenEventArgs(args.X - (int)((float)offsetX / scaleF.X), args.Y - (int)((float)offsetY / scaleF.Y), args.Buttons);
-			}
+            args = Transform(args);
+            args = AdjustMousePos(args);
 			_runtime.InvokeMouseUp(args);
 		}
 
