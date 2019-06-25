@@ -41,9 +41,14 @@ namespace CivOne.Screens.Dialogs
 			Cancel();
 		}
 
-		private bool AllowEstablishTradeRoute => (_unit.Home == null) || (_unit.Home.Tile.DistanceTo(_city) >= 10);
+		//private bool AllowEstablishTradeRoute => (_unit.Home == null) || (_unit.Home.Tile.DistanceTo(_city) >= 10);
 
-		protected override void FirstUpdate()
+        public static bool AllowEstablishTradeRoute(Caravan _unit, City _city)
+        {
+            return (_unit.Home == null) || (_unit.Home.Tile.DistanceTo(_city) >= 10);
+        }
+
+        protected override void FirstUpdate()
 		{
 			int choices = _city.IsBuildingWonder ? 3 : 2;
 
@@ -58,7 +63,7 @@ namespace CivOne.Screens.Dialogs
 			};
 
 			menu.Items.Add("Keep moving").OnSelect(KeepMoving);
-			menu.Items.Add("Establish trade route").OnSelect(EstablishTradeRoute).SetEnabled(AllowEstablishTradeRoute);
+			menu.Items.Add("Establish trade route").OnSelect(EstablishTradeRoute).SetEnabled(AllowEstablishTradeRoute(_unit,_city));
 
 			if (_city.IsBuildingWonder)
 			{

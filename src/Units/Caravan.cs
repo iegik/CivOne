@@ -9,6 +9,7 @@
 
 using CivOne.Advances;
 using CivOne.Enums;
+using CivOne.Screens.Dialogs;
 using CivOne.Tasks;
 using CivOne.Tiles;
 
@@ -77,7 +78,13 @@ namespace CivOne.Units
             // KBR Caravan can build wonder even in home city
             if (city != null && city.Owner == Owner && Game.Human == Owner)
             {
-                GameTask.Enqueue(Show.CaravanChoice(this, city));
+                // KBR TODO this seems like bad design: how to determine whether to show a menu, without activating the menu?
+                if (city.IsBuildingWonder || CaravanChoice.AllowEstablishTradeRoute(this,city))
+                    GameTask.Enqueue(Show.CaravanChoice(this, city));
+                else
+                {
+                    MovementTo(relX,relY);
+                }
                 return true;
             }
 
