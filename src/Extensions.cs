@@ -87,7 +87,8 @@ namespace CivOne
 
 		private static CityData GetCityData(this City city, byte id)
 		{
-			IUnit[] units = city.Tile?.Units.Where(x => x.Home == city && x.Fortify).Take(2).ToArray();
+            // KBR TODO fails to take 'fortifyING' into account?
+            IUnit[] units = city.Tile?.Units.Where(x => x.Home == city && x.Fortify).Take(2).ToArray();
 			
 			return new CityData {
 				Id = city.GetId(),
@@ -102,7 +103,8 @@ namespace CivOne
 				Food = (ushort)city.Food,
 				Shields = (ushort)city.Shields,
 				ResourceTiles = city.GetResourceTiles(),
-				FortifiedUnits = units?.Select(x => (byte)x.Type).ToArray()
+                // KBR 20190622 make sure to save fortify/veteran status as per Microprose
+				FortifiedUnits = units?.Select(x => (byte)((int)x.Type | 0x40 | (x.Veteran ? 0x80 : 0))).ToArray()
 			};
 		}
 
