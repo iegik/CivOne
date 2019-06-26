@@ -27,6 +27,8 @@ namespace CivOne.Screens.Reports
 		private bool _update = true;
 		private int _page = 0;
 
+        private int PAGE_SIZE = 17;
+
 		private void DrawCityTrade()
 		{
 			int totalIncome = _cities.Sum(c => c.Taxes);
@@ -35,7 +37,7 @@ namespace CivOne.Screens.Reports
 			this.DrawText("City Trade", 0, 15, 8, 32);
 
 			int yy = 40;
-			for (int i = (_page++ * 18); i < _cities.Length && i < (_page * 18); i++)
+			for (int i = (_page++ * PAGE_SIZE); i < _cities.Length && i < (_page * PAGE_SIZE); i++)
 			{
 				City city = _cities[i];
 
@@ -46,7 +48,7 @@ namespace CivOne.Screens.Reports
 				yy += Resources.GetFontHeight(0);
 			}
 			
-			if ((_page * 18) >= _cities.Length)
+			if ((_page * PAGE_SIZE) >= _cities.Length)
 			{
 				yy += 4;
 				this.DrawText($"Total Income: {totalIncome}$", 0, 10, 8, yy);
@@ -87,7 +89,7 @@ namespace CivOne.Screens.Reports
 
 			this.FillRectangle(0, 32, 320, 168, 2);
 			DrawCityTrade();
-			if ((_page * 18) >= _cities.Length)
+			if ((_page * PAGE_SIZE) >= _cities.Length)
 			{
 				DrawMaintenanceCost();
 			}
@@ -100,7 +102,7 @@ namespace CivOne.Screens.Reports
 
 		private bool NextPage()
 		{
-			if ((_page * 18) < _cities.Length)
+			if ((_page * PAGE_SIZE) < _cities.Length)
 			{
 				_update = true;
 			}
