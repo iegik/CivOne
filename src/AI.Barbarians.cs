@@ -7,20 +7,17 @@
 // You should have received a copy of the CC0 legalcode along with this
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using CivOne.Buildings;
 using CivOne.Enums;
 using CivOne.Tasks;
 using CivOne.Tiles;
 using CivOne.Units;
+using System.Drawing;
+using System.Linq;
 
 namespace CivOne
 {
-	internal partial class AI
+    internal partial class AI
 	{
 		private void BarbarianMove(IUnit unit)
 		{

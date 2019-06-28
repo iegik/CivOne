@@ -298,7 +298,8 @@ namespace CivOne.Units
                         //        GameTask.Insert(Show.CityManager(capturedCity));
                         //}
 
-                        if (advancesToSteal.Any())
+                        // KBR 20190628 no 'select advance' dialog when non-human is doing the capturing!
+                        if (advancesToSteal.Any() && Human==Owner)
 							GameTask.Enqueue(Show.SelectAdvanceAfterCityCapture(Player, advancesToSteal));
 					}
 					else
