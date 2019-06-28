@@ -14,6 +14,7 @@ using CivOne.Tiles;
 using CivOne.Units;
 using CivOne.UserInterface;
 using CivOne.Buildings;
+using CivOne.Civilizations;
 
 namespace CivOne.Screens.Dialogs
 {
@@ -24,9 +25,9 @@ namespace CivOne.Screens.Dialogs
 		private readonly BaseUnitLand _unitToBribe;
 		private readonly Diplomat _diplomat;
 
-		private int _bribeCost;
+		private readonly int _bribeCost;
 
-		private bool _canBribe;
+		private readonly bool _canBribe;
 
 		private void DontBrbe(object sender, EventArgs args)
 		{
@@ -49,9 +50,11 @@ namespace CivOne.Screens.Dialogs
 			City capital = unitToBribe.Player.Cities.Where(c => c.HasBuilding(new Palace())).FirstOrDefault();
 
 			int distance = capital == null ? 16 : unitToBribe.Tile.DistanceTo(capital);
-			
-			return ((unitToBribe.Player.Gold + 750) / (distance + 2)) * unitToBribe.Price;
-		}
+
+            int cost = ((unitToBribe.Player.Gold + 750) / (distance + 2)) * unitToBribe.Price;
+            // KBR 20190628 barbarian cost is 50%
+            return (unitToBribe.Player.Civilization is Barbarian) ? cost / 2 : cost;
+        }
 
 		private static bool CanBribe(BaseUnitLand unitToBribe, short gold)
 		{
