@@ -109,7 +109,6 @@ namespace CivOne.Screens.Dialogs
 			
 			AddMenu(menu);
 
-            // TODO KBR does diplomat lose a turn on cancel?
             // TODO KBR is there any dialog-based menu which DOESN'T want these established?
             menu.Cancel += Cancel;
             menu.MissClick += Cancel;

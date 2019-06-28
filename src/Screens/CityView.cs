@@ -87,7 +87,6 @@ namespace CivOne.Screens
 					int xx = (_x - 65) - (48 * i);
 					if (xx + 78 <= 0) continue;
 					this.AddLayer(_invadersOrRevolters[frame], xx, _y);
-					Log($"i {i}, _x {_x}, xx {xx}, _y {_y}");
 				}
 				_x++;
 				return true;
