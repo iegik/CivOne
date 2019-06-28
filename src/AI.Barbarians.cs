@@ -7,8 +7,11 @@
 // You should have received a copy of the CC0 legalcode along with this
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using CivOne.Buildings;
 using CivOne.Enums;
 using CivOne.Tasks;
@@ -37,7 +40,7 @@ namespace CivOne
 
 		private void BarbarianMoveWater(IUnit unit)
 		{
-			if (!unit.Tile.Units.Any(x => x.Class == UnitClass.Land))
+			if (unit.Tile.Units.All(x => x.Class != UnitClass.Land))
 			{
 				Game.DisbandUnit(unit);
 				return;
@@ -87,7 +90,7 @@ namespace CivOne
 						unit.Goto = Point.Empty;
 						continue;
 					}
-					else if (tiles[0].DistanceTo(unit.Goto) == distance)
+					if (tiles[0].DistanceTo(unit.Goto) == distance)
 					{
 						// Distance is unchanged, 50% chance to cancel goto
 						if (Common.Random.Next(0, 100) < 50)
@@ -152,9 +155,22 @@ namespace CivOne
 					unit.SkipTurn();
 					return;
 				}
-			}
 
-			ITile[] tiles = unit.Tile.GetBorderTiles().Where(t => !((unit.Tile.IsOcean || unit is Diplomat) && t.City != null) && !t.IsOcean && t.Units.Any(u => u.Owner != 0)).ToArray();
+                // KBR 20180628 Do NOT move barbarian leader onto enemy unit!
+                ITile[] unfriend = unit.Tile.GetBorderTiles().Where(z=> !z.IsOcean && !z.Units.Any()).ToArray();
+                if (unfriend.Length > 0)
+                {
+                    ITile moveTo = unfriend[Common.Random.Next(unfriend.Length)];
+                    int relX = moveTo.X - unit.X;
+                    int relY = moveTo.Y - unit.Y;
+                    unit.MoveTo(relX, relY);
+                    return;
+                }
+                unit.SkipTurn();
+                return;
+            }
+
+            ITile[] tiles = unit.Tile.GetBorderTiles().Where(t => !((unit.Tile.IsOcean || unit is Diplomat) && t.City != null) && !t.IsOcean && t.Units.Any(u => u.Owner != 0)).ToArray();
 			if (tiles.Length == 0)
 			{
 				// No adjecent units found
@@ -175,16 +191,17 @@ namespace CivOne
 				Game.DisbandUnit(unit);
 			}
 			else
-			{
-				ITile moveTo = tiles[Common.Random.Next(tiles.Length)];
-				int relX = moveTo.X - unit.X;
-				int relY = moveTo.Y - unit.Y;
-				while (relX < -1) relX += 80;
-				while (relX > 1) relX -= 80;
-				if (unit is Diplomat && unit.Tile.City != null) return;
+            {
+                ITile moveTo = tiles[Common.Random.Next(tiles.Length)];
+                int relX = moveTo.X - unit.X;
+                int relY = moveTo.Y - unit.Y;
+                while (relX < -1) relX += 80;
+                while (relX > 1) relX -= 80;
+                if (unit is Diplomat && unit.Tile.City != null) return;
 
-				unit.MoveTo(relX, relY);
-			}
-		}
+                unit.MoveTo(relX, relY);
+                return;
+            }
+        }
 	}
 }
