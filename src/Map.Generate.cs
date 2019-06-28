@@ -375,59 +375,25 @@ namespace CivOne
 				
 				if (north == null || west == null) continue;
 				if (north.IsOcean != west.IsOcean) continue;
-				
-				// Merge continents
-				if (north.ContinentId != west.ContinentId && north.ContinentId > 0 && west.ContinentId > 0)
-				{
-					int northCount = AllTiles().Count(t => t.ContinentId == north.ContinentId);
-					int westCount = AllTiles().Count(t => t.ContinentId == west.ContinentId);
-					if (northCount > westCount)
-					{
-						foreach (ITile westTile in AllTiles().Where(t => t.ContinentId == west.ContinentId))
-						{
-							westTile.ContinentId = north.ContinentId;
-						}
-						continue;
-					}
-					foreach (ITile northTile in AllTiles().Where(t => t.ContinentId == north.ContinentId))
-					{
-						northTile.ContinentId = west.ContinentId;
-					}
-				}
+
+                MergeContinents(north, west);
 			}
-			
-			for (int x = 0; x < WIDTH; x++)
+
+            for (int x = 0; x < WIDTH; x++)
 			for (int y = 0; y < HEIGHT; y++)
 			{
-				ITile tile = this[x, y], north = this[x, y - 1], west = this[x - 1, y];
+				ITile north = this[x, y - 1], west = this[x - 1, y];
 				
 				if (north == null || west == null) continue;
 				if (north.IsOcean != west.IsOcean) continue;
 				
-				// Merge continents
-				if (north.ContinentId != west.ContinentId && north.ContinentId > 0 && west.ContinentId > 0)
-				{
-					int northCount = AllTiles().Count(t => t.ContinentId == north.ContinentId);
-					int westCount = AllTiles().Count(t => t.ContinentId == west.ContinentId);
-					if (northCount > westCount)
-					{
-						foreach (ITile westTile in AllTiles().Where(t => t.ContinentId == west.ContinentId))
-						{
-							westTile.ContinentId = north.ContinentId;
-						}
-						continue;
-					}
-					foreach (ITile northTile in AllTiles().Where(t => t.ContinentId == north.ContinentId))
-					{
-						northTile.ContinentId = west.ContinentId;
-					}
-				}
+				MergeContinents(north, west);
 			}
 			
 			List<ITile[]> continents = new List<ITile[]>();
 			for (int i = 0; i <= 255; i++)
 			{
-				if (!AllTiles().Any(x => x.ContinentId == i)) continue;
+				if (AllTiles().All(x => x.ContinentId != i)) continue;
 				continents.Add(AllTiles().Where(x => x.ContinentId == i).ToArray());
 			}
 			for (byte i = 1; i < 15; i++)
@@ -446,24 +412,47 @@ namespace CivOne
 			{
 				tile.ContinentId = 15;
 			}
-		}
+
+            void MergeContinents(ITile north, ITile west)
+            {
+                if (north.ContinentId != west.ContinentId && north.ContinentId > 0 && west.ContinentId > 0)
+                {
+                    int northCount = AllTiles().Count(t => t.ContinentId == north.ContinentId);
+                    int westCount = AllTiles().Count(t => t.ContinentId == west.ContinentId);
+                    if (northCount > westCount)
+                    {
+                        foreach (ITile westTile in AllTiles().Where(t => t.ContinentId == west.ContinentId))
+                        {
+                            westTile.ContinentId = north.ContinentId;
+                        }
+
+                        return;
+                    }
+
+                    foreach (ITile northTile in AllTiles().Where(t => t.ContinentId == north.ContinentId))
+                    {
+                        northTile.ContinentId = west.ContinentId;
+                    }
+                }
+            }
+        }
 		
 		private void CreatePoles()
 		{
 			Log("Map: Creating poles");
 			
 			for (int x = 0; x < WIDTH; x++)
-			foreach (int y in new int[] { 0, (HEIGHT - 1) })
-			{
-				_tiles[x, y] = new Arctic(x, y, false);
-			}
+                foreach (int y in new[] { 0, (HEIGHT - 1) })
+			    {
+				    _tiles[x, y] = new Arctic(x, y, false);
+			    }
 			
 			for (int i = 0; i < (WIDTH / 4); i++)
-			foreach (int y in new int[] { 0, 1, (HEIGHT - 2), (HEIGHT - 1) })
-			{
-				int x = Common.Random.Next(WIDTH);
-				_tiles[x, y] = new Tundra(x, y, false);
-			}
+			    foreach (int y in new[] { 0, 1, (HEIGHT - 2), (HEIGHT - 1) })
+			    {
+				    int x = Common.Random.Next(WIDTH);
+				    _tiles[x, y] = new Tundra(x, y, false);
+			    }
 		}
 		
 		private void PlaceHuts()
@@ -529,7 +518,7 @@ namespace CivOne
 					if (Math.Abs(xx) <= 1 && Math.Abs(yy) <= 1 && (xx != 0 || yy != 0)) val *= 2;
 					
 					// If the neighbour square is the North square (relative offset 0,-1), then multiply the neighbour value by 2 ;
-					// note: I actually think that this is a bug, and that the intention was rather to multiply by 2 if the 'neighbour'
+					// note: I actually think that this is an issue, and that the intention was rather to multiply by 2 if the 'neighbour'
 					// was the central map square itself... the actual CIV code for this is to check if the 'neighbour index' is '0';
 					// the neighbour index is used to retrieve the neighbour's relative offset coordinates (x,y) from the central square,
 					// and the central square itself is actually the last in the list (index 20), the first one (index 0) being
