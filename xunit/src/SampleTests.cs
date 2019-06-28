@@ -16,22 +16,30 @@ namespace CivOne.UnitTests
 	{
 		[Fact]
 		public void CityNamesCount()
-		{
-			int expectedCount = 256;
-			int count = Common.AllCityNames.Count();
-			bool result = (count == expectedCount);
+        {
+            RuntimeSettings rs = new RuntimeSettings();
+            using (var runtime = new MockRuntime(rs))
+            {
+                int expectedCount = 256;
+                int count = Common.AllCityNames.Count();
+                bool result = (count == expectedCount);
 
-			Assert.True(result, $"Common.AllCityNames should have {expectedCount} entries, returns {count}.");
-		}
+                Assert.True(result, $"Common.AllCityNames should have {expectedCount} entries, returns {count}.");
+            }
+        }
 
 		[Fact]
 		public void PaletteColourCount()
 		{
-			int expectedCount = 256;
-			int count = Common.DefaultPalette.Length;
-			bool result = (count == expectedCount);
-			
-			Assert.True(result, $"Common.DefaultPalette should have {expectedCount} entries, returns {count}.");
-		}
+            RuntimeSettings rs = new RuntimeSettings();
+            using (var runtime = new MockRuntime(rs))
+            {
+                int expectedCount = 256;
+                int count = Common.DefaultPalette.Length;
+                bool result = (count == expectedCount);
+
+                Assert.True(result, $"Common.DefaultPalette should have {expectedCount} entries, returns {count}.");
+            }
+        }
 	}
 }
