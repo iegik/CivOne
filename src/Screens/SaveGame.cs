@@ -7,80 +7,19 @@
 // You should have received a copy of the CC0 legalcode along with this
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using CivOne.Enums;
 using CivOne.Events;
 using CivOne.Graphics;
 using CivOne.UserInterface;
+using System;
+using System.Linq;
 
 namespace CivOne.Screens
 {
-	[Modal]
+    [Modal]
 	internal class SaveGame : BaseScreen
 	{
-		private class SaveGameFile
-		{
-			public bool ValidFile { get; private set; }
-			public string SveFile { get; private set; }
-			public string MapFile { get; private set; }
-			public int Difficulty { get; private set; }
-			
-			public string Name { get; private set; }
-			
-			private ushort ReadUShort(BinaryReader reader, int position)
-			{
-				return Common.BinaryReadUShort(reader, position);
-			}
-			
-			private string[] ReadStrings(BinaryReader reader, int position, int length, int itemLength)
-			{
-				return Common.BinaryReadStrings(reader, position, length, itemLength);
-			}
-			
-			public SaveGameFile(string filename)
-			{
-				ValidFile = false;
-				Name = "(EMPTY)";
-				SveFile = string.Format("{0}.SVE", filename);
-				MapFile = string.Format("{0}.MAP", filename);
-				if (!File.Exists(SveFile) || !File.Exists(MapFile)) return;
-				
-				try
-				{
-					using (FileStream fs = new FileStream(SveFile, FileMode.Open))
-					using (BinaryReader br = new BinaryReader(fs))
-					{
-						if (fs.Length != 37856)
-						{
-							Name = "(INCORRECT FILE SIZE)";
-							return;
-						}
-
-						string turn = Common.YearString(ReadUShort(br, 0));
-						ushort humanPlayer = ReadUShort(br, 2);
-						ushort difficultyLevel = ReadUShort(br, 10);
-						string leaderName = ReadStrings(br, 16, 112, 14)[humanPlayer];
-						string civName = ReadStrings(br, 128, 96, 12)[humanPlayer];
-						string tribeName = ReadStrings(br, 224, 88, 11)[humanPlayer];
-						string title = Common.DifficultyName(difficultyLevel);
-						
-						Name = string.Format("{0} {1}, {2}/{3}", title, leaderName, civName, turn);
-						Difficulty = (int)difficultyLevel;
-					}
-					ValidFile = true;
-				}
-				catch(Exception ex)
-				{
-					Log($"Could not open .SVE file: {ex.InnerException}");
-					Name = "(COULD NOT READ SAVE FILE HEADER)";
-				}
-			}
-		}
-		
-		internal static int SelectedGame = 0;
+        internal static int SelectedGame = 0;
 		
 		private char _driveLetter = 'C';
 		private readonly int _border = Common.Random.Next(2);
@@ -90,17 +29,7 @@ namespace CivOne.Screens
 		private Menu _menu;
 
 		public override MouseCursor Cursor => (_menu == null ? MouseCursor.Pointer : MouseCursor.None);
-		
-		private IEnumerable<SaveGameFile> GetSaveGames()
-		{
-			string path = Path.Combine(Settings.SavesDirectory, char.ToLower(_driveLetter).ToString());
-			for (int i = 0; i < 10; i++)
-			{
-				string filename = Path.Combine(path, string.Format("CIVIL{0}", i));
-				yield return new SaveGameFile(filename);
-			}
-		}
-		
+        
 		private void SaveFile(object sender, EventArgs args)
 		{
 			int item = (sender as MenuItem<int>).Value;
@@ -109,7 +38,7 @@ namespace CivOne.Screens
 			_saving = true;
 			_update = true;
 
-			SaveGameFile file = GetSaveGames().ToArray()[item];
+			SaveGameFile file = SaveGameFile.GetSaveGames(_driveLetter).ToArray()[item];
 			Game.Save(file.SveFile, file.MapFile);
 		}
 		
@@ -197,7 +126,7 @@ namespace CivOne.Screens
 			{
 				if (_gameId >= 0)
 				{
-					SaveGameFile file = GetSaveGames().ToArray()[_gameId];
+					SaveGameFile file = SaveGameFile.GetSaveGames(_driveLetter).ToArray()[_gameId];
 					Game.Save(file.SveFile, file.MapFile);
 					_saving = true;
 					_update = true;
@@ -219,7 +148,7 @@ namespace CivOne.Screens
 				};
 				
 				int i = 0;
-				foreach (SaveGameFile file in GetSaveGames().Take(4))
+				foreach (SaveGameFile file in SaveGameFile.GetSaveGames(_driveLetter).Take(4))
 				{
 					_menu.Items.Add(file.Name, i++).OnSelect(SaveFile);
 				}

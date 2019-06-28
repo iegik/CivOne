@@ -24,7 +24,7 @@ namespace CivOne
 		protected static Settings Settings => Settings.Instance;
 		protected static MenuCollection Menus => MenuCollection.Instance;
 
-		protected static void Log(string text, params object[] parameters) => Runtime.Log(text, parameters);
+		protected internal static void Log(string text, params object[] parameters) => Runtime.Log(text, parameters);
 		protected static void PlaySound(string filename)
 		{
 			if (!(Game.Started && Game.Sound) || Settings.Sound == GameOption.Off || !File.Exists(filename = filename.GetSoundFile())) return;
