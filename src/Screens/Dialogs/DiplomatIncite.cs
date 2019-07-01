@@ -9,17 +9,15 @@
 
 using System;
 using System.Linq;
+using CivOne.Buildings;
 using CivOne.Graphics;
-using CivOne.Tiles;
+using CivOne.Tasks;
 using CivOne.Units;
 using CivOne.UserInterface;
-using CivOne.Buildings;
-using CivOne.Enums;
-using CivOne.Tasks;
 
 namespace CivOne.Screens.Dialogs
 {
-	internal class DiplomatIncite : BaseDialog
+    internal class DiplomatIncite : BaseDialog
 	{
 		private const int FONT_ID = 0;
 
@@ -45,6 +43,13 @@ namespace CivOne.Screens.Dialogs
 				Game.DisbandUnit(_diplomat);
 				_cityToIncite.Owner = _diplomat.Owner;
 
+                // fire-eggs 20190701 city units must convert
+                // TODO fire-eggs not all units _always_ convert, e.g. settlers ?
+                foreach (var unit in _cityToIncite.Units)
+                {
+                    unit.Owner = _diplomat.Owner;
+                }
+
 				// remove half the buildings at random
 				foreach (IBuilding building in _cityToIncite.Buildings.Where(b => Common.Random.Next(0, 1) == 1).ToList())
 				{
@@ -55,6 +60,7 @@ namespace CivOne.Screens.Dialogs
 
 				previousOwner.IsDestroyed();
 
+                // TODO fire-eggs not sure if human-city being incited should be here [except incite of rebelling human city?]
 				if (Human == _cityToIncite.Owner || Human == _diplomat.Owner)
 				{
 					GameTask.Insert(Tasks.Show.CityManager(_cityToIncite));
@@ -64,7 +70,7 @@ namespace CivOne.Screens.Dialogs
 
 			if (Human == _cityToIncite.Owner || Human == _diplomat.Owner)
             {
-                // TODO KBR not showing loses side-effects
+                // TODO fire-eggs not showing loses side-effects
                 //if (!Game.Animations)
                     GameTask.Insert(captureCity);
                 //else

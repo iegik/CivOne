@@ -26,13 +26,13 @@ namespace CivOne.Units
 
 		public static int InciteCost(City cityToIncite)
 		{
-			City capital = cityToIncite.Player.Cities.Where(c => c.HasBuilding(new Palace())).FirstOrDefault();
+			City capital = cityToIncite.Player.Cities.FirstOrDefault(c => c.HasBuilding(new Palace()));
 
 			int distance = capital == null ? 16 : cityToIncite.Tile.DistanceTo(capital);
 			
 			int cost = (cityToIncite.Player.Gold + 1000) / (distance + 3);
 
-			// todo: if city is in disorder need to halve the cost
+			// if city is in disorder need to halve the cost
             if (cityToIncite.IsInDisorder)
                 cost /= 2;
 
