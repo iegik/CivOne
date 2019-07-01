@@ -210,19 +210,16 @@ namespace CivOne
 
                     IUnit unit = CreateUnit((UnitType)unitId, city.X, city.Y);
                     if (unit == null)
-                        continue; // TODO log this failure!
+                    {
+                        Log("Unknown fortified unit found: {0}", fortifiedUnit);
+                        continue;
+                    }
 
-					unit.Status = (byte)(fortified ? 8 : 0 + (veteran ? 32 : 0));
+                    unit.Status = (byte)(fortified ? 8 : 0 + (veteran ? 32 : 0));
 
 					unit.Owner = city.Owner;
 					unit.SetHome(city);
 					_units.Add(unit);
-
-				/*if (city.IsInDisorder)
-				{
-					city.WasInDisorder = true;
-				}*/
-
 				}
 
 				cityList.Add(cityData.Id, city);
