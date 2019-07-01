@@ -31,11 +31,8 @@ namespace CivOne
 		private byte _owner;
 		internal byte Owner
 		{
-			get
-			{
-				return _owner;
-			}
-			set
+			get => _owner;
+            set
 			{
 				_owner = value;
 				ResetResourceTiles();
@@ -45,11 +42,8 @@ namespace CivOne
 		private byte _size;
 		internal byte Size
 		{
-			get
-			{
-				return _size;
-			}
-			set
+			get => _size;
+            set
 			{
 				if (X == 255 || Y == 255) return;
 

@@ -738,7 +738,8 @@ namespace CivOne.Screens
 			DrawBuildings();
 			this.AddLayer(_background);
 			
-			if (_captured = captured)
+            // ReSharper disable once AssignmentInConditionalExpression
+            if (_captured = captured)
 			{
 				Picture invaders;
 				int xx = 0, yy = 2, ww = 78, hh = 60;
@@ -769,6 +770,7 @@ namespace CivOne.Screens
 				}
 				_x = 0;
 
+                // TODO fire-eggs the captured gold calc seems wrong
 				int totalLuxuries = Game.GetPlayer(_city.Owner).Cities.Sum(x => x.Luxuries);
 				int totalGold = Game.GetPlayer(_city.Owner).Gold;
 				int cityLuxuries = _city.Luxuries;
@@ -783,21 +785,12 @@ namespace CivOne.Screens
 				Game.GetPlayer(_city.Owner).Gold -= (short)captureGold;
 				Game.CurrentPlayer.Gold += (short)captureGold;
 				
-				string[] lines =  new [] { $"{Game.CurrentPlayer.TribeNamePlural} capture", $"{city.Name}. {captureGold} gold", "pieces plundered." };
-				int width = lines.Max(l => Resources.GetTextSize(5, l).Width) + 12;
-				Picture dialog = new Picture(width, 54)
-					.Tile(Pattern.PanelGrey, 1, 1)
-					.DrawRectangle()
-					.DrawRectangle3D(1, 1, width - 2, 52)
-					.DrawText(lines[0], 5, 6, _dialogText)
-					.DrawText(lines[1], 5, 21, _dialogText)
-					.DrawText(lines[2], 5, 36, _dialogText)
-					.As<Picture>();
+				string[] lines = { $"{Game.CurrentPlayer.TribeNamePlural} capture", $"{city.Name}. {captureGold} gold", "pieces plundered." };
+				drawMessage(lines);
+            }
 
-				_background.AddLayer(dialog, 80, 8);
-			}
-
-			if (_disorder = disorder)
+            // ReSharper disable once AssignmentInConditionalExpression
+            if (_disorder = disorder)
 			{
 				Picture revolters;
 				int xx = 1, yy = 1, ww, hh;
@@ -821,31 +814,18 @@ namespace CivOne.Screens
 					_invadersOrRevolters[ii] = revolters[xx + (frameX * (ww + 1)), yy + (frameY * (hh + 1)), ww, hh];
 				}
 				_x = 0;
- 				string[] lines =  new [] { $"Civil disorder in", $"{city.Name}! Mayor", "flees in panic." };
-				int width = lines.Max(l => Resources.GetTextSize(5, l).Width) + 12;
-				Picture dialog = new Picture(width, 54)
-					.Tile(Pattern.PanelGrey, 1, 1)
-					.DrawRectangle()
-					.DrawRectangle3D(1, 1, width - 2, 52)
-					.DrawText(lines[0], 5, 6, _dialogText)
-					.DrawText(lines[1], 5, 21, _dialogText)
-					.DrawText(lines[2], 5, 36, _dialogText)
-					.As<Picture>();
- 				_background.AddLayer(dialog, 80, 8);
+ 				string[] lines = { "Civil disorder in", $"{city.Name}! Mayor", "flees in panic." };
+                drawMessage(lines);
 			}
 
- 			if (_weLovePresidentDay = weLovePresidentDay)
+            // ReSharper disable once AssignmentInConditionalExpression
+            if (_weLovePresidentDay = weLovePresidentDay)
 			{
-				Picture marchers;
 				int xx = 1, yy = 1, ww = 78, hh = 65;
-				if (Game.CurrentPlayer.HasAdvance<Conscription>())
-				{
-					marchers = Resources["LOVE2"];
-				}
-				else
-				{
-					marchers = Resources["LOVE1"];
-				}
+
+                var resourceName = (Game.CurrentPlayer.HasAdvance<Conscription>()) ? "LOVE2" : "LOVE1";
+				Picture marchers = Resources[resourceName];
+
  				_invadersOrRevolters = new Picture[10];
 				for (int ii = 0; ii < 10; ii++)
 				{
@@ -854,20 +834,12 @@ namespace CivOne.Screens
 					_invadersOrRevolters[ii] = marchers[xx + (frameX * (ww + 1)), yy + (frameY * (hh + 1)), ww, hh];
 				}
 				_x = 240;
- 				string[] lines =  new [] { $"'We Love the President'", $"day celebrated in", $"{city.Name}!" };
-				int width = lines.Max(l => Resources.GetTextSize(5, l).Width) + 12;
-				Picture dialog = new Picture(width, 54)
-					.Tile(Pattern.PanelGrey, 1, 1)
-					.DrawRectangle()
-					.DrawRectangle3D(1, 1, width - 2, 52)
-					.DrawText(lines[0], 5, 6, _dialogText)
-					.DrawText(lines[1], 5, 21, _dialogText)
-					.DrawText(lines[2], 5, 36, _dialogText)
-					.As<Picture>();
- 				_background.AddLayer(dialog, 80, 8);
+                // TODO fire-eggs shouldn't this be 'king'/'?'/'president' based on government?
+ 				string[] lines =  { "'We Love the President'", "day celebrated in", $"{city.Name}!" };
+                drawMessage(lines);
 			}
 
-			if (production != null)
+            if (production != null)
 			{
 				_noiseMap = new byte[320, 200];
 				for (int x = 0; x < 320; x++)
@@ -876,7 +848,7 @@ namespace CivOne.Screens
 					_noiseMap[x, y] = (byte)Common.Random.Next(1, NOISE_COUNT);
 				}
 
-				string[] lines =  new [] { $"{_city.Name} builds", $"{(production as ICivilopedia).Name}." };
+				string[] lines =  { $"{_city.Name} builds", $"{(production as ICivilopedia).Name}." };
 				int width = lines.Max(l => Resources.GetTextSize(5, l).Width) + 12;
 				Picture dialog = new Picture(width, 39)
 					.Tile(Pattern.PanelGrey, 1, 1)
@@ -920,6 +892,21 @@ namespace CivOne.Screens
 				int dx = (int)(citizen) + offsetX + (11 * i++), dy = 140;
 				this.AddLayer(Resources["POP"][sx, sy, sw, sh], dx, dy);
 			}
-		}
+
+            void drawMessage(string[] lines)
+            {
+                int width = lines.Max(l => Resources.GetTextSize(5, l).Width) + 12;
+                Picture dialog = new Picture(width, 54)
+                    .Tile(Pattern.PanelGrey, 1, 1)
+                    .DrawRectangle()
+                    .DrawRectangle3D(1, 1, width - 2, 52)
+                    .DrawText(lines[0], 5, 6, _dialogText)
+                    .DrawText(lines[1], 5, 21, _dialogText)
+                    .DrawText(lines[2], 5, 36, _dialogText)
+                    .As<Picture>();
+
+                _background.AddLayer(dialog, 80, 8);
+            }
+        }
 	}
 }
