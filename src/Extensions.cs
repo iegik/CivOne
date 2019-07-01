@@ -87,7 +87,7 @@ namespace CivOne
 
 		private static CityData GetCityData(this City city, byte id)
 		{
-            // KBR TODO fails to take 'fortifyING' into account?
+            // TODO fire-eggs fails to take 'fortifyING' into account?
             IUnit[] units = city.Tile?.Units.Where(x => x.Home == city && x.Fortify).Take(2).ToArray();
 			
 			return new CityData {

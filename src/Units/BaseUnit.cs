@@ -241,7 +241,7 @@ namespace CivOne.Units
 			
 			ITile moveTarget = Map[X, Y][relX, relY];
 			if (moveTarget == null) return false;
-			if (!moveTarget.Units.Any(u => u.Owner != Owner) && moveTarget.City != null && moveTarget.City.Owner != Owner)
+			if (moveTarget.Units.Length == 0 && moveTarget.City != null && moveTarget.City.Owner != Owner)
 			{
 				if (Class != UnitClass.Land)
 				{
@@ -275,30 +275,48 @@ namespace CivOne.Units
 
 					IList<IAdvance> advancesToSteal = GetAdvancesToSteal(capturedCity.Player);
 
-                    // KBR TODO copy-pasta code
                     if (Human == capturedCity.Owner || Human == Owner)
 					{
-                        // TODO KBR not showing loses side-effects
-                        //if (!Game.Animations) // KBR no animations
-                        {
-                            Show captureCity = Show.CaptureCity(capturedCity);
-                            captureCity.Done += (s1, a1) =>
-                            {
-                                changeOwner();
+                        int totalLuxuries = Game.GetPlayer(capturedCity.Owner).Cities.Sum(x => x.Luxuries);
+                        int totalGold = Game.GetPlayer(capturedCity.Owner).Gold;
+                        int cityLuxuries = capturedCity.Luxuries;
+                        if (cityLuxuries == 0) cityLuxuries = 1;
 
-                                if (capturedCity.Size == 0 || Human != Owner) return;
-                                GameTask.Insert(Show.CityManager(capturedCity));
-                            };
+                        // fire-eggs prevent divide-by-zero
+                        int captureGold = 0;
+                        if (totalLuxuries != 0)
+                            captureGold = (int)Math.Floor(((float)totalGold / totalLuxuries) * cityLuxuries);
+                        if (captureGold < 0) captureGold = 0;
+
+                        Game.GetPlayer(capturedCity.Owner).Gold -= (short)captureGold;
+                        Game.CurrentPlayer.Gold += (short)captureGold;
+
+                        string[] lines = { $"{Game.CurrentPlayer.TribeNamePlural} capture", 
+                                           $"{capturedCity.Name}. {captureGold} gold", 
+                                           "pieces plundered." };
+
+                        EventHandler doneCapture = (s1,a1) =>
+                        {
+                            changeOwner();
+
+                            if (capturedCity.Size == 0 || Human != Owner) return;
+                            GameTask.Insert(Show.CityManager(capturedCity));
+                        };
+
+                        if (!Game.Animations)
+                        {
+                            Show captureCity = Show.CaptureCity(capturedCity, lines);
+                            captureCity.Done += doneCapture;
                             GameTask.Insert(captureCity);
                         }
-                        //else
-                        //{
-                        //    changeOwner();
-                        //    if (capturedCity.Size > 0 && Human == Owner)
-                        //        GameTask.Insert(Show.CityManager(capturedCity));
-                        //}
+                        else
+                        {
+                            IScreen captureNews = new Newspaper(capturedCity, lines, false);
+                            captureNews.Closed += doneCapture;
+                            Common.AddScreen(captureNews);
+                        }
 
-                        // KBR 20190628 no 'select advance' dialog when non-human is doing the capturing!
+                        // fire-eggs 20190628 no 'select advance' dialog when non-human is doing the capturing!
                         if (advancesToSteal.Any() && Human==Owner)
 							GameTask.Enqueue(Show.SelectAdvanceAfterCityCapture(Player, advancesToSteal));
 					}

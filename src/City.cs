@@ -1082,7 +1082,10 @@ namespace CivOne
 
 						Player previousOwner = Game.GetPlayer(this.Owner);
 
-						Show captureCity = Show.CaptureCity(this);
+                        // TODO fire-eggs captured gold
+                        // TODO fire-eggs captured advance?
+                        // TODO fire-eggs all owned units convert?
+						Show captureCity = Show.CaptureCity(this, null);
 						captureCity.Done += (s1, a1) =>
 						{
 							this.Owner = admired.Owner;

@@ -704,9 +704,9 @@ namespace CivOne.Screens
 			}
 		}
 
-		public static CityView Capture(City city)
+		public static CityView Capture(City city, string [] message)
 		{
-			return new CityView(city, captured: true);
+			return new CityView(city, message, captured: true);
 		}
 		
 		public static CityView Disorder(City city)
@@ -719,7 +719,7 @@ namespace CivOne.Screens
 			return new CityView(city, weLovePresidentDay: true);
 		}
 
-		public CityView(City city, bool founded = false, bool firstView = false, IProduction production = null, bool captured = false, bool disorder = false, bool weLovePresidentDay = false)
+		public CityView(City city, string [] message = null, bool founded = false, bool firstView = false, IProduction production = null, bool captured = false, bool disorder = false, bool weLovePresidentDay = false)
 		{
 			_dialogText = TextSettings.ShadowText(15, 5);
 			_dialogText.FontId = 5;
@@ -770,23 +770,8 @@ namespace CivOne.Screens
 				}
 				_x = 0;
 
-                // TODO fire-eggs the captured gold calc seems wrong
-				int totalLuxuries = Game.GetPlayer(_city.Owner).Cities.Sum(x => x.Luxuries);
-				int totalGold = Game.GetPlayer(_city.Owner).Gold;
-				int cityLuxuries = _city.Luxuries;
-				if (cityLuxuries == 0) cityLuxuries = 1;
-
-                // KBR prevent divide-by-zero
-                int captureGold = 0;
-                if (totalLuxuries != 0)
-				    captureGold = (int)Math.Floor(((float)totalGold / totalLuxuries) * cityLuxuries);
-				if (captureGold < 0) captureGold = 0;
-
-				Game.GetPlayer(_city.Owner).Gold -= (short)captureGold;
-				Game.CurrentPlayer.Gold += (short)captureGold;
-				
-				string[] lines = { $"{Game.CurrentPlayer.TribeNamePlural} capture", $"{city.Name}. {captureGold} gold", "pieces plundered." };
-				drawMessage(lines);
+                if (message != null)
+				    drawMessage(message);
             }
 
             // ReSharper disable once AssignmentInConditionalExpression

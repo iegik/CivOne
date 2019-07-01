@@ -37,7 +37,10 @@ namespace CivOne.Screens.Dialogs
 		{
 			Player previousOwner = Game.GetPlayer(_cityToIncite.Owner);
 
-			Show captureCity = Show.CaptureCity(_cityToIncite);
+            // TODO fire-eggs gold captured
+            // TODO fire-eggs advance stolen
+
+			Show captureCity = Show.CaptureCity(_cityToIncite, null);
 			EventHandler capture_done = (s1, a1) =>
 			{
 				Game.DisbandUnit(_diplomat);

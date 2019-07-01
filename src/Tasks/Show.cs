@@ -113,7 +113,7 @@ namespace CivOne.Tasks
 
 		public static Show DestroyUnit(IUnit unit, bool stack) => new Show(new DestroyUnit(unit, stack));
 
-		public static Show CaptureCity(City city) => new Show(CityView.Capture(city));
+		public static Show CaptureCity(City city, string [] message) => new Show(CityView.Capture(city, message));
 
 		public static Show DisorderCity(City city) => new Show(CityView.Disorder(city));
 
@@ -137,7 +137,7 @@ namespace CivOne.Tasks
 
 		public static Show Screen<T>() where T : IScreen, new() => new Show(new T());
 
-		public static Show Screen(Type type)
+        private static Show Screen(Type type)
 		{
 			if (!typeof(IScreen).IsAssignableFrom(type)) return null;
 			return new Show((IScreen)Activator.CreateInstance(type));
