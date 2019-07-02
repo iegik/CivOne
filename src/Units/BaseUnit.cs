@@ -13,10 +13,12 @@ using System.Drawing;
 using System.Linq;
 using CivOne.Advances;
 using CivOne.Buildings;
+using CivOne.Civilizations;
 using CivOne.Enums;
 using CivOne.Graphics;
 using CivOne.IO;
 using CivOne.Screens;
+using CivOne.Screens.Dialogs;
 using CivOne.Tasks;
 using CivOne.Tiles;
 using CivOne.UserInterface;
@@ -369,7 +371,19 @@ namespace CivOne.Units
 						PlaySound("they_die");
 					}
 
-					IUnit unit = Map[X, Y][relX, relY].Units.FirstOrDefault();
+                    // fire-eggs 20190702 capture barbarian leader, get ransom
+                    var attackedUnits = Map[X, Y][relX, relY].Units;
+                    if (attackedUnits.Length == 1 && attackedUnits[0] is Diplomat &&
+                        ((BaseUnit) attackedUnits[0]).Player.Civilization is Barbarian)
+                    {
+                        Player.Gold += 100;
+                        if (Human == Player)
+                        {
+                            Common.AddScreen(new MessageBox("Barbarian leader captured!", "100$ ransom paid."));
+                        }
+                    }
+
+                    IUnit unit = attackedUnits.FirstOrDefault();
 					if (unit != null)
 					{
 						GameTask.Insert(Show.DestroyUnit(unit, true));
