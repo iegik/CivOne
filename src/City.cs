@@ -704,15 +704,15 @@ namespace CivOne
 				else
 				{
                     // TODO KBR not showing loses side-effects
-					//if (Player == Human && !Game.Animations) // KBR don't show if animations off
-						{
-							Show disorderCity = Show.DisorderCity(this);
- 							GameTask.Insert(disorderCity);
-						}
+					if (Player.IsHuman) // && !Game.Animations) // KBR don't show if animations off
+					{
+						Show disorderCity = Show.DisorderCity(this);
+ 						GameTask.Insert(disorderCity);
+					}
 					
 					Log($"City {Name} belonging to {Player.TribeName} has gone into disorder");
 				}
- 				if (WasInDisorder && Player.Government is Advances.Democracy)
+ 				if (WasInDisorder && Player.Government is Governments.Democracy)
 				{
 					// todo: Force revolution
 				}
