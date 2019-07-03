@@ -1066,6 +1066,13 @@ namespace CivOne
 						if (city == this)
 							break;
 
+                        // TODO fire-eggs got a null pointer error once. Need to investigate.
+                        if (city.Tile == null)
+                        {
+                            Log($"Appeal check: City tile not set! {city.Name}");
+                            continue;
+                        }
+
 						int appeal = ((city.HappyCitizens - city.UnhappyCitizens) * 32) / city.Tile.DistanceTo(this);
 						if (appeal > 4 && appeal > mostAppeal)
 						{
