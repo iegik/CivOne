@@ -698,7 +698,7 @@ namespace CivOne
 				}
  				if (WasInDisorder)
 				{
-					if (Player == Human)
+					if (Player.IsHuman)
 						GameTask.Insert(Message.Advisor(Advisor.Domestic, true, "Civil Disorder in", $"{Name}! Mayor", "flees in panic."));
 				}
 				else
@@ -722,7 +722,7 @@ namespace CivOne
 			{
 				if (WasInDisorder)
 				{
-					if (Player == Human)
+					if (Player.IsHuman)
 						GameTask.Insert(Message.Advisor(Advisor.Domestic, true, "Order restored", $" in {Name}."));
  					Log($"City {Name} belonging to {Player.TribeName} is no longer in disorder");
 				}
@@ -761,7 +761,7 @@ namespace CivOne
 			{
 				Food -= FoodRequired;
 
-				if (Size == 10 && !_buildings.Any(b => b.Id == (int)Building.Aqueduct))
+				if (Size == 10 && _buildings.All(b => b.Id != (int) Building.Aqueduct))
 				{
 					GameTask.Enqueue(Message.Advisor(Advisor.Domestic, false, $"{Name} requires an AQUEDUCT", "for further growth."));
 				}
@@ -883,7 +883,7 @@ namespace CivOne
 			BuildingSold = false;
 			GameTask.Enqueue(new ProcessScience(Player));
 
-			if (Player == Human) return;
+			if (Player.IsHuman) return;
 			
 			Player.AI.CityProduction(this);
 		}
