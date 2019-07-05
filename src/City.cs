@@ -420,7 +420,7 @@ namespace CivOne
 			//TODO: Correctly load specialists
 		}
 
-		private void ResetResourceTiles()
+		public void ResetResourceTiles()
 		{
 			_resourceTiles.Clear();
 			for (int i = 0; i < Size; i++)

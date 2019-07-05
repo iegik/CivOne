@@ -497,5 +497,13 @@ namespace CivOne
 				return _instance;
 			}
 		}
+
+        /// <summary>
+        /// Fire-eggs 20190704: for unit testing, reset
+        /// </summary>
+        internal static void Wipe()
+        {
+            _instance = null;
+        }
 	}
 }

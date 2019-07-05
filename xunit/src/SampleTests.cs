@@ -8,38 +8,31 @@
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 using System.Linq;
+using CivOne.src;
 using Xunit;
 
 namespace CivOne.UnitTests
 {
-	public class SampleTests
+	public class SampleTests : TestsBase
 	{
 		[Fact]
 		public void CityNamesCount()
         {
-            RuntimeSettings rs = new RuntimeSettings();
-            using (var runtime = new MockRuntime(rs))
-            {
-                int expectedCount = 256;
-                int count = Common.AllCityNames.Count();
-                bool result = (count == expectedCount);
+            int expectedCount = 256;
+            int count = Common.AllCityNames.Count();
+            bool result = (count == expectedCount);
 
-                Assert.True(result, $"Common.AllCityNames should have {expectedCount} entries, returns {count}.");
-            }
+            Assert.True(result, $"Common.AllCityNames should have {expectedCount} entries, returns {count}.");
         }
 
 		[Fact]
 		public void PaletteColourCount()
 		{
-            RuntimeSettings rs = new RuntimeSettings();
-            using (var runtime = new MockRuntime(rs))
-            {
-                int expectedCount = 256;
-                int count = Common.DefaultPalette.Length;
-                bool result = (count == expectedCount);
+            int expectedCount = 256;
+            int count = Common.DefaultPalette.Length;
+            bool result = (count == expectedCount);
 
-                Assert.True(result, $"Common.DefaultPalette should have {expectedCount} entries, returns {count}.");
-            }
+            Assert.True(result, $"Common.DefaultPalette should have {expectedCount} entries, returns {count}.");
         }
 	}
 }
