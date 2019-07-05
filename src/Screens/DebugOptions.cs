@@ -99,13 +99,20 @@ namespace CivOne.Screens
 			Destroy();
 		}
 
+        private void MenuAddBuilding(object sender, EventArgs args)
+        {
+            GameTask.Enqueue(Show.Screen<AddBuilding>());
+            Destroy();
+        }
+
 		protected override bool HasUpdate(uint gameTick)
 		{
 			if (_update)
 			{
 				_update = false;
 
-				Picture menuGfx = new Picture(131, 111)
+                // TODO fire-eggs picture height should be derived from number of menu entries!
+				Picture menuGfx = new Picture(131, 121)
 					.Tile(Pattern.PanelGrey)
 					.DrawRectangle3D()
 					.DrawText("Debug Options:", 0, 15, 4, 4)
@@ -135,6 +142,7 @@ namespace CivOne.Screens
 				menu.Items.Add("Set Player Advances").OnSelect(MenuSetPlayerAdvances);
 				menu.Items.Add("Set City Size").OnSelect(MenuSetCitySize);
 				menu.Items.Add("Cause City Disaster").OnSelect(MenuCityDisaster);
+                menu.Items.Add("Add building to city").OnSelect(MenuAddBuilding);
 				menu.Items.Add("Change Human Player").OnSelect(MenuChangeHumanPlayer);
 				menu.Items.Add("Spawn Unit").OnSelect(MenuSpawnUnit);
 				menu.Items.Add("Meet With King").OnSelect(MenuMeetWithKing);
