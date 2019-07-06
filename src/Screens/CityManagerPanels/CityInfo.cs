@@ -9,6 +9,7 @@
 
 using System.Drawing;
 using System.Linq;
+using CivOne.Buildings;
 using CivOne.Enums;
 using CivOne.Events;
 using CivOne.Graphics;
@@ -17,7 +18,7 @@ using CivOne.Units;
 
 namespace CivOne.Screens.CityManagerPanels
 {
-	internal class CityInfo : BaseScreen
+    internal class CityInfo : BaseScreen
 	{
 		private readonly City _city;
 		private readonly IUnit[] _units;
@@ -49,42 +50,98 @@ namespace CivOne.Screens.CityManagerPanels
 			}
 		}
 
-		private Picture HappyFrame
+        private void DrawHappyRow(Picture output, int yy, int happy, int content, int unhappy, int ent, int sci, int tax)
+        {
+            int dex = 0;
+            for (int x = 0; x < happy; x++)
+                output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.HappyMale : Citizen.HappyFemale), 7 + (8 * dex++), yy);
+            for (int x = 0; x < content; x++)
+                output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.ContentMale : Citizen.ContentFemale), 7 + (8 * dex++), yy);
+            for (int x = 0; x < unhappy; x++)
+                output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.UnhappyMale : Citizen.UnhappyFemale), 7 + (8 * dex++), yy);
+            for (int x = 0; x < ent; x++)
+                output.AddLayer(Icons.Citizen(Citizen.Entertainer), 7 + (8 * dex++), yy);
+            for (int x = 0; x < sci; x++)
+                output.AddLayer(Icons.Citizen(Citizen.Scientist), 7 + (8 * dex++), yy);
+            for (int x = 0; x < tax; x++)
+                output.AddLayer(Icons.Citizen(Citizen.Taxman), 7 + (8 * dex++), yy);
+
+        }
+
+        private void DrawHappyRow(Picture output, int yy, City.CitizenTypes group)
+        {
+            DrawHappyRow(output, yy, group.happy,group.content,group.unhappy, group.elvis, group.einstein, group.taxman);
+        }
+
+        private Picture HappyFrame
 		{
 			get
 			{
-				//TODO: Draw happiness data/stats
 				Picture output = new Picture(144, 83)
 					.FillRectangle(5, 15, 122, 1, 1)
 					.FillRectangle(5, 31, 122, 1, 1)
 					.As<Picture>();
 
-                int hC = _city.HappyCitizens;
-                int cC = _city.ContentCitizens;
-                int uC = _city.UnhappyCitizens;
-                int eC = _city.Entertainers;
-                int sC = _city.Scientists;
-                int bC = _city.Taxmen;
-
-				for (int yy = 1; yy < 30; yy+= 16)
+                using (var residents = _city.Residents.GetEnumerator())
                 {
-                    int dex = 0;
-                    for (int x = 0; x < hC; x++)
-                        output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.HappyMale : Citizen.HappyFemale), 7 + (8 * dex++), yy);
-                    for (int x = 0; x < cC; x++)
-                        output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.ContentMale : Citizen.ContentFemale), 7 + (8 * dex++), yy);
-                    for (int x = 0; x < uC; x++)
-                        output.AddLayer(Icons.Citizen((x % 2 == 0) ? Citizen.UnhappyMale : Citizen.UnhappyFemale), 7 + (8 * dex++), yy);
-                    for (int x = 0; x < eC; x++)
-                        output.AddLayer(Icons.Citizen(Citizen.Entertainer), 7 + (8 * dex++), yy);
-                    for (int x = 0; x < sC; x++)
-                        output.AddLayer(Icons.Citizen(Citizen.Scientist), 7 + (8 * dex++), yy);
-                    for (int x = 0; x < bC; x++)
-                        output.AddLayer(Icons.Citizen(Citizen.Taxman), 7 + (8 * dex++), yy);
-                }
-                // TODO KBR draw icon for layers
+                    // initial state
+                    residents.MoveNext();
+                    var group = residents.Current;
+                    int yy = 1;
+                    DrawHappyRow(output, yy, group);
 
-				return output;
+                    // luxury [row drawn only if there is a change]
+                    yy += 16;
+                    residents.MoveNext();
+                    group = residents.Current;
+                    if (group.happy != 0)
+                    {
+                        DrawHappyRow(output, yy, group);
+                        output.AddLayer(Icons.Luxuries, output.Width - 25, 19);
+                        yy += 16;
+                    }
+
+                    // buildings [row drawn only if there is a change]
+                    // TODO fire-eggs should this be drawn if there are buildings but no change?
+                    if (residents.MoveNext())
+                    {
+                        var group2 = residents.Current;
+                        if (!group2.Equals(group))
+                        {
+                            DrawHappyRow(output, yy, group2);
+                            IBuilding temple = _city.Buildings.FirstOrDefault(b => b is Temple);
+                            if (temple != null)
+                                output.AddLayer(temple.SmallIcon, output.Width - temple.SmallIcon.Width() - 15, yy);
+                            // TODO fire-eggs colosseum, cathedral
+                            yy += 16;
+                            group = group2;
+                        }
+                    }
+
+                    // martial law [row always drawn]
+                    if (residents.MoveNext())
+                    {
+                        var group2 = residents.Current;
+                        if (!group2.Equals(group))
+                        {
+                            DrawHappyRow(output, yy, group2);
+                            yy += 16;
+                            group = group2;
+                        }
+                    }
+
+                    // wonders [row only drawn if change]
+                    if (residents.MoveNext())
+                    {
+                        var group2 = residents.Current;
+                        if (!group2.Equals(group))
+                        {
+                            DrawHappyRow(output, yy, group2);
+                        }
+                    }
+                }
+
+                return output;
 			}
 		}
 		
