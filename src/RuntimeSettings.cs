@@ -60,9 +60,12 @@ namespace CivOne
 
 		public T Get<T>(string customSetting)
 		{
+            if (this[customSetting] == null)
+                return default(T);
+
 			try
 			{
-				return (T)this[customSetting];
+				 return (T)this[customSetting];
 			}
 			catch
 			{
