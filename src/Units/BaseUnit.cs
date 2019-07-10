@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using CivOne.Advances;
@@ -741,10 +742,11 @@ namespace CivOne.Units
                 if (_fortify)
                     result |= 0x8;
                 if (Veteran)
-                    result |= 0x32;
+                    result |= 0x20; // fire-eggs 20190710 incorrect hex value
 
                 (this as Settlers)?.GetStatus(ref result);
 
+                Debug.Assert((result & 3) != 3);
                 return result;
             }
 			set

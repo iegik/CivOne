@@ -157,6 +157,7 @@ namespace CivOne
 
 		public static IEnumerable<UnitData> GetUnitData(this IEnumerable<IUnit> unitList)
 		{
+            // TODO fire-eggs don't do this - only applicable in specific situation which no-one understands!
 			// Remove two fortified units in home city (this data is stored in city data)
 			IEnumerable<IUnit> filteredUnits = unitList.ToList().FilterUnits();
 
