@@ -156,11 +156,12 @@ namespace CivOne
 				}
 
 				using (Picture picture = new Picture(bitmap, Resources["SP299"].Palette))
-				{
-					PicFile picFile = new PicFile(picture)
-					{
-						HasPalette256 = false
-					};
+                {
+                    PicFile picFile = new PicFile(picture);
+                    // fire-eggs 20190710 removing this allows JCivEd to load the .MAP file as a .PIC
+					//{
+					//	HasPalette256 = false
+					//};
 					using (BinaryWriter bw = new BinaryWriter(File.Open(filename, FileMode.Create)))
 					{
 						bw.Write(picFile.GetBytes());
