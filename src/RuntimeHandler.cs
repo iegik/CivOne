@@ -212,7 +212,14 @@ namespace CivOne
 		{
 			Runtime = runtime;
 
-			runtime.Initialize += OnInitialize;
+            // fire-eggs 20170711 init the RNG if user specified
+            if (runtime.Settings.InitialSeed != 0)
+                Common.SetRandomSeed(runtime.Settings.InitialSeed);
+            else
+                Common.SetRandomSeed(-1);
+
+
+            runtime.Initialize += OnInitialize;
 			runtime.Update += OnUpdate;
 			runtime.Draw += OnDraw;
 			runtime.KeyboardUp += OnKeyboardUp;

@@ -28,7 +28,7 @@ namespace CivOne
 		private static Resources Resources => Resources.Instance;
 		private static void Log(string text, params object[] parameters) => RuntimeHandler.Runtime.Log(text, parameters);
 
-		public static Random Random = new Random((int)DateTime.Now.Ticks);
+		public static Random Random; // = new Random((int)DateTime.Now.Ticks);
 		
 		public static IAdvance[] Advances = Reflect.GetAdvances().ToArray();
 		public static IBuilding[] Buildings = Reflect.GetBuildings().ToArray();

@@ -20,6 +20,10 @@ namespace CivOne
 		public bool Demo { get; set; }
 		public bool Setup { get; set; }
 		public bool DataCheck { get; set; }
+
+        // fire-eggs 20190711 allow specifying the initial RNG seed for game repeatability/debugging
+        public short InitialSeed { get; set; }
+
 		public bool Free
 		{
 			get
