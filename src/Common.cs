@@ -82,18 +82,7 @@ namespace CivOne
 
 		public static GamePlay GamePlay => (GamePlay)_screens.FirstOrDefault(x => x is GamePlay);
 
-		internal static void SetRandomSeedFromName(string name)
-		{
-			short number = 0;
-			foreach (char c in name)
-            {
-                byte charByte = (byte) c;
-                number += charByte;
-            }
-			SetRandomSeed(number);
-		}
-
-        private static void SetRandomSeed(short seed) => Random = new Random(seed);
+        internal static void SetRandomSeed(short seed) => Random = new Random(seed);
 		
 		internal static void AddScreen(IScreen screen) => _screens.Add(screen);
 		

@@ -288,12 +288,28 @@ namespace CivOne.Screens
 				DrawBuilding<T>(_overlay, x, y + offset);
 		}
 
-		private CityViewMap[,] GetCityMap
+        internal static short GetRandomSeedFromName(string name)
+        {
+            short number = 0;
+            foreach (char c in name)
+            {
+                byte charByte = (byte)c;
+                number += charByte;
+            }
+
+            return number;
+        }
+
+        private CityViewMap[,] GetCityMap
 		{
 			get
 			{
-				Common.SetRandomSeedFromName(_city.Name);
-				_houseType = Common.Random.Next(2);
+                // fire-eggs 20190711 do NOT set the global RNG! Using a consistant RNG for
+                // the city view is great (we get a consistant city), but modifying the 
+                // global RNG means a less random game!
+                Random localRandom = new Random(GetRandomSeedFromName(_city.Name));
+				//Common.SetRandomSeedFromName(_city.Name);
+				_houseType = localRandom.Next(2);
 
 				CityViewMap[,] cityMap = new CityViewMap[18,11];
 				for (int yy = 0; yy < 11; yy++)
@@ -317,8 +333,8 @@ namespace CivOne.Screens
 				{
 					for (int t = 0; t < 16; t++)
 					{
-						int relX = Common.Random.Next(-1, 2);
-						int relY = Common.Random.Next(-1, 2);
+						int relX = localRandom.Next(-1, 2);
+						int relY = localRandom.Next(-1, 2);
 						if (relX == 0 && relY == 0) continue;
 						bx += relX;
 						by += relY;
@@ -326,7 +342,7 @@ namespace CivOne.Screens
 						while (bx >= ww + ((18 - ww) / 2)) bx--;
 						while (by < 0) by++;
 						while (by >= hh) by--;
-						int type = Common.Random.Next(8);
+						int type = localRandom.Next(8);
 						if (cityMap[bx, by] != CityViewMap.Empty) continue;
 						if (type < 6)
 							cityMap[bx, by] = CityViewMap.House;
@@ -335,8 +351,8 @@ namespace CivOne.Screens
 					}
 					for (int i = 0; i < 1000; i++)
 					{
-						bx = Common.Random.Next(ww) + ((18 - ww) / 2);
-						by = Common.Random.Next(hh);
+						bx = localRandom.Next(ww) + ((18 - ww) / 2);
+						by = localRandom.Next(hh);
 						if (cityMap[bx, by] != CityViewMap.Empty) continue;
 						for (int ix = -1; ix < 2; ix++)
 						for (int iy = -1; iy < 2; iy++)
@@ -412,8 +428,8 @@ namespace CivOne.Screens
 
 						for (int i = 0; i < 1000; i++)
 						{
-							int xx = Common.Random.Next(15) + 1;
-							int yy = Common.Random.Next(10);
+							int xx = localRandom.Next(15) + 1;
+							int yy = localRandom.Next(10);
 							if (xx == 6 || xx == 11 || yy == 2 || yy == 6) continue;
 							if (xx == 5 || xx == 10 || yy == 1 || yy == 5) continue;
 							if (xx + sizeX > cityMap.GetLength(0) || yy + sizeY > cityMap.GetLength(1)) continue;
