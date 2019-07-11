@@ -155,7 +155,15 @@ namespace CivOne
 					bitmap[x + (WIDTH * 2), y] = _tiles[x, y].Visited;
 				}
 
-				using (Picture picture = new Picture(bitmap, Resources["SP299"].Palette))
+                // Layer 2: area segmentation
+                for (int x = 0; x < WIDTH; x++)
+                for (int y = 0; y < HEIGHT; y++)
+                {
+                    bitmap[x, y + HEIGHT] = _tiles[x, y].ContinentId;
+                    bitmap[x + WIDTH, y + HEIGHT] = 0;
+                }
+
+                using (Picture picture = new Picture(bitmap, Resources["SP299"].Palette))
                 {
                     PicFile picFile = new PicFile(picture);
                     // fire-eggs 20190710 removing this allows JCivEd to load the .MAP file as a .PIC
