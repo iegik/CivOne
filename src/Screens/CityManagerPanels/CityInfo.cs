@@ -149,7 +149,6 @@ namespace CivOne.Screens.CityManagerPanels
 		{
 			get
 			{
-				//TODO: Draw map
 				Picture output = new Picture(144, 83)
 					.FillRectangle(5, 2, 122, 1, 9)
 					.FillRectangle(5, 3, 1, 74, 9)
@@ -157,8 +156,48 @@ namespace CivOne.Screens.CityManagerPanels
 					.FillRectangle(5, 77, 122, 1, 9)
 					.FillRectangle(6, 3, 120, 74, 5)
 					.As<Picture>();
-				return output;
-			}
+
+                Map local = Map.Instance;
+                var unis = Game.GetUnits().Where(u => u.Home == _city).ToArray(); // city-owned units
+
+                // Using image scaling, take the 80x50 map and scale up to 120x75.
+                // http://tech-algorithm.com/articles/nearest-neighbor-image-scaling/
+                // Then draw the city and city-owned units as 2x2 squares. Draw the
+                // city after the units so it takes visible precedence.
+
+                int xRatio = (Map.WIDTH << 16) / 120 + 1;
+                int yRatio = ((Map.HEIGHT-1) << 16) / 75 + 1; // Note: trying to use the full height runs off the array
+
+                for (int i=0; i < 120; i++)
+                for (int j = 0; j < 75; j++)
+                {
+                    int x2 = (i * xRatio) >> 16;
+                    int y2 = (j * yRatio) >> 16;
+
+                    if (Human.Visible(x2, y2) || Settings.RevealWorld)
+                    {
+                        output[i + 6, j + 3] = (byte)(local[x2, y2].IsOcean ? 1 : 2);
+                    }
+                }
+
+                foreach (var unit in unis)
+                {
+                    Draw2by2(unit.X, unit.Y, Common.ColourLight[_city.Owner]);
+                }
+                Draw2by2(_city.X, _city.Y, 15);
+
+                return output;
+
+                void Draw2by2(int mapX, int mapY, byte color)
+                {
+                    int x3 = ((mapX << 16) / xRatio) + 1;
+                    int y3 = ((mapY << 16) / yRatio) + 1;
+                    output[x3 + 6, y3 + 3] = color;
+                    output[x3 + 6, y3 + 4] = color;
+                    output[x3 + 7, y3 + 3] = color;
+                    output[x3 + 7, y3 + 4] = color;
+                }
+            }
 		}
 
 		protected override bool HasUpdate(uint gameTick)
