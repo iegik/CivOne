@@ -124,8 +124,8 @@ namespace CivOne
 			set
 			{
 				ushort setValue = 0;
-				for (int i = 0; i < value.Length; i++)
-					setValue |= (ushort)(value[i] % 2);
+                for (int i = 0; i < value.Length; i++)
+                    setValue |= (ushort)(value[i] << i);
 				_saveData.CivilizationIdentityFlag = setValue;
 			}
 		}

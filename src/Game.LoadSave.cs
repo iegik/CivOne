@@ -52,15 +52,7 @@ namespace CivOne
 				gameData.Difficulty = (ushort)_difficulty;
 				gameData.ActiveCivilizations = _players.Select(x => (x.Civilization is Barbarian) || (x.Cities.Any(c => c.Size > 0) || GetUnits().Any(u => x == u.Owner))).ToArray();
 
-                // KBR 20190629 this did not work!
-                //gameData.CivilizationIdentity = _players.Select(x => (byte)(x.Civilization.Id > 7 ? 1 : 0)).ToArray();
-                var civIdent = new byte[8];
-                for (var i = 0; i < 8; i++)
-                {
-                    if (_players[i].Civilization.Id > 7)
-                        civIdent[i] = 1;
-                }
-                gameData.CivilizationIdentity = civIdent;
+                gameData.CivilizationIdentity = _players.Select(x => (byte)(x.Civilization.Id > 7 ? 1 : 0)).ToArray();
 
 				gameData.CurrentResearch = HumanPlayer.CurrentResearch?.Id ?? 0;
 				byte[][] discoveredAdvanceIDs = new byte[_players.Length][];
