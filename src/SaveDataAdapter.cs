@@ -94,7 +94,8 @@ namespace CivOne
 			set => _saveData.Difficulty = value;
 		}
 
-		public bool[] ActiveCivilizations // TODO KBR duplicated code
+        // TODO fire-eggs: is bit order compatible with CivDOS?
+		public bool[] ActiveCivilizations // TODO fire-eggs duplicated code
 		{
 			get
 			{
@@ -112,7 +113,8 @@ namespace CivOne
 			}
 		}
 
-		public byte[] CivilizationIdentity // TODO KBR duplicated code
+        // TODO fire-eggs: is bit order compatible with CivDOS?
+		public byte[] CivilizationIdentity // TODO fire-eggs duplicated code
         {
 			get
 			{
@@ -249,7 +251,8 @@ namespace CivOne
 			set => SetAdvanceFirstDiscovery(value);
 		}
 
-		public bool[] GameOptions // TODO KBR duplicated code
+        // TODO fire-eggs: is bit order compatible with CivDOS?
+		public bool[] GameOptions // TODO fire-eggs duplicated code
         {
 			get
 			{
