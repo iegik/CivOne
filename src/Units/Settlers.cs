@@ -7,19 +7,18 @@
 // You should have received a copy of the CC0 legalcode along with this
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-using System.Collections.Generic;
-using System.Linq;
 using CivOne.Advances;
 using CivOne.Enums;
 using CivOne.IO;
-using CivOne.Screens;
 using CivOne.Tasks;
 using CivOne.Tiles;
 using CivOne.UserInterface;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CivOne.Units
 {
-	internal class Settlers : BaseUnitLand
+    internal class Settlers : BaseUnitLand
 	{
 		public override bool Busy
 		{
@@ -67,6 +66,7 @@ namespace CivOne.Units
 			ITile tile = Map[X, Y];
 			if (tile.RailRoad)
 			{
+                // TODO attempt to double-build road?
 				// There is already a RailRoad here, don't build another one
 				return false;
 			}
@@ -74,15 +74,15 @@ namespace CivOne.Units
 			{
 				if ((tile is River) && !Game.CurrentPlayer.HasAdvance<BridgeBuilding>())
 					return false;
-				BuildingRoad = 2;
-				MovesLeft = 0;
+                BuildingRoad = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 2; // cheat for human
+                MovesLeft = 0;
 				PartMoves = 0;
 				return true;
 			}
-			else if (Game.CurrentPlayer.HasAdvance<RailRoad>() && !tile.IsOcean && tile.Road && !tile.RailRoad && tile.City == null)
+			if (Game.CurrentPlayer.HasAdvance<RailRoad>() && !tile.IsOcean && tile.Road && !tile.RailRoad && tile.City == null)
 			{
-				BuildingRoad = 3;
-				MovesLeft = 0;
+                BuildingRoad = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
+                MovesLeft = 0;
 				PartMoves = 0;
 				return true;
 			}
@@ -100,17 +100,17 @@ namespace CivOne.Units
 
 			if ((tile is Forest) || (tile is Jungle) || (tile is Swamp))
 			{
-				BuildingIrrigation = 4;
-				MovesLeft = 0;
+                BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 4; // cheat for human
+                MovesLeft = 0;
 				PartMoves = 0;
 				return true;
 			}
-			else if ((tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) && (t.City == null) && (t.IsOcean || t.Irrigation || (t is River)))) || (tile is River))
+			if ((tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) && (t.City == null) && (t.IsOcean || t.Irrigation || (t is River)))) || (tile is River))
 			{
 				if (!tile.IsOcean && !(tile.Irrigation) && ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)))
 				{
-					BuildingIrrigation = 3;
-					MovesLeft = 0;
+                    BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
+                    MovesLeft = 0;
 					PartMoves = 0;
 					return true;
 				}
@@ -118,7 +118,7 @@ namespace CivOne.Units
 					GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
 				return false;
 			}
-			else
+
 			{
 				if (((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)) && tile.City == null)
 				{
@@ -137,8 +137,8 @@ namespace CivOne.Units
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Mine) && ((tile is Desert) || (tile is Hills) || (tile is Mountains) || (tile is Jungle) || (tile is Grassland) || (tile is Plains) || (tile is Swamp)))
 			{
-				BuildingMine = 4;
-				MovesLeft = 0;
+                BuildingMine = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 4; // cheat for human
+                MovesLeft = 0;
 				PartMoves = 0;
 				return true;
 			}
@@ -153,7 +153,7 @@ namespace CivOne.Units
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Fortress) && tile.City == null)
 			{
-				BuildingFortress = 5;
+                BuildingFortress = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 5; // cheat for human
 				MovesLeft = 0;
 				PartMoves = 0;
 				return true;
@@ -167,11 +167,11 @@ namespace CivOne.Units
 			if (BuildingRoad > 0)
 			{
 				BuildingRoad--;
-				if (BuildingRoad > 0)
+				// KBR if (BuildingRoad > 0)
 				{
 					if (Map[X, Y].Road)
 					{
-						if (Human.HasAdvance<RailRoad>())
+						if (Human.HasAdvance<RailRoad>()) // TODO is this 'Human' or 'Owner'?
 						{
 							Map[X, Y].RailRoad = true;
 						}
@@ -184,19 +184,22 @@ namespace CivOne.Units
 						}
 					}
 					Map[X, Y].Road = true;
-					MovesLeft = 0;
-					PartMoves = 0;
-				}
-			}
+					// KBR MovesLeft = 0;
+					// KBR PartMoves = 0;
+                    MovesLeft = 1;
+                    PartMoves = 0;
+                }
+            }
 			else if (BuildingIrrigation > 0)
 			{
 				BuildingIrrigation--;
-				if (BuildingIrrigation > 0)
-				{
-					MovesLeft = 0;
-					PartMoves = 0;
-				}
-				else if (Map[X, Y] is Forest)
+				//if (BuildingIrrigation > 0)
+				//{
+				//	MovesLeft = 0;
+				//	PartMoves = 0;
+				//}
+				//else 
+                if (Map[X, Y] is Forest)
 				{
 					Map[X, Y].Irrigation = false;
 					Map[X, Y].Mine = false;
@@ -213,16 +216,19 @@ namespace CivOne.Units
 					Map[X, Y].Irrigation = true;
 					Map[X, Y].Mine = false;
 				}
-			}
-			else if (BuildingMine > 0)
+                MovesLeft = 1;
+                PartMoves = 0;
+            }
+            else if (BuildingMine > 0)
 			{
 				BuildingMine--;
-				if (BuildingMine > 0)
-				{
-					MovesLeft = 0;
-					PartMoves = 0;
-				}
-				else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
+				//if (BuildingMine > 0)
+				//{
+				//	MovesLeft = 0;
+				//	PartMoves = 0;
+				//}
+				//else 
+                if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
 				{
 					Map[X, Y].Irrigation = false;
 					Map[X, Y].Mine = false;
@@ -233,21 +239,25 @@ namespace CivOne.Units
 					Map[X, Y].Irrigation = false;
 					Map[X, Y].Mine = true;
 				}
-			}
-			else if (BuildingFortress > 0)
+                MovesLeft = 1;
+                PartMoves = 0;
+            }
+            else if (BuildingFortress > 0)
 			{
 				BuildingFortress--;
-				if (BuildingFortress > 0)
-				{
-					MovesLeft = 0;
-					PartMoves = 0;
-				}
-				else
+				//if (BuildingFortress > 0)
+				//{
+				//	MovesLeft = 0;
+				//	PartMoves = 0;
+				//}
+				//else
 				{
 					Map[X, Y].Fortress = true;
 				}
-			}
-		}
+                MovesLeft = 1;
+                PartMoves = 0;
+            }
+        }
 
 		private MenuItem<int> MenuFoundCity() => MenuItem<int>
 			.Create((Map[X, Y].City == null) ? "Found New City" : "Add to City")

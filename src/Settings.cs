@@ -34,6 +34,7 @@ namespace CivOne
 		private bool _arrowHelper = false;
 		private bool _customMapSize = false;
 		private bool _pathFinding = false;
+        private bool _autoSettlers;
 		private CursorType _cursorType = CursorType.Default;
 		private DestroyAnimation _destroyAnimation = DestroyAnimation.Sprites;
 		private GameOption _instantAdvice, _autoSave, _endOfTurn, _animations, _sound, _enemyMoves, _civilopediaText, _palace;
@@ -210,8 +211,18 @@ namespace CivOne
 			}
 		}
 
+        internal bool AutoSettlers
+        {
+            get => _autoSettlers;
+            set
+            {
+                _autoSettlers = value;
+                SetSetting("AutoSettlersCheat", _autoSettlers ? "1" : "0");
+                Common.ReloadSettings = true;
+            }
+        }
 
-		public CursorType CursorType
+        public CursorType CursorType
 		{
 			get
 			{

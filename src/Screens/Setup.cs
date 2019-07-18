@@ -182,7 +182,8 @@ namespace CivOne.Screens
 			MenuItem.Create($"Enable Deity difficulty: {Settings.DeityEnabled.YesNo()}").OnSelect(GotoMenu(DeityEnabledMenu)),
 			MenuItem.Create($"Enable (no keypad) arrow helper: {Settings.ArrowHelper.YesNo()}").OnSelect(GotoMenu(ArrowHelperMenu)),
 			MenuItem.Create($"Custom map sizes (experimental): {Settings.CustomMapSize.YesNo()}").OnSelect(GotoMenu(CustomMapSizeMenu)),
-			MenuItem.Create($"Use smart PathFinding for \"goto\": {Settings.PathFinding.YesNo()}").OnSelect(GotoMenu(PathFindingeMenu)),
+			MenuItem.Create($"Use smart PathFinding for \"goto\": {Settings.PathFinding.YesNo()}").OnSelect(GotoMenu(PathFindingMenu)),
+            MenuItem.Create($"Use auto-settlers-cheat: {Settings.AutoSettlers.YesNo()}").OnSelect(GotoMenu(AutoSettlersMenu)),
 			MenuItem.Create("Back").OnSelect(GotoMenu(MainMenu, 1))
 		);
 
@@ -236,13 +237,19 @@ namespace CivOne.Screens
 		);
 
 
-		private void PathFindingeMenu() => CreateMenu("Use smart PathFinding for \"goto\"", GotoMenu(PatchesMenu, 8),
+		private void PathFindingMenu() => CreateMenu("Use smart PathFinding for \"goto\"", GotoMenu(PatchesMenu, 8),
 		MenuItem.Create($"{false.YesNo()} (default)").OnSelect((s, a) => Settings.PathFinding = false).SetActive(() => !Settings.PathFinding),
 			MenuItem.Create(true.YesNo()).OnSelect((s, a) => Settings.PathFinding = true).SetActive(() => Settings.PathFinding),
 			MenuItem.Create("Back")
 		);
 
-		private void PluginsMenu(int activeItem = 0) => CreateMenu("Plugins", activeItem,
+        private void AutoSettlersMenu() => CreateMenu("Use auto settlers cheat", GotoMenu(PatchesMenu, 8),
+            MenuItem.Create($"{false.YesNo()} (default)").OnSelect((s, a) => Settings.AutoSettlers = false).SetActive(() => !Settings.AutoSettlers),
+            MenuItem.Create(true.YesNo()).OnSelect((s, a) => Settings.AutoSettlers = true).SetActive(() => Settings.AutoSettlers),
+            MenuItem.Create("Back")
+        );
+
+        private void PluginsMenu(int activeItem = 0) => CreateMenu("Plugins", activeItem,
 			new MenuItem<int>[0]
 				.Concat(
 					Reflect.Plugins().Any() ?
