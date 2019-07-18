@@ -240,6 +240,16 @@ namespace CivOne
 
 			_replayData.AddRange(gameData.ReplayData);
 
+            // fire-eggs fix issue #68: don't repeat any 'civilization destroyed' messages on game load
+            foreach (ReplayData replayData in _replayData)
+            {
+                if (replayData is ReplayData.CivilizationDestroyed foo)
+                {
+                    int dex = foo.DestroyedId % 7;
+                    _players[dex]._destroyed = true;
+                }
+            }
+
 			// Game Settings
 			InstantAdvice = (Settings.InstantAdvice == GameOption.On);
 			AutoSave = (Settings.AutoSave != GameOption.Off);

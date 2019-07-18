@@ -356,7 +356,7 @@ namespace CivOne
 			return true;
 		}
 
-		private bool _destroyed = false;
+		public bool _destroyed = false; // fire-eggs: hack fix for Issue #68: need to be able set destroyed state on game load
 		public bool IsDestroyed()
 		{
 			if (this == 0) return false;

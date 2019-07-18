@@ -94,7 +94,7 @@ namespace CivOne
 			set => _saveData.Difficulty = value;
 		}
 
-		public bool[] ActiveCivilizations
+		public bool[] ActiveCivilizations // TODO KBR duplicated code
 		{
 			get
 			{
@@ -112,8 +112,8 @@ namespace CivOne
 			}
 		}
 
-		public byte[] CivilizationIdentity
-		{
+		public byte[] CivilizationIdentity // TODO KBR duplicated code
+        {
 			get
 			{
 				byte[] output = new byte[8];
@@ -249,8 +249,8 @@ namespace CivOne
 			set => SetAdvanceFirstDiscovery(value);
 		}
 
-		public bool[] GameOptions
-		{
+		public bool[] GameOptions // TODO KBR duplicated code
+        {
 			get
 			{
 				bool[] output = new bool[8];

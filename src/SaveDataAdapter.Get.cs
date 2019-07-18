@@ -191,7 +191,7 @@ namespace CivOne
 			return output;
 		}
 
-		private IEnumerable<ReplayData> GetReplayData()
+		private unsafe List<ReplayData> GetReplayData()
 		{
 			ushort replayLength = _saveData.ReplayLength;
 			byte[] bytes = GetArray(nameof(SaveData.ReplayData), 4096);
@@ -215,13 +215,14 @@ namespace CivOne
 					case 0xB: i += 4; continue; // TODO: Replay summary
 					case 0xC: i += 5; continue; // TODO: Civilization ranking
 					case 0xD:
-						yield return new ReplayData.CivilizationDestroyed(turn, bytes[i + 2], bytes[i + 3]);
+						output.Add(new ReplayData.CivilizationDestroyed(turn, bytes[i + 2], bytes[i + 3]));
 						continue;
 					default:
-						// Data not recognized, stop trying
-						yield break;
+                        break;
 				}
 			}
-		}
+
+            return output;
+        }
 	}
 }

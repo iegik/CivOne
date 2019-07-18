@@ -18,7 +18,7 @@ namespace CivOne
 		ushort RandomSeed { get; set; }
 		ushort Difficulty { get; set; }
 		bool[] ActiveCivilizations { get; set; }
-		byte[] CivilizationIdentity { get; set; }
+		byte[] CivilizationIdentity { get; set; } // TODO KBR this might as well be bool[]
 		ushort CurrentResearch { get; set; }
 		byte[][] DiscoveredAdvanceIDs { get; set ;}
 		string[] LeaderNames { get; set; }

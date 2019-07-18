@@ -211,14 +211,14 @@ namespace CivOne
 				switch (value)
 				{
 					case ReplayData.CivilizationDestroyed civDestroyed:
-						entryId = 0xD;
+						entryId = 0xD0;
 						data = new byte[] { (byte)civDestroyed.DestroyedId, (byte)civDestroyed.DestroyedById };
 						break;
 					default:
 						continue;
 				}
 
-				output.Add((byte)((entryId << 4) + (value.Turn & 0x0F00) >> 8));
+                output.Add((byte)(entryId | (byte)(value.Turn & 0x0F00) >> 8));
 				output.Add((byte)(value.Turn & 0xFF));
 				output.AddRange(data);
 			}
