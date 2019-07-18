@@ -234,6 +234,8 @@ namespace CivOne.Units
 
 		protected virtual bool Confront(int relX, int relY)
 		{
+            Goto = Point.Empty;             // Cancel any goto mode when Confronting
+
 			if (Class == UnitClass.Land && (this is Diplomat || this is Caravan))
 			{
 				// TODO: Perform other unit action (confront)
@@ -456,6 +458,8 @@ namespace CivOne.Units
 			if (moveTarget == null) return false;
 			if (moveTarget.Units.Any(u => u.Owner != Owner))
 			{
+                Goto = Point.Empty;             // Cancel any goto mode
+
 				if (Class == UnitClass.Land && Tile.IsOcean)
 				{
 					if (Human == Owner) GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText($"ERROR/AMPHIB")));
@@ -472,8 +476,10 @@ namespace CivOne.Units
 
 					if (borderUnits.Any(u => targetUnits.Any(t => t.X == u.X && t.Y == u.Y))) 
 					{
-						if (Human == Owner)
-							GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText($"ERROR/ZOC")));
+                        if( Human == Owner ) {
+                           Goto = Point.Empty;             // Cancel any goto mode ( maybe for AI too ?? )
+                           GameTask.Enqueue( Message.Error( "-- Civilization Note --", TextFile.Instance.GetGameText( $"ERROR/ZOC" ) ) );
+                        }
 						return false;
 					}
 				}
