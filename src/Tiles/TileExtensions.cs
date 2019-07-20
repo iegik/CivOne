@@ -8,6 +8,7 @@
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using CivOne.Enums;
@@ -31,16 +32,16 @@ namespace CivOne.Tiles
 
 		private static TextSettings CityLabel = TextSettings.ShadowText(11, 5);
 
-		public static bool DrawRoad(this ITile tile) => (tile.Road || tile.RailRoad) && (!tile.RailRoad || (tile.RailRoad && tile.BorderRoads() != tile.BorderRailRoads()));
-		public static bool DrawRailRoad(this ITile tile) => tile.RailRoad;
-		public static bool DrawIrrigation(this ITile tile) => tile.Irrigation && tile.City == null;
-		public static bool DrawMine(this ITile tile) => tile.Mine;
-		public static bool DrawFortress(this ITile tile) => tile.Fortress && tile.City == null;
-		public static bool DrawHut(this ITile tile) => tile.Hut;
+        private static bool DrawRoad(this ITile tile) => (tile.Road || tile.RailRoad) && (!tile.RailRoad || (tile.RailRoad && tile.BorderRoads() != tile.BorderRailRoads()));
+        private static bool DrawRailRoad(this ITile tile) => tile.RailRoad;
+        private static bool DrawIrrigation(this ITile tile) => tile.Irrigation && tile.City == null;
+        private static bool DrawMine(this ITile tile) => tile.Mine;
+        private static bool DrawFortress(this ITile tile) => tile.Fortress && tile.City == null;
+        private static bool DrawHut(this ITile tile) => tile.Hut;
 
-		public static int DistanceTo(this ITile tile, int x, int y) => Common.DistanceToTile(tile.X, tile.Y, x, y);
+		//public static int DistanceTo(this ITile tile, int x, int y) => Common.DistanceToTile(tile.X, tile.Y, x, y);
 		public static int DistanceTo(this ITile tile, Point point) => Common.DistanceToTile(tile.X, tile.Y, point.X, point.Y);
-		public static int DistanceTo(this ITile tile, ITile destinationTile) => Common.DistanceToTile(tile.X, tile.Y, destinationTile.X, destinationTile.Y);
+		//public static int DistanceTo(this ITile tile, ITile destinationTile) => Common.DistanceToTile(tile.X, tile.Y, destinationTile.X, destinationTile.Y);
 		public static int DistanceTo(this ITile tile, City city) => Common.DistanceToTile(tile.X, tile.Y, city.X, city.Y);
 
 		public static Terrain GetBorderType(this ITile tile, Direction direction)
@@ -90,7 +91,7 @@ namespace CivOne.Tiles
 			}
 		}
 
-		public static Direction BorderRoads(this ITile tile)
+        private static Direction BorderRoads(this ITile tile)
 		{
 			Direction output = Direction.None;
 			for (int i = 1; i <= 128; i *= 2)
@@ -102,7 +103,7 @@ namespace CivOne.Tiles
 			return output;
 		}
 
-		public static Direction BorderRailRoads(this ITile tile)
+        private static Direction BorderRailRoads(this ITile tile)
 		{
 			Direction output = Direction.None;
 			for (int i = 1; i <= 128; i *= 2)
@@ -114,7 +115,7 @@ namespace CivOne.Tiles
 			return output;
 		}
 
-		public static Direction DrawRoadDirections(this ITile tile)
+        private static Direction DrawRoadDirections(this ITile tile)
 		{
 			if (tile.RailRoad)
 				return (Direction)(BorderRoads(tile) - BorderRailRoads(tile));
@@ -123,22 +124,22 @@ namespace CivOne.Tiles
 			return BorderRoads(tile);
 		}
 
-		public static Direction DrawRailRoadDirections(this ITile tile)
-		{
-			if (!tile.RailRoad)
-				return Direction.None;
-			return BorderRailRoads(tile);
-		}
+        private static Direction DrawRailRoadDirections(this ITile tile)
+        {
+            return !tile.RailRoad ? Direction.None : BorderRailRoads(tile);
+        }
 
 		public static bool AllowIrrigation(this ITile tile)
 		{
 			if (tile.Irrigation) return false;
+            // TODO fire-eggs: this should be a flag in ITile
 			if (!(tile is Desert || tile is Grassland || tile is Hills || tile is Plains || tile is River)) return false;
 			return (CrossTiles(tile).Any(x => x.Irrigation || x is River || x is Ocean));
 		}
 
 		public static bool AllowChangeTerrain(this ITile tile)
 		{
+            // TODO fire-eggs: this should be a flag in ITile
 			return (tile is Forest || tile is Jungle || tile is Swamp);
 		}
 
@@ -182,28 +183,42 @@ namespace CivOne.Tiles
 			IBitmap output = new Picture(16, 16, Palette);
 
 			output.AddLayer(MapTile.TileBase(tile));
-			if (GFX256 && settings.Improvements && tile.DrawIrrigation()) output.AddLayer(MapTile.Irrigation);
+			if (GFX256 && settings.Improvements && tile.DrawIrrigation()) 
+                output.AddLayer(MapTile.Irrigation);
 			output.AddLayer(MapTile.TileLayer(tile));
-			output.AddLayer(MapTile.TileSpecial(tile));
+
+            // fire-eggs mine drawing goes under coal
+            var special = MapTile.TileSpecial(tile);
+            if (special != MapTile.Coal)
+			    output.AddLayer(special);
 			
 			// Add tile improvements
 			if (tile.Type != Terrain.River && settings.Improvements)
 			{
-				if (!GFX256 && tile.DrawIrrigation()) output.AddLayer(MapTile.Irrigation);
-                // KBR mine drawing goes on top of roads
+				if (!GFX256 && tile.DrawIrrigation()) 
+                    output.AddLayer(MapTile.Irrigation);
+                // fire-eggs mine drawing goes on top of roads
 				//if (tile.DrawMine()) output.AddLayer(MapTile.Mine);
 			}
 			if (settings.Roads)
 			{
-				if (tile.DrawRoad()) output.AddLayer(MapTile.Road[tile.DrawRoadDirections()]);
-				if (tile.DrawRailRoad()) output.AddLayer(MapTile.RailRoad[tile.DrawRailRoadDirections()]);
+				if (tile.DrawRoad()) 
+                    output.AddLayer(MapTile.Road[tile.DrawRoadDirections()]);
+				if (tile.DrawRailRoad()) 
+                    output.AddLayer(MapTile.RailRoad[tile.DrawRailRoadDirections()]);
 			}
-            // KBR mine drawing goes on top of roads
+            // fire-eggs mine drawing goes on top of roads
             if (tile.Type != Terrain.River && settings.Improvements && tile.DrawMine())
                 output.AddLayer(MapTile.Mine);
 
-			if (tile.DrawFortress()) output.AddLayer(MapTile.Fortress);
-			if (tile.DrawHut()) output.AddLayer(MapTile.Hut);
+            // fire-eggs mine drawing goes under coal
+            if (special == MapTile.Coal)
+                output.AddLayer(MapTile.Coal);
+
+			if (tile.DrawFortress()) 
+                output.AddLayer(MapTile.Fortress);
+			if (tile.DrawHut()) 
+                output.AddLayer(MapTile.Hut);
 
 			if (player != null)
 			{
