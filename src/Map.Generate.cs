@@ -418,20 +418,23 @@ namespace CivOne
 
                 for( int i = 0; i < ContinentsSorted.LongCount(); i++ )
                 {
-                    if( oOcean ) Log( "Map: ocean Nr = {0}, Size {1}", ContinentsSorted[ i ].ContinentId, ContinentsSorted[ i ].ContinetSize );
-                    else Log( "Map: Continent Nr = {0}, Size {1}", ContinentsSorted[ i ].ContinentId, ContinentsSorted[ i ].ContinetSize );
+                    if( oOcean ) 
+                        Log( "Map: ocean Nr = {0}, Size {1}", 
+                            ContinentsSorted[ i ].ContinentId, ContinentsSorted[ i ].ContinetSize );
+                    else 
+                        Log( "Map: Continent Nr = {0}, Size {1}", 
+                            ContinentsSorted[ i ].ContinentId, ContinentsSorted[ i ].ContinetSize );
                     _iConvTbl[ ContinentsSorted[ i ].ContinentId ] = i + 1;
                 }
 
-                // Give all ITiles there correct continent/ocean number
+                // Give all ITiles their correct continent/ocean number
                 for( int y = 0; y < HEIGHT; y++ )
                     for( int x = 0; x < WIDTH; x++ )
                     {
-                        if( this[ x, y ].IsOcean != oOcean ) continue;
-                        {
-                            this[ x, y ].ContinentId = (byte)( Math.Min( _iConvTbl[ this[ x, y ].ContinentId ], 15 ) );
-                            nTiles++;       // Just a check
-                        }
+                        if( this[ x, y ].IsOcean != oOcean ) 
+                            continue;
+                        this[ x, y ].ContinentId = (byte)( Math.Min( _iConvTbl[ this[ x, y ].ContinentId ], 15 ) );
+                        nTiles++;       // Just a check
 
                     }
                 oOcean = true;
