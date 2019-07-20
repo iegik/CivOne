@@ -414,10 +414,13 @@ namespace CivOne
 
                         }
                 ContinentsSorted = Continents.OrderByDescending( x => x.ContinetSize ).ToList();
+                int[] _iConvTbl = new int[ ContinentsSorted.LongCount() + 1 ];
+
                 for( int i = 0; i < ContinentsSorted.LongCount(); i++ )
                 {
                     if( oOcean ) Log( "Map: ocean Nr = {0}, Size {1}", ContinentsSorted[ i ].ContinentId, ContinentsSorted[ i ].ContinetSize );
                     else Log( "Map: Continent Nr = {0}, Size {1}", ContinentsSorted[ i ].ContinentId, ContinentsSorted[ i ].ContinetSize );
+                    _iConvTbl[ ContinentsSorted[ i ].ContinentId ] = i + 1;
                 }
 
                 // Give all ITiles there correct continent/ocean number
@@ -426,7 +429,7 @@ namespace CivOne
                     {
                         if( this[ x, y ].IsOcean != oOcean ) continue;
                         {
-                            this[ x, y ].ContinentId = Math.Min( (byte)ContinentsSorted[ this[ x, y ].ContinentId - 1 ].ContinentId, (byte)15 );
+                            this[ x, y ].ContinentId = (byte)( Math.Min( _iConvTbl[ this[ x, y ].ContinentId ], 15 ) );
                             nTiles++;       // Just a check
                         }
 
