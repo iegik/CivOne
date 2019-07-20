@@ -217,6 +217,7 @@ namespace CivOne
 				cityList.Add(cityData.Id, city);
 			}
 
+            // TODO fire-eggs: wrong when playing with fewer than 7?
 			UnitData[][] unitData = gameData.Units;
 			for (byte p = 0; p < 8; p++)
 			{
@@ -245,7 +246,8 @@ namespace CivOne
             {
                 if (replayData is ReplayData.CivilizationDestroyed foo)
                 {
-                    int dex = foo.DestroyedId % 7;
+                    // TODO fire-eggs: wrong when playing with fewer than 7?
+                    int dex = foo.DestroyedId - (foo.DestroyedId > 7 ? 7 : 0);
                     _players[dex]._destroyed = true;
                 }
             }

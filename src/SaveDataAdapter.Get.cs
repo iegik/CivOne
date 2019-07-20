@@ -216,6 +216,7 @@ namespace CivOne
 					case 0xC: i += 5; continue; // TODO: Civilization ranking
 					case 0xD:
 						output.Add(new ReplayData.CivilizationDestroyed(turn, bytes[i + 2], bytes[i + 3]));
+                        i += 3;
 						continue;
 					default:
                         break;

@@ -201,7 +201,7 @@ namespace CivOne
 		
 		private void SetCityY(byte[] values) => SetArray(nameof(SaveData.CityY), values);
 
-		private void SetReplayData(ReplayData[] values)
+		private unsafe void SetReplayData(ReplayData[] values)
 		{
 			List<byte> output = new List<byte>();
 			foreach (ReplayData value in values)
@@ -223,8 +223,15 @@ namespace CivOne
 				output.AddRange(data);
 			}
 
+            var outArr = output.ToArray();
 			_saveData.ReplayLength = (ushort)output.Count;
-			SetArray(nameof(SaveData.ReplayData), output.ToArray());
+            fixed (byte* p = _saveData.ReplayData)
+            {
+                for (int i = 0; i < output.Count; i++)
+                    p[i] = outArr[i];
+            }
+
+            //SetArray(nameof(SaveData.ReplayData), output.ToArray());
 		}
 	}
 }
