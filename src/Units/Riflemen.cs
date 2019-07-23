@@ -22,6 +22,7 @@ namespace CivOne.Units
 			RequiredTech = new Conscription();
 			ObsoleteTech = null;
 			SetIcon('D', 1, 2);
+            Role = UnitRole.Defense;
 		}
-	}
+    }
 }

@@ -29,6 +29,7 @@ namespace CivOne.Units
 			RequiredTech = new Industrialization();
 			ObsoleteTech = null;
 			SetIcon('A', 0, 2);
-		}
-	}
+            Role = UnitRole.Transport;
+        }
+    }
 }

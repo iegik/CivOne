@@ -75,10 +75,10 @@ namespace CivOne.Units
 			ITile moveTarget = Map[X, Y][relX, relY];
 			City city = moveTarget.City;
 
-            // KBR Caravan can build wonder even in home city
+            // fire-eggs Caravan can build wonder even in home city
             if (city != null && city.Owner == Owner && Game.Human == Owner)
             {
-                // KBR TODO this seems like bad design: how to determine whether to show a menu, without activating the menu?
+                // TODO fire-eggs this seems like bad design: how to determine whether to show a menu, without activating the menu?
                 if (city.IsBuildingWonder || CaravanChoice.AllowEstablishTradeRoute(this,city))
                     GameTask.Enqueue(Show.CaravanChoice(this, city));
                 else
@@ -110,6 +110,7 @@ namespace CivOne.Units
 			RequiredTech = new Trade();
 			ObsoleteTech = null;
 			SetIcon('E', 0, 1);
-		}
+            Role = UnitRole.Civilian;
+        }
 	}
 }

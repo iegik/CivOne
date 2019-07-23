@@ -240,6 +240,7 @@ namespace CivOne.Units
 		protected BaseUnitLand(byte price = 1, byte attack = 1, byte defense = 1, byte move = 1) : base(price, attack, defense, move)
 		{
 			Class = UnitClass.Land;
-		}
+            Role = UnitRole.LandAttack;
+        }
 	}
 }

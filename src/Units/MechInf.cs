@@ -21,6 +21,7 @@ namespace CivOne.Units
 			RequiredTech = new LaborUnion();
 			ObsoleteTech = null;
 			SetIcon('C', 0, 0);
+            Role = UnitRole.Defense;
 		}
-	}
+    }
 }

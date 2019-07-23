@@ -127,6 +127,7 @@ namespace CivOne.Units
 		{
 			Class = UnitClass.Water;
 			_range = range;
-		}
+            Role = UnitRole.SeaAttack;
+        }
 	}
 }

@@ -21,6 +21,7 @@ namespace CivOne.Units
 			RequiredTech = new BronzeWorking();
 			ObsoleteTech = new Gunpowder();
 			SetIcon('E', 0, 0);
+            Role = UnitRole.Defense;
 		}
-	}
+    }
 }

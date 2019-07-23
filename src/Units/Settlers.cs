@@ -167,7 +167,7 @@ namespace CivOne.Units
 			if (BuildingRoad > 0)
 			{
 				BuildingRoad--;
-				// KBR if (BuildingRoad > 0)
+				// fire-eggs if (BuildingRoad > 0)
 				{
 					if (Map[X, Y].Road)
 					{
@@ -184,8 +184,8 @@ namespace CivOne.Units
 						}
 					}
 					Map[X, Y].Road = true;
-					// KBR MovesLeft = 0;
-					// KBR PartMoves = 0;
+					// fire-eggs MovesLeft = 0;
+					// fire-eggs PartMoves = 0;
                     MovesLeft = 1;
                     PartMoves = 0;
                 }
@@ -340,6 +340,7 @@ namespace CivOne.Units
 			RequiredTech = null;
 			ObsoleteTech = null;
 			SetIcon('D', 1, 1);
-		}
+            Role = UnitRole.Settler;
+        }
 	}
 }

@@ -29,6 +29,7 @@ namespace CivOne.Units
 			RequiredTech = new Navigation();
 			ObsoleteTech = new Magnetism();
 			SetIcon('B', 1, 1);
-		}
-	}
+            Role = UnitRole.Transport;
+        }
+    }
 }

@@ -26,6 +26,7 @@ namespace CivOne.Units
 			RequiredTech = new Flight();
 			ObsoleteTech = null;
 			SetIcon('A', 1, 1);
-		}
+            Role = UnitRole.AirAttack;
+        }
 	}
 }

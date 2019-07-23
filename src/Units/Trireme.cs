@@ -49,6 +49,7 @@ namespace CivOne.Units
 			RequiredTech = new MapMaking();
 			ObsoleteTech = new Navigation();
 			SetIcon('B', 0, 1);
-		}
+            Role = UnitRole.Transport;
+        }
 	}
 }

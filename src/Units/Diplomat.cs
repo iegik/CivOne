@@ -99,7 +99,7 @@ namespace CivOne.Units
 			{
 				IUnit unit = units[0];
 
-                // TODO kbr bribe ocean unit
+                // TODO fire-eggs bribe ocean unit
 				if (Human == Owner && unit.Owner != Owner && unit is BaseUnitLand)
 				{
 					GameTask.Enqueue(Show.DiplomatBribe(unit as BaseUnitLand, this));
@@ -120,6 +120,7 @@ namespace CivOne.Units
 			RequiredTech = new Writing();
 			ObsoleteTech = null;
 			SetIcon('C', 1, 0);
-		}
+            Role = UnitRole.Civilian;
+        }
 	}
 }

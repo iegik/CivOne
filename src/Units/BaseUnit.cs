@@ -486,7 +486,7 @@ namespace CivOne.Units
 				}
 			}
 
-            // KBR Caravan needs to be able to move into owner city
+            // fire-eggs Caravan needs to be able to move into owner city
 			if (moveTarget.City != null && (moveTarget.City.Owner != Owner || this is Caravan))
 			{
 				return Confront(relX, relY);
@@ -652,23 +652,23 @@ namespace CivOne.Units
 			get => Modifications.LastOrDefault(x => x.Price.HasValue)?.Price.Value ?? _price;
 			protected set => _price = value;
 		}
-		public virtual UnitRole Role
-		{
-			get
-			{
-				UnitRole output = UnitRole.LandAttack;
-				if (this is Settlers) output = UnitRole.Settler;
-				else if (this is Caravan || this is Diplomat) output = UnitRole.Civilian;
-				else if (this is BaseUnitSea)
-				{
-					if (this is IBoardable) output = UnitRole.Transport;
-					else output = UnitRole.SeaAttack;
-				}
-				else if (this is Fighter) output = UnitRole.AirAttack;
-				else if (this.Defense >= this.Attack) output = UnitRole.Defense;
-				return output;
-			}
-		}
+		public UnitRole Role { get; internal set; }
+		//{
+		//	get
+		//	{
+		//		UnitRole output = UnitRole.LandAttack;
+		//		if (this is Settlers) output = UnitRole.Settler;
+		//		else if (this is Caravan || this is Diplomat) output = UnitRole.Civilian;
+		//		else if (this is BaseUnitSea)
+		//		{
+		//			if (this is IBoardable) output = UnitRole.Transport;
+		//			else output = UnitRole.SeaAttack;
+		//		}
+		//		else if (this is Fighter) output = UnitRole.AirAttack;
+		//		else if (this.Defense >= this.Attack) output = UnitRole.Defense;
+		//		return output;
+		//	}
+		//}
 
 		private byte _attack;
 		public byte Attack
