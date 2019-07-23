@@ -77,7 +77,7 @@ namespace CivOne
 			return output;
 		}
 
-		private byte[][] GetDiscoveredAdvanceIDs()
+		private unsafe byte[][] GetDiscoveredAdvanceIDs()
 		{
 			byte[] bytes = GetArray(nameof(SaveData.DiscoveredAdvances), 8 * 10);
 			byte[][] output = new byte[8][];
@@ -86,27 +86,27 @@ namespace CivOne
 			return output;
 		}
 
-		private string[] GetLeaderNames() => GetArray(nameof(SaveData.LeaderNames), 14, 8);
+		private unsafe string[] GetLeaderNames() => GetArray(nameof(SaveData.LeaderNames), 14, 8);
 
-		private string[] GetCivilizationNames() => GetArray(nameof(SaveData.CivilizationNames), 12, 8);
+		private unsafe string[] GetCivilizationNames() => GetArray(nameof(SaveData.CivilizationNames), 12, 8);
 
-		private string[] GetCitizenNames() => GetArray(nameof(SaveData.CitizensName), 11, 8);
+		private unsafe string[] GetCitizenNames() => GetArray(nameof(SaveData.CitizensName), 11, 8);
 
-		private string[] GetCityNames() => GetArray(nameof(SaveData.CityNames), 13, 256);
+		private unsafe string[] GetCityNames() => GetArray(nameof(SaveData.CityNames), 13, 256);
 
-		private short[] GetPlayerGold() => GetArray<short>(nameof(SaveData.PlayerGold), 8);
+		private unsafe short[] GetPlayerGold() => GetArray<short>(nameof(SaveData.PlayerGold), 8);
 
-		private short[] GetResearchProgress() => GetArray<short>(nameof(SaveData.ResearchProgress), 8);
+		private unsafe short[] GetResearchProgress() => GetArray<short>(nameof(SaveData.ResearchProgress), 8);
 
-		private ushort[] GetTaxRate() => GetArray<ushort>(nameof(SaveData.TaxRate), 8);
+		private unsafe ushort[] GetTaxRate() => GetArray<ushort>(nameof(SaveData.TaxRate), 8);
 
-		private ushort[] GetScienceRate() => GetArray<ushort>(nameof(SaveData.ScienceRate), 8);
+		private unsafe ushort[] GetScienceRate() => GetArray<ushort>(nameof(SaveData.ScienceRate), 8);
 		
-		private ushort[] GetStartingPositionX() => GetArray<ushort>(nameof(SaveData.StartingPositionX), 8);
+		private unsafe ushort[] GetStartingPositionX() => GetArray<ushort>(nameof(SaveData.StartingPositionX), 8);
 
-		private ushort[] GetGovernment() => GetArray<ushort>(nameof(SaveData.Government), 8);
+		private unsafe ushort[] GetGovernment() => GetArray<ushort>(nameof(SaveData.Government), 8);
 
-		private CityData[] GetCities()
+		private unsafe CityData[] GetCities()
 		{
 			SaveData.City[] cities = GetArray<SaveData.City>(nameof(SaveData.Cities), 128);
 
@@ -171,11 +171,11 @@ namespace CivOne
 			return output;
 		}
 
-		private ushort[] GetWonders() => GetArray<ushort>(nameof(SaveData.Wonders), 22);
+		private unsafe ushort[] GetWonders() => GetArray<ushort>(nameof(SaveData.Wonders), 22);
 
-		private ushort[] GetAdvanceFirstDiscovery() => GetArray<ushort>(nameof(SaveData.AdvanceFirstDiscovery), 72);
+		private unsafe ushort[] GetAdvanceFirstDiscovery() => GetArray<ushort>(nameof(SaveData.AdvanceFirstDiscovery), 72);
 
-		private bool[][,] GetTileVisibility()
+		private unsafe bool[][,] GetTileVisibility()
 		{
 			byte[] bytes = GetArray(nameof(SaveData.MapVisibility), (80 * 50));
 			bool[][,] output = new bool[8][,];
