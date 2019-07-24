@@ -217,7 +217,7 @@ namespace CivOne
             set
             {
                 _autoSettlers = value;
-                SetSetting("AutoSettlersCheat", _autoSettlers ? "1" : "0");
+                SetSetting("AutoSettlers", _autoSettlers ? "1" : "0");
                 Common.ReloadSettings = true;
             }
         }
@@ -436,6 +436,7 @@ namespace CivOne
 			GetSetting("ArrowHelper", ref _arrowHelper);
 			GetSetting("CustomMapSize", ref _customMapSize);
 			GetSetting("PathFindingAlgorithm", ref _pathFinding);
+            GetSetting("AutoSettlers", ref _autoSettlers);
 			GetSetting<CursorType>("CursorType", ref _cursorType);
 			GetSetting<DestroyAnimation>("DestroyAnimation", ref _destroyAnimation);
 			GetSetting<GameOption>("GameInstantAdvice", ref _instantAdvice);
