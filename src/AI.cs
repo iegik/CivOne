@@ -21,7 +21,8 @@ using CivOne.Units;
 
 namespace CivOne
 {
-	internal partial class AI : BaseInstance
+    // ReSharper disable once InconsistentNaming
+    internal partial class AI : BaseInstance
 	{
         private Player Player { get; }
         private ILeader Leader => Player.Civilization.Leader;
@@ -60,67 +61,69 @@ namespace CivOne
 
         private void SettlerMove(IUnit unit)
         {
-            if (unit is Settlers)
+            if (!(unit is Settlers)) 
+                return;
+
+            ITile tile = unit.Tile;
+
+            bool hasCity = tile.City != null;
+            bool validCity = (tile is Grassland || tile is River || tile is Plains) && !hasCity;
+            bool validIrrigation = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && !hasCity && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
+            bool validMine = (tile is Mountains || tile is Hills) && !hasCity && (!tile.Mine) && (!tile.Irrigation);
+            bool validRoad = !hasCity && tile.Road;
+            int nearestCity = 255;
+            int nearestOwnCity = 255;
+
+            if (Game.GetCities().Any()) 
+                nearestCity = Game.GetCities().Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
+            if (Game.GetCities().Any(x => x.Owner == unit.Owner)) 
+                nearestOwnCity = Game.GetCities().Where(x => x.Owner == unit.Owner).Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
+
+            if (validCity && nearestCity > 3)
             {
-                ITile tile = unit.Tile;
-
-                bool hasCity = (tile.City != null);
-                bool validCity = (tile is Grassland || tile is River || tile is Plains) && !hasCity;
-                bool validIrrigation = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && !hasCity && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
-                bool validMine = (tile is Mountains || tile is Hills) && !hasCity && (!tile.Mine) && (!tile.Irrigation);
-                bool validRoad = !hasCity && tile.Road;
-                int nearestCity = 255;
-                int nearestOwnCity = 255;
-
-                if (Game.GetCities().Any()) nearestCity = Game.GetCities().Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
-                if (Game.GetCities().Any(x => x.Owner == unit.Owner)) nearestOwnCity = Game.GetCities().Where(x => x.Owner == unit.Owner).Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
-
-                if (validCity && nearestCity > 3)
-                {
-                    GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
-                    return;
-                }
-                else if (nearestOwnCity < 3)
-                {
-                    switch (Common.Random.Next(5 * nearestOwnCity))
-                    {
-                        case 0:
-                            if (validRoad)
-                            {
-                                GameTask.Enqueue(Orders.BuildRoad(unit));
-                                return;
-                            }
-                            break;
-                        case 1:
-                            if (validIrrigation)
-                            {
-                                Debug.Assert(!(tile is Mountains));
-                                GameTask.Enqueue(Orders.BuildIrrigation(unit));
-                                return;
-                            }
-                            break;
-                        case 2:
-                            if (validMine)
-                            {
-                                GameTask.Enqueue(Orders.BuildMines(unit));
-                                return;
-                            }
-                            break;
-                    }
-                }
-
-                for (int i = 0; i < 1000; i++)
-                {
-                    int relX = Common.Random.Next(-1, 2);
-                    int relY = Common.Random.Next(-1, 2);
-                    if (relX == 0 && relY == 0) continue;
-                    if (unit.Tile[relX, relY] is Ocean) continue;
-                    if (unit.Tile[relX, relY].Units.Any(x => x.Owner != unit.Owner)) continue;
-                    if (!unit.MoveTo(relX, relY)) continue;
-                    return;
-                }
-                unit.SkipTurn();
+                GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
+                return;
             }
+            else if (nearestOwnCity < 3)
+            {
+                switch (Common.Random.Next(5 * nearestOwnCity))
+                {
+                    case 0:
+                        if (validRoad)
+                        {
+                            GameTask.Enqueue(Orders.BuildRoad(unit));
+                            return;
+                        }
+                        break;
+                    case 1:
+                        if (validIrrigation)
+                        {
+                            Debug.Assert(!(tile is Mountains));
+                            GameTask.Enqueue(Orders.BuildIrrigation(unit));
+                            return;
+                        }
+                        break;
+                    case 2:
+                        if (validMine)
+                        {
+                            GameTask.Enqueue(Orders.BuildMines(unit));
+                            return;
+                        }
+                        break;
+                }
+            }
+
+            for (int i = 0; i < 1000; i++)
+            {
+                int relX = Common.Random.Next(-1, 2);
+                int relY = Common.Random.Next(-1, 2);
+                if (relX == 0 && relY == 0) continue;
+                if (unit.Tile[relX, relY] is Ocean) continue;
+                if (unit.Tile[relX, relY].Units.Any(x => x.Owner != unit.Owner)) continue;
+                if (!unit.MoveTo(relX, relY)) continue;
+                return;
+            }
+            unit.SkipTurn();
 
         }
 
@@ -147,7 +150,143 @@ namespace CivOne
 
         private void LandAttackMove(IUnit unit)
         {
+            // TODO seg010_13CB
+            // if (bestLandValue != 0)
+            //     seg010_1461: check for tribal hut
+            // seg010_14b6: setStrategicLocation
 
+            // TODO seg010_15AA / seg010_17A7
+            // if (unit in city)
+            //   distToClosestUnit > 0
+            //      assignNewTacticalLocation
+
+            bool isEnemyNearby = IsEnemyUnitNearby(unit);
+            City nearCity = FindNearestCity(unit.X, unit.Y);
+            int distNearCity = nearCity == null ? 
+                                    int.MaxValue : 
+                                    Common.Distance(nearCity.X, nearCity.Y, unit.X, unit.Y);
+
+            // DarkPanda ai_orders seg010_2192
+            // TODO is 'totalMoves' === MovesLeft or MovesLeft+PartMoves ?
+            if (unit.MovesLeft < 2 &&
+                distNearCity < 4 &&
+                Human == nearCity.Owner &&
+                // at war with human &&
+                (unit.Tile.Irrigation || unit.Tile.Mine))
+            {
+                // pillage the square
+                unit.Pillage(); // TODO why isn't this an Order ?
+                return;
+            }
+
+            // DarkPanda ai_orders seg010_2857
+            if (!unit.Goto.IsEmpty &&
+                !isEnemyNearby)
+            {
+                return; //continue with goto unless enemy encountered
+            }
+
+            // seg010_2980 === var_5C
+            bool enemyUnitOrCityNearby = IsEnemyUnitOrCityNearby(unit);
+
+            // TODO seg010_29C5
+
+            // seg010_29E7: neighbor loop
+            int bestValue = int.MinValue;
+            int bestNeighborId = 0;
+
+            int[] deltaX = {-1,  0, +1, -1, +1, -1,  0, +1};
+            int[] deltaY = {-1, -1, -1,  0,  0, +1, +1, +1};
+            for (int neighborloop = 0; neighborloop < 8; neighborloop++)
+            {
+                // TODO map range check
+                int neighX = unit.X + deltaX[neighborloop];
+                int neighY = unit.Y + deltaY[neighborloop];
+
+                var tile = Game.Map[neighX, neighY];
+                if (tile.IsOcean)
+                    continue; // ignore ocean tiles
+
+                int neighOwner = getOwner(neighX, neighY);
+                var neighUnits = Game.GetUnits(neighX, neighY);
+                bool neighOwnUnits = neighUnits.Length > 0 && neighUnits[0].Owner == unit.Owner;
+                bool neighEnemyUnits = neighUnits.Length > 0 && neighUnits[0].Owner != unit.Owner; // var_1C equivalent(?)
+
+                // TODO seg010_2A7B: diplomat logic
+
+                // TODO seg010_2B0D: skip this neighbor if too many enemies near?
+
+                // TODO seg010_2C06: skip this neighbor if cannot stack?
+
+                // TODO seg010_2C6D: visibility_flag case - NYI
+
+                // seg010_2CE1
+                int neighborValue = Common.Random.Next(5);
+                if (neighOwnUnits)
+                    neighborValue += aggregateUnitStackAttribute(neighUnits[0], 3) * 2 /
+                                     (aggregateUnitStackAttribute(neighUnits[0], 1) + 1);
+                else
+                {
+                    neighborValue += tile.Defense * 4;
+                }
+
+                // TODO seg010_2DF3 : AImilitaryPower
+
+                // seg010_2E43
+                if (neighEnemyUnits)
+                {
+                    // TODO seg010_2E6D: attempt to bribe unit under specific conditions
+
+                }
+
+                // seg010_31A5: neighbor unit(s) are our own
+                if (neighOwnUnits)
+                {
+                    neighborValue -= unit.Defense;
+                }
+
+                if (neighUnits.Length < 1)
+                {
+                    // seg010_31C7: undefended enemy city, lets attack
+                    var neighCity = Game.GetCity(neighX, neighY);
+                    if (neighCity != null && neighCity.Owner != unit.Owner)
+                        neighborValue = int.MaxValue;
+
+                    // seg010_31EC: a hut is desirable
+                    if (tile.Hut)
+                        neighborValue += 20;
+                }
+
+                // seg010_3209
+                if (!enemyUnitOrCityNearby)
+                {
+                    neighborValue += EvaluateNextTileOut(unit, neighX, neighY);
+                }
+
+                if (neighborValue > bestValue)
+                {
+                    bestValue = neighborValue;
+                    bestNeighborId = neighborloop;
+                }
+
+            } // neighbor eval loop
+
+            unit.MoveTo(deltaX[bestNeighborId], deltaY[bestNeighborId]);
+
+            //RandomMove(unit);
+        }
+
+        // There were no enemies or cities nearby. Look to the neighbors of the neighbor tile,
+        // and return the DELTA impact on the value of the neighbor.
+        private int EvaluateNextTileOut(IUnit unit, int neighX, int neighY)
+        {
+            // TODO seg010_3212
+            // TODO seg010_329D
+            return 0; // TODO NYI
+        }
+
+        private void RandomMove(IUnit unit)
+        {
             for (int i = 0; i < 1000; i++)
             {
                 if (unit.Goto.IsEmpty)
@@ -224,11 +363,26 @@ namespace CivOne
                             return;
                         }
                     }
+
                     return;
                 }
             }
+
             unit.SkipTurn();
             return;
+        }
+
+        private int aggregateUnitStackAttribute(IUnit unit, int p1)
+        {
+            // TODO NYI
+            return 1;
+        }
+
+        private int getOwner(int x, int y)
+        {
+            var tile = Map[x, y];
+            // TODO owner NYI
+            return 0;
         }
 
         internal void ChooseResearch()
@@ -334,7 +488,52 @@ namespace CivOne
 			return _instances[player];
 		}
 
-		private AI(Player player)
+        // Adapted from darkpanda's civlogic port
+        private static City FindNearestCity(int x, int y)
+        {
+            City nearestCity = null;
+            int bestDistance = int.MaxValue;
+            foreach (var city in Game.GetCities())
+            {
+                // TODO fire-eggs: copied from A*
+                var dist = Common.Distance(city.X, city.Y, x, y);
+                if (dist < bestDistance)
+                {
+                    bestDistance = dist;
+                    nearestCity = city;
+                }
+            }
+            return nearestCity;
+        }
+
+        private static bool IsEnemyUnitOrCityNearby(IUnit unit)
+        {
+            bool isEnemyUnit = IsEnemyUnitNearby(unit);
+            var city = FindNearestCity(unit.X, unit.Y);
+            if (city == null) 
+                return isEnemyUnit;
+            if (city.Owner != unit.Owner &&
+                Common.Distance(city.X, city.Y, unit.X, unit.Y) == 1)
+                return true;
+            return isEnemyUnit;
+        }
+
+        private static bool IsEnemyUnitNearby(IUnit unit)
+        {
+            // TODO fire-eggs it is not specified what "nearby" means: assuming distance 1 for now
+            int minX = unit.X - 1;
+            int maxX = unit.X + 1;
+            int minY = unit.Y - 1;
+            int maxY = unit.Y + 1;
+            var enemies = Game.GetUnits().Where(u => u.X >= minX &&
+                                                     u.X <= maxX &&
+                                                     u.Y >= minY &&
+                                                     u.Y <= maxY &&
+                                                     u.Owner != unit.Owner).ToArray();
+            return enemies.Length > 0;
+        }
+
+        private AI(Player player)
 		{
 			Player = player;
 		}
