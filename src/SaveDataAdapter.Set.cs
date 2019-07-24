@@ -212,7 +212,9 @@ namespace CivOne
 				{
 					case ReplayData.CivilizationDestroyed civDestroyed:
 						entryId = 0xD0;
-						data = new[] { (byte)civDestroyed.DestroyedId, (byte)civDestroyed.DestroyedById };
+                        // TODO fire-eggs jCivEd falls over if civ id out of 0-7 range; how to deal w/ civ-reincarnation?
+						data = new[] { (byte)(civDestroyed.DestroyedId ^ 8), 
+                                       (byte)(civDestroyed.DestroyedById ^ 8) };
 						break;
 					default:
 						continue;
