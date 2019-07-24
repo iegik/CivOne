@@ -148,6 +148,10 @@ namespace CivOne
             }
         }
 
+        // Delta X/Y values for the 8 neighbor tiles - NOT the center
+        private static int[] deltaX = { -1, 0, +1, -1, +1, -1, 0, +1 };
+        private static int[] deltaY = { -1, -1, -1, 0, 0, +1, +1, +1 };
+
         private void LandAttackMove(IUnit unit)
         {
             // TODO seg010_13CB
@@ -195,8 +199,6 @@ namespace CivOne
             int bestValue = int.MinValue;
             int bestNeighborId = 0;
 
-            int[] deltaX = {-1,  0, +1, -1, +1, -1,  0, +1};
-            int[] deltaY = {-1, -1, -1,  0,  0, +1, +1, +1};
             for (int neighborloop = 0; neighborloop < 8; neighborloop++)
             {
                 // TODO map range check
@@ -280,9 +282,27 @@ namespace CivOne
         // and return the DELTA impact on the value of the neighbor.
         private int EvaluateNextTileOut(IUnit unit, int neighX, int neighY)
         {
-            // TODO seg010_3212
-            // TODO seg010_329D
-            return 0; // TODO NYI
+            int neighborValueDelta = 0;
+
+            // TODO seg010_3212 : don't know what the purpose of seg029_1498[] is
+
+            // seg010_329D : determine if the direction we're going is toward ocean or other units
+            for (int neighLoop2 = 0; neighLoop2 < 8; neighLoop2++)
+            {
+                int nnx = neighX + deltaX[neighLoop2];
+                int nny = neighY + deltaY[neighLoop2];
+
+                // TODO validate within map range
+
+                // TODO visibility seg010_32EC
+
+                if (!Map[nnx, nny].IsOcean)
+                    neighborValueDelta += 2;
+                if (Game.GetUnits(nnx, nny).Length > 0)
+                    neighborValueDelta -= 2;
+            }
+
+            return neighborValueDelta;
         }
 
         private void RandomMove(IUnit unit)
