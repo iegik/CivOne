@@ -109,7 +109,7 @@ namespace CivOne.Screens.Dialogs
 			
 			AddMenu(menu);
 
-            // TODO KBR is there any dialog-based menu which DOESN'T want these established?
+            // TODO fire-eggs is there any dialog-based menu which DOESN'T want these established?
             menu.Cancel += Cancel;
             menu.MissClick += Cancel;
         }

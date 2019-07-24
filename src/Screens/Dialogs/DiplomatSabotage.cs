@@ -43,7 +43,7 @@ namespace CivOne.Screens.Dialogs
 			DialogBox.DrawText(diplomat1.Sabotage(enemyCity1), 0, 15, 45, 5 + Resources.GetFontHeight(FONT_ID));
 			DialogBox.DrawText($"in {enemyCity1.Name}", 0, 15, 45, 5 + (2 * Resources.GetFontHeight(FONT_ID)));
 
-            // TODO KBR set width based on text
+            // TODO fire-eggs set width based on text
 		}
 	}
 }

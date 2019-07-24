@@ -193,7 +193,7 @@ namespace CivOne
 
 				foreach (byte fortifiedUnit in cityData.FortifiedUnits)
                 {
-                    // KBR 20190622 corrected restore of "fortified" units
+                    // fire-eggs 20190622 corrected restore of "fortified" units
                     // Unit id is actually in lower 6 bits
                     // see https://forums.civfanatics.com/threads/sve-file-format.493581/page-4
                     int unitId = fortifiedUnit & 0x3F;

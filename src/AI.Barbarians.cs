@@ -153,7 +153,7 @@ namespace CivOne
 					return;
 				}
 
-                // KBR 20180628 Do NOT move barbarian leader onto enemy unit!
+                // fire-eggs 20180628 Do NOT move barbarian leader onto enemy unit!
                 ITile[] unfriend = unit.Tile.GetBorderTiles().Where(z=> !z.IsOcean && !z.Units.Any()).ToArray();
                 if (unfriend.Length > 0)
                 {

@@ -143,7 +143,7 @@ namespace CivOne.Screens
 				return true;
 			}
 
-            // KBR typing first character in menu should select it
+            // fire-eggs typing first character in menu should select it
             for (int i=0; i < Items.Count; i++)
             {
                 if (char.ToLower(args.KeyChar) != char.ToLower(Items[i].Text[0]))

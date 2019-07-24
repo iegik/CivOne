@@ -52,7 +52,7 @@ namespace CivOne.Screens.Dialogs
 			int distance = capital == null ? 16 : unitToBribe.Tile.DistanceTo(capital);
 
             int cost = ((unitToBribe.Player.Gold + 750) / (distance + 2)) * unitToBribe.Price;
-            // KBR 20190628 barbarian cost is 50%
+            // fire-eggs 20190628 barbarian cost is 50%
             return (unitToBribe.Player.Civilization is Barbarian) ? cost / 2 : cost;
         }
 

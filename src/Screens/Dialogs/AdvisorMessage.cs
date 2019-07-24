@@ -45,7 +45,7 @@ namespace CivOne.Screens.Dialogs
 			bool modernGovernment = Human.HasAdvance<Invention>();
 			IBitmap governmentPortrait = Icons.GovernmentPortrait(Human.Government, advisor, modernGovernment);
 			
-            // TODO KBR common operation
+            // TODO fire-eggs common operation
 			Palette palette = Common.DefaultPalette;
 			for (int i = 144; i < 256; i++)
 			{

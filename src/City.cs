@@ -659,7 +659,7 @@ namespace CivOne
 				while (_specialists.Count < Size - (ResourceTiles.Count() - 1)) _specialists.Add(Citizen.Entertainer);
 				while (_specialists.Count > Size - (ResourceTiles.Count() - 1)) _specialists.Remove(_specialists.Last());
 
-                // KBR TODO verify luxury makes happy first, then clears unhappy
+                // TODO fire-eggs verify luxury makes happy first, then clears unhappy
 				int happyCount = (int)Math.Floor((double)Luxuries / 2);
 				if (Player.HasWonder<HangingGardens>() && !Game.WonderObsolete<HangingGardens>()) happyCount++;
 				if (Player.HasWonder<CureForCancer>()) happyCount++;
@@ -686,7 +686,7 @@ namespace CivOne
 					if (HasBuilding<Cathedral>()) unhappyCount -= 4;
 				}
 
-                // KBR 20190612 Martial law : reduce unhappy count for every attack-capable unit in city [max 3]
+                // 20190612 fire-eggs Martial law : reduce unhappy count for every attack-capable unit in city [max 3]
                 if (Player.AnarchyDespotism || Player.MonarchyCommunist)
                 {
                     var attackUnitsInCity = Game.Instance.GetUnits()
@@ -694,6 +694,8 @@ namespace CivOne
                         .Count();
                     attackUnitsInCity = Math.Min(attackUnitsInCity, 3);
                     unhappyCount -= attackUnitsInCity;
+
+                    // TODO fire-eggs: absent units make people unhappy (republic, democracy)
                 }
 
                 int content = 0;
@@ -825,8 +827,8 @@ namespace CivOne
 				}
 				else
 				{
-                    // TODO KBR not showing loses side-effects
-					if (Player.IsHuman) // && !Game.Animations) // KBR don't show if animations off
+                    // TODO fire-eggs not showing loses side-effects
+					if (Player.IsHuman) // && !Game.Animations)
 					{
 						Show disorderCity = Show.DisorderCity(this);
  						GameTask.Insert(disorderCity);
