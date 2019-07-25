@@ -18,7 +18,7 @@ namespace CivOne
 	public class Settings
 	{
 		private static IRuntime Runtime => RuntimeHandler.Runtime;
-		private static void Log(string text, params object[] parameters) => RuntimeHandler.Runtime.Log(text, parameters);
+		//private static void Log(string text, params object[] parameters) => RuntimeHandler.Runtime.Log(text, parameters);
 
 		// Set default settings
 		private string _windowTitle = "CivOne";
@@ -38,7 +38,8 @@ namespace CivOne
 		private CursorType _cursorType = CursorType.Default;
 		private DestroyAnimation _destroyAnimation = DestroyAnimation.Sprites;
 		private GameOption _instantAdvice, _autoSave, _endOfTurn, _animations, _sound, _enemyMoves, _civilopediaText, _palace;
-		
+        private int _taxRate = 5;
+
 		internal string StorageDirectory => Runtime.StorageDirectory;
 		internal string CaptureDirectory => Path.Combine(StorageDirectory, "capture");
 		internal string DataDirectory => Path.Combine(StorageDirectory, "data");
@@ -349,6 +350,17 @@ namespace CivOne
 			}
 		}
 
+        public int TaxRate
+        {
+            get => _taxRate;
+            set
+            {
+                _taxRate = Math.Max(0,Math.Min(10,value));
+                SetSetting("TaxRate", _taxRate.ToString());
+                Common.ReloadSettings = true;
+            }
+        }
+
 		public string[] DisabledPlugins
 		{
 			get => GetSetting("DisabledPlugins")?.Split(';') ?? new string[0];
@@ -357,8 +369,8 @@ namespace CivOne
 
 		internal void RevealWorldCheat() => _revealWorld = !_revealWorld;
 		
-		internal int ScaleX => _scale;
-		internal int ScaleY => _scale;
+		//internal int ScaleX => _scale;
+		//internal int ScaleY => _scale;
 		
 		private string GetSetting(string settingName) => Runtime.GetSetting(settingName);
 
@@ -376,8 +388,10 @@ namespace CivOne
 		
 		private bool GetSetting(string settingName, ref int output, int minValue = int.MinValue, int maxValue = int.MaxValue)
 		{
-			if (!Int32.TryParse(GetSetting(settingName), out int value)) return false;
-			if (value < minValue || value > maxValue) return false;
+			if (!int.TryParse(GetSetting(settingName), out var value)) 
+                return false;
+			if (value < minValue || value > maxValue) 
+                return false;
 			output = value;
 			return true;
 		}
@@ -387,10 +401,10 @@ namespace CivOne
 		private void CreateDirectories()
 		{
 			foreach (string dir in new[] { StorageDirectory, CaptureDirectory, DataDirectory, PluginsDirectory, SavesDirectory, SoundsDirectory })
-			if (!Directory.Exists(dir))
-			{
-				Directory.CreateDirectory(dir);
-			}
+                if (!Directory.Exists(dir))
+			    {
+				    Directory.CreateDirectory(dir);
+			    }
 			
 			for (char c = 'a'; c <= 'z'; c++)
 			{
@@ -403,17 +417,9 @@ namespace CivOne
 		}
 		
 		private static Settings _instance;
-		public static Settings Instance
-		{
-			get
-			{
-				if (_instance == null)
-					_instance = new Settings();
-				return _instance;
-			}
-		}
-		
-		private Settings()
+		public static Settings Instance => _instance ?? (_instance = new Settings());
+
+        private Settings()
 		{
 			CreateDirectories();
 			
@@ -447,6 +453,7 @@ namespace CivOne
 			GetSetting<GameOption>("GameEnemyMoves", ref _enemyMoves);
 			GetSetting<GameOption>("GameCivilopediaText", ref _civilopediaText);
 			GetSetting<GameOption>("GamePalace", ref _palace);
-		}
+            GetSetting("TaxRate", ref _taxRate, 0, 10);
+        }
 	}
 }

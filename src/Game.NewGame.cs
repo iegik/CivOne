@@ -195,6 +195,7 @@ namespace CivOne
 					_players[i] = new Player(tribe, leaderName, tribeName, tribeNamePlural);
 					_players[i].Destroyed += PlayerDestroyed;
 					HumanPlayer = _players[i];
+                    HumanPlayer.TaxesRate = Settings.TaxRate; // fire-eggs 20190725
 					if (difficulty == 0)
 					{
 						// Chieftain starts with 50 Gold
@@ -233,7 +234,7 @@ namespace CivOne
 
 			GameTurn = 0;
 
-			// Number of turns to next antholoy needs to be checked
+			// Number of turns to next anthology needs to be checked
 			_anthologyTurn = (ushort)Common.Random.Next(1, 128);
 		}
 	}
