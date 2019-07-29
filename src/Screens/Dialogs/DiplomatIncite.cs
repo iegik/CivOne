@@ -36,21 +36,36 @@ namespace CivOne.Screens.Dialogs
 		private void Incite(object sender, EventArgs args)
 		{
 			Player previousOwner = Game.GetPlayer(_cityToIncite.Owner);
+            var newOwner = _diplomat.Owner;
+            var newPlayer = Game.GetPlayer(newOwner);
+
+            // Initial incite message
+            var msg = Message.General($"{previousOwner.TribeNamePlural} rebel!",
+                "Civil War in",
+                $"{_cityToIncite.Name}.",
+                $"{newPlayer.TribeName} influence",
+                "suspected.");
+            GameTask.Insert(msg);
 
             // TODO fire-eggs gold captured
+            int plundered = 0;
             // TODO fire-eggs advance stolen
 
-			Show captureCity = Show.CaptureCity(_cityToIncite, null);
+            string[] lines = { $"{newPlayer.TribeNamePlural} capture", 
+                               $"{_cityToIncite.Name}. {plundered} gold", 
+                               "pieces plundered." };
+
+			Show captureCity = Show.CaptureCity(_cityToIncite, lines);
 			EventHandler capture_done = (s1, a1) =>
 			{
 				Game.DisbandUnit(_diplomat);
-				_cityToIncite.Owner = _diplomat.Owner;
+				_cityToIncite.Owner = newOwner;
 
                 // fire-eggs 20190701 city units must convert
                 // TODO fire-eggs not all units _always_ convert, e.g. settlers ?
                 foreach (var unit in _cityToIncite.Units)
                 {
-                    unit.Owner = _diplomat.Owner;
+                    unit.Owner = newOwner;
                 }
 
 				// remove half the buildings at random
@@ -59,12 +74,13 @@ namespace CivOne.Screens.Dialogs
 					_cityToIncite.RemoveBuilding(building);
 				}
 
-				_diplomat.Player.Gold -= (short)_inciteCost;
+				newPlayer.Gold -= (short)_inciteCost;
+                newPlayer.Gold += (short) plundered;
 
 				previousOwner.IsDestroyed();
 
                 // TODO fire-eggs not sure if human-city being incited should be here [except incite of rebelling human city?]
-				if (Human == _cityToIncite.Owner || Human == _diplomat.Owner)
+				if (Human == _cityToIncite.Owner || Human == newOwner)
 				{
 					GameTask.Insert(Tasks.Show.CityManager(_cityToIncite));
 				}
