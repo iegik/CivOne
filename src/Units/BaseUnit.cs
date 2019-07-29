@@ -232,6 +232,20 @@ namespace CivOne.Units
 			return win;
 		}
 
+        private class SimpleTask : GameTask
+        {
+            private Player _who;
+
+            public SimpleTask(Player who)
+            {
+                _who = who;
+            }
+            public override void Run()
+            {
+                _who.IsDestroyed();
+            }
+        };
+
 		protected virtual bool Confront(int relX, int relY)
 		{
             Goto = Point.Empty;             // Cancel any goto mode when Confronting
@@ -389,8 +403,15 @@ namespace CivOne.Units
 
                     IUnit unit = attackedUnits.FirstOrDefault();
 					if (unit != null)
-					{
-						GameTask.Insert(Show.DestroyUnit(unit, true));
+                    {
+                        var task = Show.DestroyUnit(unit, true);
+
+                        // fire-eggs 20190729 when destroying last city, check for civ destruction ASAP
+                        if (unit.Owner != 0)
+                            task.Done += (s1, a1) => { Game.GetPlayer(unit.Owner).IsDestroyed(); };
+
+                        GameTask.Insert(task);
+                        //GameTask.Insert(Show.DestroyUnit(unit, true));
 					}
 					
 					if (MovesLeft == 0)
@@ -413,7 +434,7 @@ namespace CivOne.Units
 					{
 						if (!Map[X, Y][relX, relY].City.HasBuilding<CityWalls>())
 						{
-							Map[X, Y][relX, relY].City.Size--;
+                            Map[X, Y][relX, relY].City.Size--;
 						}
 					}
 				};
