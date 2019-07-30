@@ -14,10 +14,14 @@ using System.Linq;
 using CivOne.Advances;
 using CivOne.Buildings;
 using CivOne.Enums;
+using CivOne.Graphics;
 using CivOne.Leaders;
 using CivOne.Tasks;
 using CivOne.Tiles;
 using CivOne.Units;
+
+// TODO fire-eggs consider replacing any scan of all units [GetUnits] with a subset of units [All units immediately surrounding x,y]
+// TODO fire-eggs verify that Distance(unit1,unit2) where they are neighbors has a value of 1!
 
 namespace CivOne
 {
@@ -26,6 +30,15 @@ namespace CivOne
 	{
         private Player Player { get; }
         private ILeader Leader => Player.Civilization.Leader;
+
+        private static int Distance(City city, IUnit unit)
+        {
+            return Common.Distance(city.X, city.Y, unit.X, unit.Y);
+        }
+        private static int Distance(IUnit unit1, IUnit unit2)
+        {
+            return Common.Distance(unit1.X, unit1.Y, unit2.X, unit2.Y);
+        }
 
 		internal void Move(IUnit unit)
 		{
@@ -44,7 +57,8 @@ namespace CivOne
                     SettlerMove(unit);
                     break;
                 case UnitRole.Defense:
-                    DefenseMove(unit);
+                    if (!DefenseMove(unit))
+                        LandAttackMove(unit);
                     break;
                 case UnitRole.LandAttack:
                     LandAttackMove(unit);
@@ -61,10 +75,23 @@ namespace CivOne
 
         private void SettlerMove(IUnit unit)
         {
-            if (!(unit is Settlers)) 
-                return;
-
             ITile tile = unit.Tile;
+
+            // seg010_13CB
+            int bestLandValue = tile.LandValue;
+            if (bestLandValue != 0)
+            {
+                // at beginning of game, compelled to build city ASAP
+                if (Game.GameTurn == 0) // && !Game.IsEarth // TODO not playing on EARTH
+                {
+                    GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
+                    return;
+                }
+
+                // TODO look at neighbor tiles to see if better location and if so, move there
+
+            }
+
 
             bool hasCity = tile.City != null;
             bool validCity = (tile is Grassland || tile is River || tile is Plains) && !hasCity;
@@ -79,12 +106,60 @@ namespace CivOne
             if (Game.GetCities().Any(x => x.Owner == unit.Owner)) 
                 nearestOwnCity = Game.GetCities().Where(x => x.Owner == unit.Owner).Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
 
+            // seg010_1513
+            if (Game.Difficulty != 0 &&
+                // SEG010_1526 : closest city belongs to human? 
+                !IsEnemyUnitNearby(unit) &&
+                nearestCity > 1 &&
+                // seg010_1550: nearest city belows to other civ
+                // seg010_1558: our techcount is less than humans?
+                tile.LandValue >= 9 &&
+                (14 - nearestCity) <= tile.LandValue &&
+                !hasCity) // TODO consider adding to existing city?
+            {
+                GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
+                return;
+            }
+
+            // seg010_2263: something about civ able to improve before MONARCHY (?)
+            // seg010_227A: AIContinentPolicy
+            if (nearestOwnCity > 0 &&
+                nearestOwnCity <= 2 &&
+
+                (tile.Type != Terrain.Hills ||
+                 // seg010_22AA : closest city size >= 3 ||
+                 tile.Special)
+            )
+            {
+                // seg010_22E0: do the best improvement if possible: irrigate or mine
+
+                // seg010_233D:
+                if (validCity && !tile.Road && (tile.Mine || tile.Irrigation))
+                {
+                    GameTask.Enqueue(Orders.BuildRoad(unit));
+                    return;
+                }
+
+                if (Player.HasAdvance<RailRoad>() &&
+                    !tile.RailRoad)
+                {
+                    // seg010_23A7 decide whether to build railroad
+                }
+            }
+
+            // seg010_23EF: clean up pollution
+
+            // seg010_240A: do nothing based on civ expansionist attitude?
+
+            // seg010_245C: logic when next-to or in own city
+
             if (validCity && nearestCity > 3)
             {
                 GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
                 return;
             }
-            else if (nearestOwnCity < 3)
+
+            if (nearestOwnCity < 3)
             {
                 switch (Common.Random.Next(5 * nearestOwnCity))
                 {
@@ -127,30 +202,87 @@ namespace CivOne
 
         }
 
-        private void DefenseMove(IUnit unit)
+        private bool isBestDefenseInLocation(IUnit unit)
         {
-            unit.Fortify = true;
-            while (unit.Tile.City != null && 
-                   unit.Tile.Units.Count(x => x.Role == UnitRole.Defense) > 2)
+            // Does this unit have the best defense value at it's current location?
+            return false;
+        }
+
+        private bool DefenseMove(IUnit unit)
+        {
+            // NOTE: all fortified units appear to be woken up periodically:
+            // see seg010_177A, seg010_17A1
+
+            // 1. In city?
+            if (unit.Tile.City != null)
             {
-                IUnit disband;
-                IUnit[] units = unit.Tile.Units.Where(x => x != unit).ToArray();
-                if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Militia)) != null) 
-                { Game.DisbandUnit(disband); continue; }
-                if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Phalanx)) != null) 
-                { Game.DisbandUnit(disband); continue; }
-                if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Musketeers)) != null) 
-                { Game.DisbandUnit(disband); continue; }
-                if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Riflemen)) != null) 
-                { Game.DisbandUnit(disband); continue; }
-                if ((disband = unit.Tile.Units.FirstOrDefault(x => x is MechInf)) != null) 
-                { Game.DisbandUnit(disband); continue; }
+                // 1a. alone in city: fortify [seg010_15CB]
+                // 1b. best defense unit in city: fortify [seg010_15EB]
+                if (unit.Tile.Units.Length < 2 ||
+                    isBestDefenseInLocation(unit))
+                {
+                    unit.Fortify = true;
+                    return true;
+                }
+
+                // TODO seg010_1655 to seg010_170A
+                // 1c. [determine nearby threat: fortify or assignNewTacticalLocation];
+                //     does this mean to wake up other units?
             }
+
+            // TODO let the LandAttackMove() call do this instead?
+            // 2. pillage check: unit _type_ has < 2 moves
+            City nearCity = FindNearestCity(unit.X, unit.Y);
+            int distNearCity = nearCity == null ? 
+                int.MaxValue : Distance(nearCity, unit);
+            if (PillageCheck(unit, distNearCity, nearCity?.Owner ?? 0))
+                return true;
+
+            // 3. seg010_2899: fortify under specific situation
+
+            // 4. treat as attack unit
+            return false;
+
+            //unit.Fortify = true;
+            //while (unit.Tile.City != null && 
+            //       unit.Tile.Units.Count(x => x.Role == UnitRole.Defense) > 2)
+            //{
+            //    IUnit disband;
+            //    IUnit[] units = unit.Tile.Units.Where(x => x != unit).ToArray();
+            //    if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Militia)) != null) 
+            //    { Game.DisbandUnit(disband); continue; }
+            //    if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Phalanx)) != null) 
+            //    { Game.DisbandUnit(disband); continue; }
+            //    if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Musketeers)) != null) 
+            //    { Game.DisbandUnit(disband); continue; }
+            //    if ((disband = unit.Tile.Units.FirstOrDefault(x => x is Riflemen)) != null) 
+            //    { Game.DisbandUnit(disband); continue; }
+            //    if ((disband = unit.Tile.Units.FirstOrDefault(x => x is MechInf)) != null) 
+            //    { Game.DisbandUnit(disband); continue; }
+            //}
         }
 
         // Delta X/Y values for the 8 neighbor tiles - NOT the center
         private static int[] deltaX = { -1, 0, +1, -1, +1, -1, 0, +1 };
         private static int[] deltaY = { -1, -1, -1, 0, 0, +1, +1, +1 };
+
+        private bool PillageCheck(IUnit unit, int distNearCity, byte nearCityOwner)
+        {
+            // DarkPanda ai_orders seg010_2192
+
+            if (unit.Move < 2 &&
+                distNearCity < 4 &&
+                Human == nearCityOwner &&
+                // at war with human && // TODO diplomacy
+                (unit.Tile.Irrigation || unit.Tile.Mine))
+            {
+                // pillage the square
+                unit.Pillage();
+                return true;
+            }
+
+            return false;
+        }
 
         private void LandAttackMove(IUnit unit)
         {
@@ -167,21 +299,11 @@ namespace CivOne
             bool isEnemyNearby = IsEnemyUnitNearby(unit);
             City nearCity = FindNearestCity(unit.X, unit.Y);
             int distNearCity = nearCity == null ? 
-                                    int.MaxValue : 
-                                    Common.Distance(nearCity.X, nearCity.Y, unit.X, unit.Y);
+                                    int.MaxValue : Distance(nearCity, unit);
 
             // DarkPanda ai_orders seg010_2192
-            // TODO is 'totalMoves' === MovesLeft or MovesLeft+PartMoves ?
-            if (unit.MovesLeft < 2 &&
-                distNearCity < 4 &&
-                Human == nearCity.Owner &&
-                // at war with human &&
-                (unit.Tile.Irrigation || unit.Tile.Mine))
-            {
-                // pillage the square
-                unit.Pillage(); // TODO why isn't this an Order ?
+            if (PillageCheck(unit, distNearCity, nearCity?.Owner ?? 0))
                 return;
-            }
 
             // DarkPanda ai_orders seg010_2857
             if (!unit.Goto.IsEmpty &&
@@ -249,6 +371,7 @@ namespace CivOne
 
                 if (neighUnits.Length < 1)
                 {
+                    // TODO state of war / diplomacy
                     // seg010_31C7: undefended enemy city, lets attack
                     var neighCity = Game.GetCity(neighX, neighY);
                     if (neighCity != null && neighCity.Owner != unit.Owner)
@@ -296,8 +419,12 @@ namespace CivOne
 
                 // TODO visibility seg010_32EC
 
-                if (!Map[nnx, nny].IsOcean)
-                    neighborValueDelta += 2;
+                if (CanSee(unit, nnx, nny))
+                {
+                    if (!Map[nnx, nny].IsOcean)
+                        neighborValueDelta += 2;
+                }
+
                 if (Game.GetUnits(nnx, nny).Length > 0)
                     neighborValueDelta -= 2;
             }
@@ -305,6 +432,13 @@ namespace CivOne
             return neighborValueDelta;
         }
 
+        private bool CanSee(IUnit unit, int x, int y)
+        {
+            // TODO is this 'explored' or 'currently visible'?
+            // has this Civ seen a particular tile?
+            // MapVisibility[x,y] for unit.Civ == 1
+            return true;
+        }
         private void RandomMove(IUnit unit)
         {
             for (int i = 0; i < 1000; i++)
@@ -515,7 +649,6 @@ namespace CivOne
             int bestDistance = int.MaxValue;
             foreach (var city in Game.GetCities())
             {
-                // TODO fire-eggs: copied from A*
                 var dist = Common.Distance(city.X, city.Y, x, y);
                 if (dist < bestDistance)
                 {
@@ -533,7 +666,7 @@ namespace CivOne
             if (city == null) 
                 return isEnemyUnit;
             if (city.Owner != unit.Owner &&
-                Common.Distance(city.X, city.Y, unit.X, unit.Y) == 1)
+                Distance(city, unit) == 1)
                 return true;
             return isEnemyUnit;
         }
@@ -550,6 +683,7 @@ namespace CivOne
                                                      u.Y >= minY &&
                                                      u.Y <= maxY &&
                                                      u.Owner != unit.Owner).ToArray();
+            // TODO .Where(u=>Distance(unit,u) == 1 && u.Owner != unit.Owner)
             return enemies.Length > 0;
         }
 
