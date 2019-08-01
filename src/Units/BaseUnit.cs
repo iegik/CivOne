@@ -252,7 +252,7 @@ namespace CivOne.Units
 
 			if (Class == UnitClass.Land && (this is Diplomat || this is Caravan))
 			{
-				// TODO: Perform other unit action (confront)
+				// TODO fire-eggs this should never happen? Diplomat/Caravan have overloads
 				return false;
 			}
 
