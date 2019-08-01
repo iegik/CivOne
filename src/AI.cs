@@ -396,7 +396,10 @@ namespace CivOne
 
             } // neighbor eval loop
 
-            unit.MoveTo(deltaX[bestNeighborId], deltaY[bestNeighborId]);
+            if (!unit.MoveTo(deltaX[bestNeighborId], deltaY[bestNeighborId]))
+            {
+                unit.MovesLeft = 0; // TODO fire-eggs failed to move; make sure we don't try to move again; infinite loop
+            }
 
             //RandomMove(unit);
         }
