@@ -75,22 +75,21 @@ namespace CivOne.Units
 		{
 			ITile moveTarget = Map[X, Y][relX, relY];
 
-			if (moveTarget.City != null)
+            var targetCity = moveTarget.City;
+			if (targetCity != null)
 			{
 				if (Human == Owner)
 				{
-					GameTask.Enqueue(Show.DiplomatCity(moveTarget.City, this));
-					return true;
+					GameTask.Enqueue(Show.DiplomatCity(targetCity, this));
 				}
+                else if (Human == targetCity.Player)
+                {
+                    GameTask.Enqueue(Message.Spy("Spies report:", $"{Sabotage(targetCity)}", $"in {targetCity.Name}"));
+                }
 				else
-				{
-					if (moveTarget.City.Player == Human)
-						GameTask.Enqueue(Tasks.Show.DiplomatSabotage(moveTarget.City, this));
-					else
-						Sabotage(moveTarget.City);
-						
-					return true;
-				}
+					Sabotage(targetCity);
+					
+				return true;
 			}
 
 			IUnit[] units = moveTarget.Units;
