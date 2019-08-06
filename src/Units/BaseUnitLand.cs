@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using CivOne.Advances;
 using CivOne.Enums;
@@ -70,17 +71,16 @@ namespace CivOne.Units
 			{
 				if (MovesLeft > 0)
 				{
-					byte moveCosts = 1;
-					if (Class == UnitClass.Land)
-						moveCosts = Map[X, Y].Movement;
+					//byte moveCosts = 1;
+					//if (Class == UnitClass.Land) // TODO fire-eggs isn't this always true?
+					//	moveCosts = Map[X, Y].Movement;
+                    byte moveCosts = Tile.Movement;
+                    Debug.Assert(Class == UnitClass.Land);
 					if (MovesLeft < moveCosts)
 						moveCosts = MovesLeft;
 					MovesLeft -= moveCosts;
-				}
-				else if (PartMoves > 0)
-				{
-					PartMoves = 0;
-				}
+                }
+                PartMoves = 0; // fire-eggs 20190806 we've moved off-road: all partial moves always lost
 			}
 		}
 
