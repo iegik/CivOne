@@ -14,7 +14,6 @@ using System.Linq;
 using CivOne.Advances;
 using CivOne.Buildings;
 using CivOne.Enums;
-using CivOne.Graphics;
 using CivOne.Leaders;
 using CivOne.Tasks;
 using CivOne.Tiles;
@@ -134,7 +133,9 @@ namespace CivOne
                 // seg010_22E0: do the best improvement if possible: irrigate or mine
 
                 // seg010_233D:
-                if (validCity && !tile.Road && (tile.Mine || tile.Irrigation))
+                if ((tile.Mine || tile.Irrigation) &&
+                    !tile.Road &&
+                    (tile is Desert || tile is Plains || tile is Grassland))
                 {
                     GameTask.Enqueue(Orders.BuildRoad(unit));
                     return;
@@ -217,8 +218,9 @@ namespace CivOne
             if (unit.Tile.City != null)
             {
                 // 1a. alone in city: fortify [seg010_15CB]
+                // TODO fire-eggs: to match SWY's production logic, target is *2* units in the city
                 // 1b. best defense unit in city: fortify [seg010_15EB]
-                if (unit.Tile.Units.Length < 2 ||
+                if (unit.Tile.Units.Length <= 2 || 
                     isBestDefenseInLocation(unit))
                 {
                     unit.Fortify = true;
