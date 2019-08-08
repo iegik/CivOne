@@ -195,6 +195,7 @@ namespace CivOne
 					_players[i] = new Player(tribe, leaderName, tribeName, tribeNamePlural);
 					_players[i].Destroyed += PlayerDestroyed;
 					HumanPlayer = _players[i];
+                    HumanPlayer.TaxesRate = Settings.TaxRate; // fire-eggs 20190725
 					if (difficulty == 0)
 					{
 						// Chieftain starts with 50 Gold
@@ -208,7 +209,8 @@ namespace CivOne
 				int r = Common.Random.Next(civs.Length);
 				
 				_players[i] = new Player(civs[r]);
-				_players[i].Destroyed += PlayerDestroyed;
+                if (i != 0) // fire-eggs 20190730 never show "barbarian civilization destroyed"
+				    _players[i].Destroyed += PlayerDestroyed;
 				
 				Log("- Player {0} is {1} of the {2}", i, _players[i].LeaderName, _players[i].TribeNamePlural);
 			}
@@ -233,7 +235,7 @@ namespace CivOne
 
 			GameTurn = 0;
 
-			// Number of turns to next antholoy needs to be checked
+			// Number of turns to next anthology needs to be checked
 			_anthologyTurn = (ushort)Common.Random.Next(1, 128);
 		}
 	}

@@ -243,7 +243,7 @@ namespace CivOne.Screens
 			MenuItem.Create("Back")
 		);
 
-        private void AutoSettlersMenu() => CreateMenu("Use auto settlers cheat", GotoMenu(PatchesMenu, 8),
+        private void AutoSettlersMenu() => CreateMenu("Use auto settlers cheat", GotoMenu(PatchesMenu, 9),
             MenuItem.Create($"{false.YesNo()} (default)").OnSelect((s, a) => Settings.AutoSettlers = false).SetActive(() => !Settings.AutoSettlers),
             MenuItem.Create(true.YesNo()).OnSelect((s, a) => Settings.AutoSettlers = true).SetActive(() => Settings.AutoSettlers),
             MenuItem.Create("Back")
@@ -292,6 +292,7 @@ namespace CivOne.Screens
 			MenuItem.Create($"Enemy Moves: {Settings.EnemyMoves.ToText()}").OnSelect(GotoMenu(GameOptionMenu(5, "Enemy Moves", () => Settings.EnemyMoves, (GameOption option) => Settings.EnemyMoves = option))),
 			MenuItem.Create($"Civilopedia Text: {Settings.CivilopediaText.ToText()}").OnSelect(GotoMenu(GameOptionMenu(6, "Civilopedia Text", () => Settings.CivilopediaText, (GameOption option) => Settings.CivilopediaText = option))),
 			MenuItem.Create($"Palace: {Settings.Palace.ToText()}").OnSelect(GotoMenu(GameOptionMenu(7, "Palace", () => Settings.Palace, (GameOption option) => Settings.Palace = option))),
+            MenuItem.Create($"Tax Rate: {Settings.TaxRate * 10}%").OnSelect(GotoMenu(TaxRateMenu)),
 			MenuItem.Create("Back").OnSelect(GotoMenu(MainMenu, 3))
 		);
 
@@ -301,6 +302,21 @@ namespace CivOne.Screens
 			MenuItem.Create(GameOption.Off.ToText()).OnSelect((s, a) => setOption(GameOption.Off)).SetActive(() => getOption() == GameOption.Off),
 			MenuItem.Create("Back")
 		);
+
+        private void TaxRateMenu() => CreateMenu("Window Scale", GotoMenu(GameOptionsMenu, 8),
+            MenuItem.Create(" 0% Tax, 100% Science").OnSelect((s,a)=> Settings.TaxRate = 0).SetActive(() => Settings.TaxRate == 0),
+            MenuItem.Create("10% Tax,  90% Science").OnSelect((s,a)=> Settings.TaxRate = 1).SetActive(() => Settings.TaxRate == 1),
+            MenuItem.Create("20% Tax,  80% Science").OnSelect((s,a)=> Settings.TaxRate = 2).SetActive(() => Settings.TaxRate == 2),
+            MenuItem.Create("30% Tax,  70% Science").OnSelect((s,a)=> Settings.TaxRate = 3).SetActive(() => Settings.TaxRate == 3),
+            MenuItem.Create("40% Tax,  60% Science").OnSelect((s,a)=> Settings.TaxRate = 4).SetActive(() => Settings.TaxRate == 4),
+            MenuItem.Create("50% Tax,  50% Science").OnSelect((s,a)=> Settings.TaxRate = 5).SetActive(() => Settings.TaxRate == 5),
+            MenuItem.Create("60% Tax,  40% Science").OnSelect((s,a)=> Settings.TaxRate = 6).SetActive(() => Settings.TaxRate == 6),
+            MenuItem.Create("70% Tax,  30% Science").OnSelect((s,a)=> Settings.TaxRate = 7).SetActive(() => Settings.TaxRate == 7),
+            MenuItem.Create("80% Tax,  20% Science").OnSelect((s,a)=> Settings.TaxRate = 8).SetActive(() => Settings.TaxRate == 8),
+            MenuItem.Create("90% Tax,  10% Science").OnSelect((s,a)=> Settings.TaxRate = 9).SetActive(() => Settings.TaxRate == 9),
+            MenuItem.Create("100% Tax,  0% Science").OnSelect((s,a)=> Settings.TaxRate = 10).SetActive(() => Settings.TaxRate == 10),
+            MenuItem.Create("Back")
+        );
 
 		private void Resize(object sender, ResizeEventArgs args)
 		{

@@ -232,13 +232,27 @@ namespace CivOne.Units
 			return win;
 		}
 
+        //private class SimpleTask : GameTask
+        //{
+        //    private Player _who;
+
+        //    public SimpleTask(Player who)
+        //    {
+        //        _who = who;
+        //    }
+        //    public override void Run()
+        //    {
+        //        _who.IsDestroyed();
+        //    }
+        //};
+
 		protected virtual bool Confront(int relX, int relY)
 		{
             Goto = Point.Empty;             // Cancel any goto mode when Confronting
 
 			if (Class == UnitClass.Land && (this is Diplomat || this is Caravan))
 			{
-				// TODO: Perform other unit action (confront)
+				// TODO fire-eggs this should never happen? Diplomat/Caravan have overloads
 				return false;
 			}
 
@@ -389,8 +403,15 @@ namespace CivOne.Units
 
                     IUnit unit = attackedUnits.FirstOrDefault();
 					if (unit != null)
-					{
-						GameTask.Insert(Show.DestroyUnit(unit, true));
+                    {
+                        var task = Show.DestroyUnit(unit, true);
+
+                        // fire-eggs 20190729 when destroying last city, check for civ destruction ASAP
+                        if (unit.Owner != 0)
+                            task.Done += (s1, a1) => { Game.GetPlayer(unit.Owner).IsDestroyed(); };
+
+                        GameTask.Insert(task);
+                        //GameTask.Insert(Show.DestroyUnit(unit, true));
 					}
 					
 					if (MovesLeft == 0)
@@ -413,7 +434,7 @@ namespace CivOne.Units
 					{
 						if (!Map[X, Y][relX, relY].City.HasBuilding<CityWalls>())
 						{
-							Map[X, Y][relX, relY].City.Size--;
+                            Map[X, Y][relX, relY].City.Size--;
 						}
 					}
 				};
@@ -470,7 +491,7 @@ namespace CivOne.Units
 			}
 			if (Class == UnitClass.Land && !(this is Diplomat || this is Caravan) && !new ITile[] { Map[X, Y], moveTarget }.Any(t => t.IsOcean || t.City != null) && moveTarget.GetBorderTiles().SelectMany(t => t.Units).Any(u => u.Owner != Owner))
 			{
-				if (!moveTarget.Units.Any(x => x.Owner == Owner))
+				if (moveTarget.Units.All(x => x.Owner != Owner))
 				{
 					IUnit[] targetUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units).Where(u => u.Owner != Owner).ToArray();
 					IUnit[] borderUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units).Where(u => u.Owner != Owner).ToArray();
@@ -514,7 +535,7 @@ namespace CivOne.Units
 				}
 				else
 				{
-					// 2/3 moves left? 33% chance of success
+					// 1/3 moves left? 33% chance of success
 					success = (Common.Random.Next(0, 3) == 0);
 				}
 
@@ -568,7 +589,7 @@ namespace CivOne.Units
 			}
 		}
 		
-		private static IBitmap[] _iconCache = new IBitmap[28];
+		private static readonly IBitmap[] _iconCache = new IBitmap[28];
 		public virtual IBitmap Icon { get; private set; }
 		private string _name;
 		public string Name
@@ -638,37 +659,25 @@ namespace CivOne.Units
 
 		public UnitClass Class { get; protected set; }
 		public UnitType Type { get; protected set; }
-		public City Home { get; protected set; }
-		public short _buyPrice;
+		public City Home { get; private set; }
+
+        private short _buyPrice;
 		public short BuyPrice
 		{
 			get => Modifications.LastOrDefault(x => x.BuyPrice.HasValue)?.BuyPrice.Value ?? _buyPrice;
 			private set => _buyPrice = value;
 		}
+
 		public byte ProductionId => (byte)Type;
+
 		private byte _price;
 		public byte Price
 		{
 			get => Modifications.LastOrDefault(x => x.Price.HasValue)?.Price.Value ?? _price;
 			protected set => _price = value;
 		}
+
 		public UnitRole Role { get; internal set; }
-		//{
-		//	get
-		//	{
-		//		UnitRole output = UnitRole.LandAttack;
-		//		if (this is Settlers) output = UnitRole.Settler;
-		//		else if (this is Caravan || this is Diplomat) output = UnitRole.Civilian;
-		//		else if (this is BaseUnitSea)
-		//		{
-		//			if (this is IBoardable) output = UnitRole.Transport;
-		//			else output = UnitRole.SeaAttack;
-		//		}
-		//		else if (this is Fighter) output = UnitRole.AirAttack;
-		//		else if (this.Defense >= this.Attack) output = UnitRole.Defense;
-		//		return output;
-		//	}
-		//}
 
 		private byte _attack;
 		public byte Attack

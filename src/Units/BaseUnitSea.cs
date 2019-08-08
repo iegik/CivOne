@@ -39,6 +39,7 @@ namespace CivOne.Units
 
 		protected override void MovementStart(ITile previousTile)
 		{
+            // TODO fire-eggs this causes any carried units to lose movement (e.g. wake up unit 1;move ship;cannot move unit 1)
 			foreach (IUnit unit in MoveUnits(previousTile))
 			{
 				unit.Sentry = true;

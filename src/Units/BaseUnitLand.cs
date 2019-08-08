@@ -9,10 +9,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using CivOne.Advances;
 using CivOne.Enums;
-using CivOne.Screens;
 using CivOne.Tasks;
 using CivOne.Tiles;
 using CivOne.UserInterface;
@@ -71,30 +71,35 @@ namespace CivOne.Units
 			{
 				if (MovesLeft > 0)
 				{
-					byte moveCosts = 1;
-					if (Class == UnitClass.Land)
-						moveCosts = Map[X, Y].Movement;
+					//byte moveCosts = 1;
+					//if (Class == UnitClass.Land) // TODO fire-eggs isn't this always true?
+					//	moveCosts = Map[X, Y].Movement;
+                    byte moveCosts = Tile.Movement;
+                    Debug.Assert(Class == UnitClass.Land);
 					if (MovesLeft < moveCosts)
 						moveCosts = MovesLeft;
 					MovesLeft -= moveCosts;
-				}
-				else if (PartMoves > 0)
-				{
-					PartMoves = 0;
-				}
+                }
+                PartMoves = 0; // fire-eggs 20190806 we've moved off-road: all partial moves always lost
 			}
 		}
 
-		private void TribalHutMessage(EventHandler method, params string[] message)
+		private void TribalHutMessage(EventHandler method, bool runFirst, params string[] message)
 		{
+            // fire-eggs 20190801 perform the side-effect FIRST so the barbarian units appear BEFORE the message
+            if (runFirst)
+                method(this, null);
+
 			if (Player.IsHuman)
 			{
 				Message msgBox = Message.General(message);
-				msgBox.Done += method;
+                if (!runFirst)
+				    msgBox.Done += method;
 				GameTask.Insert(msgBox);
 				return;
 			}
-			method(this, null);
+            if (!runFirst)
+			    method(this, null);
 		}
 
 		private int NearestCity
@@ -108,24 +113,25 @@ namespace CivOne.Units
 			}
 		}
 
-		protected void TribalHut(HutResult result = HutResult.Random)
-		{
+        private void TribalHut(HutResult result = HutResult.Random)
+        {
 			switch(result)
 			{
 				case HutResult.MetalDeposits:
-					TribalHutMessage((s, e) => {
-						 Player.Gold += 50;
-					}, "You have discovered", "valuable metal deposits", "worth 50$");
+                    TribalHutMessage((s, e) => { Player.Gold += 50; }, false, 
+                        "You have discovered", "valuable metal deposits", "worth 50$");
 					return;
 				case HutResult.FriendlyTribe:
 					TribalHutMessage((s, e) => {
-						Game.Instance.CreateUnit(Common.Random.Next(0, 100) < 50 ? UnitType.Cavalry : UnitType.Legion, X, Y, Owner, true);
-					}, "You have discovered", "a friendly tribe of", "skilled mercenaries.");
+						Game.Instance.CreateUnit(Common.Random.Next(0, 100) < 50 ? 
+                                                UnitType.Cavalry : UnitType.Legion, 
+                                                X, Y, Owner, true);
+					}, false, "You have discovered", "a friendly tribe of", "skilled mercenaries.");
 					return;
 				case HutResult.AdvancedTribe:
 					TribalHutMessage((s, e) => {
 						GameTask.Enqueue(Orders.NewCity(Player, _x, _y));
-					}, "You have discovered", "an advanced tribe.");
+					}, false, "You have discovered", "an advanced tribe.");
 					return;
 				case HutResult.AncientScrolls:
 					TribalHutMessage((s, e) => {
@@ -138,7 +144,7 @@ namespace CivOne.Units
 							GameTask.Enqueue(new GetAdvance(Game.Instance.CurrentPlayer, available.First(a => a.Id == (advanceId + i) % 72)));
 							break;
 						}
-					}, "You have discovered", "scrolls of ancient wisdom.");
+					}, false, "You have discovered", "scrolls of ancient wisdom.");
 					return;
 				case HutResult.Barbarians:
 					TribalHutMessage((s, e) => {
@@ -157,7 +163,7 @@ namespace CivOne.Units
 							}
 							if (count > 0) break;
 						}
-					}, "You have unleashed", "a horde of barbarians!");
+                    }, true, "You have unleashed", "a horde of barbarians!");
 					return;
 			}
 

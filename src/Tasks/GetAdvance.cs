@@ -30,7 +30,8 @@ namespace CivOne.Tasks
 			if (_player.CurrentResearch == _advance)
 			{
 				_player.CurrentResearch = null;
-			}
+                _player.Science = 0; // fire-eggs 20170729 if player acquires advance from city/steal/hut, do NOT roll-over existing lightbulbs
+            }
 
 			if (!_human)
 			{

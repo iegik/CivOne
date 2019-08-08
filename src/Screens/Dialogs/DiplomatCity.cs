@@ -49,7 +49,7 @@ namespace CivOne.Screens.Dialogs
 
 		private void IndustrialSabotage(object sender, EventArgs args)
 		{
-			GameTask.Enqueue(Tasks.Show.DiplomatSabotage(_enemyCity, _diplomat));
+            GameTask.Enqueue(Message.Spy("Spies report:", $"{_diplomat.Sabotage(_enemyCity)}", $"in {_enemyCity.Name}"));
 			Cancel();
 		}
 

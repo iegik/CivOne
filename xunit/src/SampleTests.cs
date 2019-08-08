@@ -34,5 +34,20 @@ namespace CivOne.UnitTests
 
             Assert.True(result, $"Common.DefaultPalette should have {expectedCount} entries, returns {count}.");
         }
+
+        [Fact]
+        public void Distance()
+        {
+            for (int dx = -1; dx < 2; dx++)
+            for (int dy = -1; dy < 2; dy++)
+            {
+                var val = Common.Distance(10, 10, 10+dx, 10+dy);
+                if (dx == 0 && dy == 0)
+                    Assert.Equal(0,val);
+                else
+                    Assert.Equal(1, val);
+
+            }
+        }
 	}
 }
