@@ -98,8 +98,15 @@ namespace CivOne
             if (tile is Hills)
                 return Improvement.Mine;
 
-            bool usefulIrrigation = (tile is Grassland || tile is Plains || tile is Desert) && 
-                                   tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
+            //bool usefulIrrigation = (tile is Grassland || tile is Plains || tile is Desert) && 
+            //                       tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
+
+            bool canIrrigate = ((tile.GetBorderTiles().Any(t => (t.X == tile.X || t.Y == tile.Y) &&
+                                                                (t.City == null) &&
+                                                                (t.IsOcean || t.Irrigation || (t is River))))
+                                || (tile is River));
+            bool usefulIrrigation = (tile is Grassland || tile is Plains || tile is Desert) && canIrrigate;
+
 
             // TODO fire-eggs: SWY's "IrrigationFoodBonus" doesn't work here, need to understand it
             if (usefulIrrigation)
