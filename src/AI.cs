@@ -8,7 +8,6 @@
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using CivOne.Advances;
@@ -116,6 +115,8 @@ namespace CivOne
             int bestLandValue = tile.LandValue;
             if (bestLandValue != 0)
             {
+                // TODO seg010_13F6
+
                 // at beginning of game, compelled to build city ASAP
                 if (Game.GameTurn == 0) // && !Game.IsEarth // TODO not playing on EARTH
                 {
@@ -123,48 +124,46 @@ namespace CivOne
                     return;
                 }
 
-                // TODO look at neighbor tiles to see if better location and if so, move there
-
+                // TODO seg010_14B6
             }
 
-
             bool noCity = !tile.HasCity;
-            bool validCity = (tile is Grassland || tile is River || tile is Plains) && !tile.HasCity;
-            bool validIrrigation = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && noCity && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
-            bool validMine = (tile is Mountains || tile is Hills) && noCity && (!tile.Mine) && (!tile.Irrigation);
-            bool validRoad = noCity && !tile.Road;
-            int nearestCity = 255;
-            int nearestOwnCity = 255;
+            //bool validCity = (tile is Grassland || tile is River || tile is Plains) && !tile.HasCity;
+            //bool validIrrigation = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && noCity && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
+            //bool validMine = (tile is Mountains || tile is Hills) && noCity && (!tile.Mine) && (!tile.Irrigation);
+            //bool validRoad = noCity && !tile.Road;
 
-            if (Game.GetCities().Any()) 
-                nearestCity = Game.GetCities().Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
-            if (Game.GetCities().Any(x => x.Owner == unit.Owner)) 
-                nearestOwnCity = Game.GetCities().Where(x => x.Owner == unit.Owner).Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
+            City nearCity = FindNearestCity(unit.X, unit.Y, out var distNearCity);
 
             // seg010_1513
             if (Game.Difficulty != 0 &&
-                // TODO SEG010_1526 : closest city belongs to human? 
+                nearCity != null && 
+                Human == nearCity.Owner && // SEG010_1526: closest city belongs to human?
                 !IsEnemyUnitNearby(unit) &&
-                nearestCity > 1 &&
-                // TODO seg010_1550: nearest city belows to other civ
+                distNearCity > 1 &&
+                nearCity.Owner != unit.Owner && // seg010_1550: nearest city belongs to other civ
                 // TODO seg010_1558: our techcount is less than humans?
                 tile.LandValue >= 9 &&
-                (14 - nearestCity) <= tile.LandValue &&
-                noCity) // TODO consider adding to existing city?
+                (14 - distNearCity) <= tile.LandValue &&
+                noCity) // TODO fire-eggs: by definition true because distNearCity != 0 ?
             {
                 GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
                 return;
             }
 
-            // seg010_2263: something about civ able to improve before MONARCHY (?)
-            // seg010_227A: AIContinentPolicy
-            if (nearestOwnCity > 0 &&
-                nearestOwnCity <= 2 &&
+            // TODO fire-eggs does seg010_2192 (plunder check) apply?
 
-                (tile.Type != Terrain.Hills ||
-                 // seg010_22AA : closest city size >= 3 ||
-                 tile.Special)
-            )
+            // TODO fire-eggs seg010_221B: check not in ocean [on ship?]
+
+            // TODO seg010_2263: something about civ able to improve before MONARCHY (?)
+            // TODO seg010_227A: AIContinentPolicy
+            if (distNearCity > 0 &&                // seg010_2283
+                distNearCity <= 2 &&               // seg010_228C
+                nearCity != null && 
+                nearCity.Owner == unit.Owner &&    // seg010_2295
+                (nearCity.Size >= 3 ||             // seg010_22AA
+                 tile.Type != Terrain.Hills ||     // seg010_22B4
+                 tile.Special))                    // seg010_22BD
             {
                 // seg010_22E0: do the best improvement if possible: irrigate or mine
                 switch (CheckPossibleTerrainImprovementBonus(tile))
@@ -180,7 +179,10 @@ namespace CivOne
                 // seg010_233D:
                 if ((tile.Mine || tile.Irrigation) &&
                     !tile.Road &&
-                    (tile is Desert || tile is Plains || tile is Grassland))
+                    (tile.Type == Terrain.Desert || 
+                     tile.Type == Terrain.Plains || 
+                     tile.Type == Terrain.Grassland1 ||
+                     tile.Type == Terrain.Grassland2))
                 {
                     GameTask.Enqueue(Orders.BuildRoad(unit));
                     return;
@@ -199,49 +201,60 @@ namespace CivOne
 
             // TODO seg010_245C: logic when next-to or in own city
 
-            if (validCity && nearestCity > 3)
-            {
-                GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
-                return;
-            }
+            // TODO seg010_25F3
 
-            if (nearestOwnCity < 3)
-            {
-                switch (Common.Random.Next(5 * nearestOwnCity))
-                {
-                    case 0:
-                        if (validRoad)
-                        {
-                            GameTask.Enqueue(Orders.BuildRoad(unit));
-                            return;
-                        }
-                        break;
-                    case 1:
-                        if (validIrrigation)
-                        {
-                            Debug.Assert(!(tile is Mountains));
-                            GameTask.Enqueue(Orders.BuildIrrigation(unit));
-                            return;
-                        }
-                        break;
-                    case 2:
-                        if (validMine)
-                        {
-                            GameTask.Enqueue(Orders.BuildMines(unit));
-                            return;
-                        }
-                        break;
-                }
-            }
+            // TODO seg010_2735
 
+            // TODO seg010_2755
+
+            //if (validCity && nearestCity > 3)
+            //{
+            //    GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
+            //    return;
+            //}
+
+            //if (nearestOwnCity < 3)
+            //{
+            //    switch (Common.Random.Next(5 * nearestOwnCity))
+            //    {
+            //        case 0:
+            //            if (validRoad)
+            //            {
+            //                GameTask.Enqueue(Orders.BuildRoad(unit));
+            //                return;
+            //            }
+            //            break;
+            //        case 1:
+            //            if (validIrrigation)
+            //            {
+            //                Debug.Assert(!(tile is Mountains));
+            //                GameTask.Enqueue(Orders.BuildIrrigation(unit));
+            //                return;
+            //            }
+            //            break;
+            //        case 2:
+            //            if (validMine)
+            //            {
+            //                GameTask.Enqueue(Orders.BuildMines(unit));
+            //                return;
+            //            }
+            //            break;
+            //    }
+            //}
+
+            // random move from SWY
             for (int i = 0; i < 1000; i++)
             {
                 int relX = Common.Random.Next(-1, 2);
                 int relY = Common.Random.Next(-1, 2);
-                if (relX == 0 && relY == 0) continue;
-                if (unit.Tile[relX, relY] is Ocean) continue;
-                if (unit.Tile[relX, relY].Units.Any(x => x.Owner != unit.Owner)) continue;
-                if (!unit.MoveTo(relX, relY)) continue;
+                if (relX == 0 && relY == 0) 
+                    continue;
+                if (unit.Tile[relX, relY].Type == Terrain.Ocean) 
+                    continue;
+                if (unit.Tile[relX, relY].Units.Any(x => x.Owner != unit.Owner)) 
+                    continue;
+                if (!unit.MoveTo(relX, relY)) 
+                    continue;
                 return;
             }
             unit.SkipTurn();
@@ -279,9 +292,7 @@ namespace CivOne
 
             // TODO let the LandAttackMove() call do this instead?
             // 2. pillage check: unit _type_ has < 2 moves
-            City nearCity = FindNearestCity(unit.X, unit.Y);
-            int distNearCity = nearCity == null ? 
-                int.MaxValue : Distance(nearCity, unit);
+            City nearCity = FindNearestCity(unit.X, unit.Y, out int distNearCity);
             if (PillageCheck(unit, distNearCity, nearCity?.Owner ?? 0))
                 return true;
 
@@ -344,9 +355,7 @@ namespace CivOne
             //      assignNewTacticalLocation
 
             bool isEnemyNearby = IsEnemyUnitNearby(unit);
-            City nearCity = FindNearestCity(unit.X, unit.Y);
-            int distNearCity = nearCity == null ? 
-                                    int.MaxValue : Distance(nearCity, unit);
+            City nearCity = FindNearestCity(unit.X, unit.Y, out int distNearCity);
 
             // DarkPanda ai_orders seg010_2192
             if (PillageCheck(unit, distNearCity, nearCity?.Owner ?? 0))
@@ -612,32 +621,36 @@ namespace CivOne
 			// Create 2 defensive units per city
 			if (Player.HasAdvance<LaborUnion>())
 			{
-				if (city.Tile.Units.Count(x => x is MechInf) < 2) production = new MechInf();
+				if (city.Tile.Units.Count(x => x.Type == UnitType.MechInf) < 2) production = new MechInf();
 			}
 			else if (Player.HasAdvance<Conscription>())
 			{
-				if (city.Tile.Units.Count(x => x is Riflemen) < 2) production = new Riflemen();
+				if (city.Tile.Units.Count(x => x.Type == UnitType.Riflemen) < 2) production = new Riflemen();
 			}
 			else if (Player.HasAdvance<Gunpowder>())
 			{
-				if (city.Tile.Units.Count(x => x is Musketeers) < 2) production = new Musketeers();
+				if (city.Tile.Units.Count(x => x.Type == UnitType.Musketeers) < 2) production = new Musketeers();
 			}
 			else if (Player.HasAdvance<BronzeWorking>())
 			{
-				if (city.Tile.Units.Count(x => x is Phalanx) < 2) production = new Phalanx();
+				if (city.Tile.Units.Count(x => x.Type == UnitType.Phalanx) < 2) production = new Phalanx();
 			}
 			else
 			{
-				if (city.Tile.Units.Count(x => x is Militia) < 2) production = new Militia();
+				if (city.Tile.Units.Count(x => x.Type == UnitType.Militia) < 2) production = new Militia();
 			}
 			
 			// Create city improvements
 			if (production == null)
 			{
-				if (!city.HasBuilding<Barracks>()) production = new Barracks();
-				else if (Player.HasAdvance<Pottery>() && !city.HasBuilding<Granary>()) production = new Granary();
-				else if (Player.HasAdvance<CeremonialBurial>() && !city.HasBuilding<Temple>()) production = new Temple();
-				else if (Player.HasAdvance<Masonry>() && !city.HasBuilding<CityWalls>()) production = new CityWalls();
+				if (!city.HasBuilding<Barracks>()) 
+                    production = new Barracks();
+				else if (Player.HasAdvance<Pottery>() && !city.HasBuilding<Granary>()) 
+                    production = new Granary();
+				else if (Player.HasAdvance<CeremonialBurial>() && !city.HasBuilding<Temple>()) 
+                    production = new Temple();
+				else if (Player.HasAdvance<Masonry>() && !city.HasBuilding<CityWalls>()) 
+                    production = new CityWalls();
 			}
 
 			// Create Settlers
@@ -645,7 +658,10 @@ namespace CivOne
 			{
 				int minCitySize = Leader.Development == DevelopmentLevel.Expansionistic ? 2 : Leader.Development == DevelopmentLevel.Normal ? 3 : 4;
 				int maxCities = Leader.Development == DevelopmentLevel.Expansionistic ? 13 : Leader.Development == DevelopmentLevel.Normal ? 10 : 7;
-				if (city.Size >= minCitySize && !city.Units.Any(x => x is Settlers) && Player.Cities.Length < maxCities) production = new Settlers();
+				if (city.Size >= minCitySize && 
+                    !city.Units.Any(x => x is Settlers) && 
+                    Player.Cities.Length < maxCities) 
+                    production = new Settlers();
 			}
 
 			// Create some other unit
@@ -683,7 +699,7 @@ namespace CivOne
 			city.SetProduction(production);
 		}
 
-		private static Dictionary<Player, AI> _instances = new Dictionary<Player, AI>();
+		private static readonly Dictionary<Player, AI> _instances = new Dictionary<Player, AI>();
 		internal static AI Instance(Player player)
 		{
 			if (_instances.ContainsKey(player))
@@ -693,7 +709,7 @@ namespace CivOne
 		}
 
         // Adapted from darkpanda's civlogic port
-        private static City FindNearestCity(int x, int y)
+        private static City FindNearestCity(int x, int y, out int distance)
         {
             City nearestCity = null;
             int bestDistance = int.MaxValue;
@@ -706,13 +722,15 @@ namespace CivOne
                     nearestCity = city;
                 }
             }
+
+            distance = bestDistance;
             return nearestCity;
         }
 
         private static bool IsEnemyUnitOrCityNearby(IUnit unit)
         {
             bool isEnemyUnit = IsEnemyUnitNearby(unit);
-            var city = FindNearestCity(unit.X, unit.Y);
+            var city = FindNearestCity(unit.X, unit.Y,out int junk);
             if (city == null) 
                 return isEnemyUnit;
             if (city.Owner != unit.Owner &&
