@@ -72,6 +72,42 @@ namespace CivOne
 
 		}
 
+        private enum Improvement
+        {
+            None = 0,
+            Irrigate,
+            Mine,
+            Already
+        }
+
+        /* checks a square for potential improvements and returns:
+         - 0 if the square is already improved or has a city
+         - 2 if mining the square can provide at least 2 shields
+         - 1 if irrigating the sqaure can provide at 1 food and the sqaure is next to an ocean or river square
+         - 0 otherwise
+
+            TODO: fire-eggs should take specials into account?
+            TODO: fire-eggs should take government into account?
+            TODO: fire-eggs tile _conversion_ to be taken into account? (e.g. swamp->grasslands)
+        */
+        private Improvement CheckPossibleTerrainImprovementBonus(ITile tile)
+        {
+            if (tile.HasCity || tile.Irrigation || tile.Mine)
+                return Improvement.Already;
+
+            // TODO fire-eggs: SWY's "MiningShieldBonus" doesn't work here, need to understand it
+            if (tile is Hills)
+                return Improvement.Mine;
+
+            bool usefulIrrigation = (tile is Grassland || tile is Plains || tile is Desert) && 
+                                   tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
+
+            // TODO fire-eggs: SWY's "IrrigationFoodBonus" doesn't work here, need to understand it
+            if (usefulIrrigation)
+                return Improvement.Irrigate;
+            return Improvement.None;
+        }
+
         private void SettlerMove(IUnit unit)
         {
             ITile tile = unit.Tile;
@@ -92,11 +128,11 @@ namespace CivOne
             }
 
 
-            bool hasCity = tile.City != null;
-            bool validCity = (tile is Grassland || tile is River || tile is Plains) && !hasCity;
-            bool validIrrigation = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && !hasCity && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
-            bool validMine = (tile is Mountains || tile is Hills) && !hasCity && (!tile.Mine) && (!tile.Irrigation);
-            bool validRoad = !hasCity && tile.Road;
+            bool noCity = !tile.HasCity;
+            bool validCity = (tile is Grassland || tile is River || tile is Plains) && !tile.HasCity;
+            bool validIrrigation = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && noCity && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
+            bool validMine = (tile is Mountains || tile is Hills) && noCity && (!tile.Mine) && (!tile.Irrigation);
+            bool validRoad = noCity && !tile.Road;
             int nearestCity = 255;
             int nearestOwnCity = 255;
 
@@ -107,14 +143,14 @@ namespace CivOne
 
             // seg010_1513
             if (Game.Difficulty != 0 &&
-                // SEG010_1526 : closest city belongs to human? 
+                // TODO SEG010_1526 : closest city belongs to human? 
                 !IsEnemyUnitNearby(unit) &&
                 nearestCity > 1 &&
-                // seg010_1550: nearest city belows to other civ
-                // seg010_1558: our techcount is less than humans?
+                // TODO seg010_1550: nearest city belows to other civ
+                // TODO seg010_1558: our techcount is less than humans?
                 tile.LandValue >= 9 &&
                 (14 - nearestCity) <= tile.LandValue &&
-                !hasCity) // TODO consider adding to existing city?
+                noCity) // TODO consider adding to existing city?
             {
                 GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
                 return;
@@ -131,6 +167,15 @@ namespace CivOne
             )
             {
                 // seg010_22E0: do the best improvement if possible: irrigate or mine
+                switch (CheckPossibleTerrainImprovementBonus(tile))
+                {
+                    case Improvement.Irrigate:
+                        GameTask.Enqueue(Orders.BuildIrrigation(unit));
+                        return;
+                    case Improvement.Mine:
+                        GameTask.Enqueue(Orders.BuildMines(unit));
+                        return;
+                }
 
                 // seg010_233D:
                 if ((tile.Mine || tile.Irrigation) &&
@@ -144,15 +189,15 @@ namespace CivOne
                 if (Player.HasAdvance<RailRoad>() &&
                     !tile.RailRoad)
                 {
-                    // seg010_23A7 decide whether to build railroad
+                    // TODO seg010_23A7 decide whether to build railroad
                 }
             }
 
-            // seg010_23EF: clean up pollution
+            // TODO seg010_23EF: clean up pollution
 
-            // seg010_240A: do nothing based on civ expansionist attitude?
+            // TODO seg010_240A: do nothing based on civ expansionist attitude?
 
-            // seg010_245C: logic when next-to or in own city
+            // TODO seg010_245C: logic when next-to or in own city
 
             if (validCity && nearestCity > 3)
             {
