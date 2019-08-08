@@ -53,8 +53,10 @@ namespace CivOne
 				SDL_Rect src = new SDL_Rect() { X = 0, Y = 0, W = Width, H = Height };
 				SDL_Rect dst = new SDL_Rect() { X = x, Y = y, W = width, H = height };
 
-				SDL_RenderCopy(_renderer, _handle, ref src, ref dst);
+				SDL_RenderCopy(_renderer, _handle, ref _rect, ref dst);
 			}
+
+            private SDL_Rect _rect;
 
 			internal Texture(IntPtr renderer, Palette palette, Bytemap bytemap)
 			{
@@ -68,16 +70,18 @@ namespace CivOne
 				Width = bytemap.Width;
 				Height = bytemap.Height;
 
+                _rect = new SDL_Rect {X = 0, Y = 0, W = Width, H = Height};
 				_renderer = renderer;
 				_handle = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, Width, Height);
 				SDL_Rect rect = new SDL_Rect() { X = 0, Y = 0, W = Width, H = Height };
 				int[] paletteData = PaletteArray(palette);
-				bool hasAlpha = palette.Entries.Any(x => x.A != 255);
-				if (HasAlpha(palette)) SDL_SetTextureBlendMode(_handle, SDL_BlendMode.SDL_BLENDMODE_BLEND);
+				//bool hasAlpha = palette.Entries.Any(x => x.A != 255);
+				if (HasAlpha(palette)) 
+                    SDL_SetTextureBlendMode(_handle, SDL_BlendMode.SDL_BLENDMODE_BLEND);
 				if (SDL_LockTexture(_handle, ref rect, out IntPtr pixels, out int pitch) == 0)
 				{
 					int[] src = bytemap.ToColourMap(paletteData);
-					Marshal.Copy(bytemap.ToColourMap(paletteData), 0, pixels, Width * Height);
+					Marshal.Copy(src, 0, pixels, Width * Height);
 					SDL_UnlockTexture(_handle);
 				}
 			}
