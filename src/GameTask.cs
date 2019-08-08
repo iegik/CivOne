@@ -25,6 +25,9 @@ namespace CivOne
 		public static bool Fast => Common.HasAttribute<Fast>(_currentTask);
 		public static int Count<T>() where T : GameTask => _tasks.Count(t => t is T);
 
+        public static int HowMany() => _tasks.Count;
+        public static GameTask Current() => _currentTask;
+
 		private static void NextTask()
 		{
 			_currentTask = _tasks[0];

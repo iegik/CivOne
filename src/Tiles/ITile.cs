@@ -7,8 +7,6 @@
 // You should have received a copy of the CC0 legalcode along with this
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-using System.Collections.Generic;
-using System.Drawing;
 using CivOne.Enums;
 using CivOne.Units;
 
@@ -43,7 +41,9 @@ namespace CivOne.Tiles
 		void Visit(byte owner);
 		bool IsOcean { get; }
 		City City { get; }
-		IUnit[] Units { get; }
+        bool HasCity { get; }
+
+        IUnit[] Units { get; }
 		ITile this[int relativeX, int relativeY] { get; }
 	}
 }
