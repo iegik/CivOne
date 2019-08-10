@@ -132,9 +132,22 @@ namespace CivOne.Tiles
 		public static bool AllowIrrigation(this ITile tile)
 		{
 			if (tile.Irrigation) return false;
-            // TODO fire-eggs: this should be a flag in ITile
-			if (!(tile is Desert || tile is Grassland || tile is Hills || tile is Plains || tile is River)) return false;
-			return (CrossTiles(tile).Any(x => x.Irrigation || x is River || x is Ocean));
+            // TODO fire-eggs: this should be a flag in ITile or Terrain
+            switch (tile.Type)
+            {
+                case Terrain.Desert:
+                case Terrain.Grassland1:
+                case Terrain.Grassland2:
+                case Terrain.Hills:
+                case Terrain.Plains:
+                case Terrain.River:
+                    break;
+                default:
+                    return false;
+            }
+			//if (!(tile is Desert || tile is Grassland || tile is Hills || tile is Plains || tile is River)) return false;
+            // fire-eggs 20190810 irrigation is NOT allowed e.g. to left of city
+			return (CrossTiles(tile).Any(x => (x.Irrigation || x.Type == Terrain.River || x.IsOcean) && !x.HasCity));
 		}
 
 		public static bool AllowChangeTerrain(this ITile tile)
