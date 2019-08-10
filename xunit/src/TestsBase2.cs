@@ -14,24 +14,24 @@ using System.Linq;
 using System.Threading;
 using CivOne.UnitTests;
 
-namespace CivOne.src
+namespace CivOne.UnitTests
 {
     /// <summary>
     /// All tests need to derive from this class. A fresh runtime, map, game, and player
     /// are built up and torn down for each test.
     /// </summary>
-    public abstract class TestsBase : IDisposable
+    public abstract class TestsBase2 : IDisposable
     {
         private RuntimeSettings rs;
         private MockRuntime runtime;
         internal Player playa;
 
         /// <summary>
-        /// A hard-coded Game, using Earth and the player as Babylonian.
+        /// A hard-coded Game, using Earth and the player as Chinese.
         /// </summary>
-        protected TestsBase()
+        protected TestsBase2()
         {
-            var r = new Random(23905);
+            var r = new Random(7595);
 
             rs = new RuntimeSettings();
             runtime = new MockRuntime(rs);
@@ -45,7 +45,7 @@ namespace CivOne.src
             } while (!foo.Ready);
 
             // Start with Babylonians at King level
-            Game.CreateGame(3, 2, Common.Civilizations.First(x => x.Name=="Babylonian"));
+            Game.CreateGame(3, 7, Common.Civilizations.First(x => x.Name=="Chinese"));
             playa = Game.Instance.HumanPlayer;
         }
 

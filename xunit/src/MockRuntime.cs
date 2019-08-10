@@ -21,11 +21,8 @@ namespace CivOne.UnitTests
         public event ScreenEventHandler MouseMove;
         public Platform CurrentPlatform { get; }
 
-        private string _storageDir = Path.GetTempPath();
-        public string StorageDirectory
-        {
-            get { return _storageDir; }
-        }
+        // TODO fire-eggs this needs to point at Civ Data to load earth map. Needs to be able to be changed.
+        public string StorageDirectory => @"E:\proj\CivOne";
 
         public string GetSetting(string key)
         {
@@ -77,7 +74,8 @@ namespace CivOne.UnitTests
         public MockRuntime(RuntimeSettings settings)
         {
             Settings = settings;
-            settings.Free = true;
+            // TODO fire-eggs this needs to be false if you want to use Earth! and must have a pointer to the Civ data files!
+            settings.Free = false;
             RuntimeHandler.Register(this);
         }
     }
