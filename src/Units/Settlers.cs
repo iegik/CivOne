@@ -14,6 +14,7 @@ using CivOne.Tasks;
 using CivOne.Tiles;
 using CivOne.UserInterface;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace CivOne.Units
@@ -92,44 +93,94 @@ namespace CivOne.Units
 		public bool BuildIrrigation()
 		{
 			ITile tile = Map[X, Y];
-			if (tile.Irrigation)
+			if (tile.Irrigation || tile.IsOcean) // already irrigated or illogical: ignore
 			{
-				// Tile already irrigated, ignore
 				return false;
 			}
 
-			if ((tile is Forest) || (tile is Jungle) || (tile is Swamp))
+            // Changing terrain type
+			if (tile.IrrigationChangesTerrain())
 			{
+                // TODO fire-eggs setting BuildingIrrigation to true should clear moves
                 BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 4; // cheat for human
                 MovesLeft = 0;
 				PartMoves = 0;
 				return true;
 			}
-			if ((tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) && (t.City == null) && (t.IsOcean || t.Irrigation || (t is River)))) || (tile is River))
-			{
-				if (!tile.IsOcean && !(tile.Irrigation) && ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)))
-				{
-                    BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
-                    MovesLeft = 0;
-					PartMoves = 0;
-					return true;
-				}
-				if (Human == Owner)
-					GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
-				return false;
-			}
 
-			{
-				if (((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)) && tile.City == null)
-				{
-					if (Human == Owner)
-						GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOWATER")));
-					return true;
-				}
-				if (Human == Owner)
-					GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
-			}
-			return false;
+            //bool irrigate1 = (tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) && 
+            //                                                 (t.City == null) && 
+            //                                                 (t.IsOcean || t.Irrigation || (t is River)))) || 
+            //                 (tile is River);
+            //bool irrigate1a =
+            //    tile.CrossTiles().Any(t => !t.HasCity && (t.IsOcean || t.Irrigation || t.Type == Terrain.River)) ||
+            //    tile.Type == Terrain.River;
+
+            //Debug.Assert(irrigate1 == irrigate1a);
+
+            //bool irrigate2 = tile.AllowIrrigation();
+            //bool irrigate2a = tile.AllowIrrigation() || tile.Type == Terrain.River;
+            //Debug.Assert(irrigate2a == irrigate1);
+
+            //bool irrigate3 = !tile.IsOcean &&       // always false
+            //                 !(tile.Irrigation) &&  // always false
+            //                 ((tile is Desert) || 
+            //                  (tile is Grassland) || 
+            //                  (tile is Hills) || 
+            //                  (tile is Plains) ||
+            //                  (tile is River));
+
+            //bool irrigate4 =
+            //    (((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)) &&
+            //     tile.City == null);
+            //Debug.Assert(irrigate4 == irrigate3);
+
+            if (!tile.TerrainAllowsIrrigation())
+            {
+                if (Human == Owner)
+                    GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
+                return false;
+            }
+
+            if (tile.AllowIrrigation() || tile.Type == Terrain.River)
+            {
+                BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
+                MovesLeft = 0;
+                PartMoves = 0;
+                return true;
+            }
+
+            if (Human == Owner)
+                GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
+            return false;
+
+////			if ((tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) && (t.City == null) && (t.IsOcean || t.Irrigation || (t is River)))) || (tile is River))
+//            if (tile.AllowIrrigation() || tile.Type == Terrain.River) // source of water for irrigation available
+//            {
+//				//if (!tile.IsOcean && !(tile.Irrigation) && ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)))
+//                if (tile.TerrainAllowsIrrigation()) // irrigation may be applied
+//				{
+//                    BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
+//                    MovesLeft = 0;
+//					PartMoves = 0;
+//					return true;
+//				}
+//				if (Human == Owner)
+//					GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
+//				return false;
+//			}
+
+//			{
+//				if (((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)) && tile.City == null)
+//				{
+//					if (Human == Owner)
+//						GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOWATER")));
+//					return false;
+//				}
+//				if (Human == Owner)
+//					GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
+//			}
+//			return false;
 		}
 
 		public bool BuildMines()
@@ -274,7 +325,7 @@ namespace CivOne.Units
 					((Map[X, Y] is Jungle) || (Map[X, Y] is Swamp)) ? "Change to Grassland" :
 					"Build Irrigation")
 			.SetShortcut("i")
-			.SetEnabled(Map[X, Y].AllowIrrigation() || Map[X, Y].AllowChangeTerrain())
+			.SetEnabled(Map[X, Y].AllowIrrigation() || Map[X, Y].IrrigationChangesTerrain())
 			.OnSelect((s, a) => GameTask.Enqueue(Orders.BuildIrrigation(this)));
 
 		private MenuItem<int> MenuBuildMines() => MenuItem<int>
@@ -304,7 +355,7 @@ namespace CivOne.Units
 				{	
 					yield return MenuBuildRoad();
 				}
-				if (!tile.Irrigation && ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River) || (tile is Forest) || (tile is Jungle) || (tile is Swamp)))
+				if (!tile.Irrigation && (tile.TerrainAllowsIrrigation() || tile.IrrigationChangesTerrain())) // ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River) || (tile is Forest) || (tile is Jungle) || (tile is Swamp)))
 				{
 					yield return MenuBuildIrrigation();
 				}

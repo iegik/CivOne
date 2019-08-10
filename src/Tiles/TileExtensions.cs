@@ -133,6 +133,25 @@ namespace CivOne.Tiles
             return !tile.RailRoad ? Direction.None : BorderRailRoads(tile);
         }
 
+        public static bool TerrainAllowsIrrigation(this ITile tile)
+        {
+            // This terrain can be improved [NOT changed] when irrigation applied
+            // TODO should be property of tile
+            switch (tile.Type)
+            {
+                case Terrain.Mountains:
+                case Terrain.Ocean:
+                case Terrain.Arctic:
+                case Terrain.Tundra:
+                case Terrain.Forest: 
+                case Terrain.Jungle: 
+                case Terrain.Swamp:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
 		public static bool AllowIrrigation(this ITile tile)
 		{
 			if (tile.Irrigation) 
@@ -155,7 +174,7 @@ namespace CivOne.Tiles
 			return (CrossTiles(tile).Any(x => (x.Irrigation || x.Type == Terrain.River || x.IsOcean) && !x.HasCity));
 		}
 
-		public static bool AllowChangeTerrain(this ITile tile)
+		public static bool IrrigationChangesTerrain(this ITile tile)
 		{
             // TODO fire-eggs: this should be a flag in ITile or Terrain
 			//return (tile is Forest || tile is Jungle || tile is Swamp);
