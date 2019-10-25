@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CivOne.Enums;
-using CivOne.src;
+﻿using System.Linq;
 using CivOne.Tiles;
 using Xunit;
 
