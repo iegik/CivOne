@@ -35,7 +35,7 @@ namespace CivOne
 		
 		internal readonly string[] CityNames = Common.AllCityNames.ToArray();
 		
-		private int _currentPlayer = 0;
+		public int _currentPlayer = 0; // public for unit testing
 		private int _activeUnit;
 
 		private ushort _anthologyTurn = 0;

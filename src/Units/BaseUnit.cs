@@ -497,28 +497,20 @@ namespace CivOne.Units
                 var thisUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units);
                 var destUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units);
 
-                bool thisBlock = thisUnits.Any(u => u.Owner != Owner);
-                bool destBlock = destUnits.Any(u => u.Owner != Owner);
+                // Any enemy units around my position OR the target position?
+                bool thisBlocked = thisUnits.Any(u => u.Owner != Owner);
+                bool destBlocked = destUnits.Any(u => u.Owner != Owner);
 
                 // Cannot move from a square adjacent to enemy unit to a square adjacent to enemy unit
-                if (thisBlock && destBlock)
-
-    // Issue #93: did not take into account "this square" being adjacent to enemy
-    //            bool test1 = !new ITile[] { Map[X, Y], moveTarget }.Any(t => t.IsOcean || t.City != null);
-    //            bool test2 = moveTarget.GetBorderTiles().SelectMany(t => t.Units).Any(u => u.Owner != Owner);
-				//if (test1 && test2)
+                // Issue #93: did not take into account "this square" being adjacent to enemy
+                if (thisBlocked && destBlocked)
 				{
-					IUnit[] targetUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units).Where(u => u.Owner != Owner).ToArray();
-					IUnit[] borderUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units).Where(u => u.Owner != Owner).ToArray();
-
-					if (borderUnits.Any(u => targetUnits.Any(t => t.X == u.X && t.Y == u.Y))) 
-					{
-                        if( Human == Owner ) {
-                           Goto = Point.Empty;             // Cancel any goto mode ( maybe for AI too ?? )
-                           GameTask.Enqueue( Message.Error( "-- Civilization Note --", TextFile.Instance.GetGameText( $"ERROR/ZOC" ) ) );
-                        }
-						return false;
-					}
+                    if( Human == Owner ) 
+                    {
+                       Goto = Point.Empty;             // Cancel any goto mode ( maybe for AI too ?? )
+                       GameTask.Enqueue( Message.Error( "-- Civilization Note --", TextFile.Instance.GetGameText( $"ERROR/ZOC" ) ) );
+                    }
+					return false;
 				}
 			}
 
