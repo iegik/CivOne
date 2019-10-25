@@ -474,6 +474,8 @@ namespace CivOne.Units
 
 		public virtual bool MoveTo(int relX, int relY)
 		{
+            // TODO fire-eggs: isn't this all land unit logic? refactor MoveTo into BaseUnitLand?
+
 			if (Movement != null) return false;
 			
 			ITile moveTarget = Map[X, Y][relX, relY];
@@ -482,16 +484,29 @@ namespace CivOne.Units
 			{
                 Goto = Point.Empty;             // Cancel any goto mode
 
-				if (Class == UnitClass.Land && Tile.IsOcean)
+				if (Class == UnitClass.Land && Tile.IsOcean) // can't attack enemy unit on land when on a ship
 				{
-					if (Human == Owner) GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText($"ERROR/AMPHIB")));
+					if (Human == Owner) 
+                        GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText($"ERROR/AMPHIB")));
 					return false;
 				}
 				return Confront(relX, relY);
 			}
-			if (Class == UnitClass.Land && !(this is Diplomat || this is Caravan) && !new ITile[] { Map[X, Y], moveTarget }.Any(t => t.IsOcean || t.City != null) && moveTarget.GetBorderTiles().SelectMany(t => t.Units).Any(u => u.Owner != Owner))
-			{
-				if (moveTarget.Units.All(x => x.Owner != Owner))
+			if (Class == UnitClass.Land && !(this is Diplomat || this is Caravan))
+            {
+                var thisUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units);
+                var destUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units);
+
+                bool thisBlock = thisUnits.Any(u => u.Owner != Owner);
+                bool destBlock = destUnits.Any(u => u.Owner != Owner);
+
+                // Cannot move from a square adjacent to enemy unit to a square adjacent to enemy unit
+                if (thisBlock && destBlock)
+
+    // Issue #93: did not take into account "this square" being adjacent to enemy
+    //            bool test1 = !new ITile[] { Map[X, Y], moveTarget }.Any(t => t.IsOcean || t.City != null);
+    //            bool test2 = moveTarget.GetBorderTiles().SelectMany(t => t.Units).Any(u => u.Owner != Owner);
+				//if (test1 && test2)
 				{
 					IUnit[] targetUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units).Where(u => u.Owner != Owner).ToArray();
 					IUnit[] borderUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units).Where(u => u.Owner != Owner).ToArray();
