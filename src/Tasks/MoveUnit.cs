@@ -28,9 +28,9 @@ namespace CivOne.Tasks
 
 		protected override bool Step()
 		{
-			_step += STEP_SIZE;
 			X = (RelX * _step);
 			Y = (RelY * _step);
+            _step += STEP_SIZE;
 			if (_step <= 16)
 				return true;
 			EndTask();

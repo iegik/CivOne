@@ -91,7 +91,7 @@ namespace CivOne.Tasks
 			{
 				if (_player.IsHuman)
 				{
-                    // TODO KBR not showing may lose side-effects
+                    // TODO fire-eggs not showing may lose side-effects
                     //if (!Game.Animations)
                     {
                         CityView cityView = new CityView(_city, founded: true);
