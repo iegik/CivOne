@@ -23,7 +23,7 @@ namespace CivOne.UnitTests
             //  P C O
             //  M P P
 
-            var unit = Game.Instance.GetUnits().First(x => playa == x.Owner); //playa.Civilization.Id);
+            var unit = Game.Instance.GetUnits().First(x => playa == x.Owner);
             City acity = Game.Instance.AddCity(playa, 1, unit.X, unit.Y);
 
             ITile tile = Map.Instance[unit.X, unit.Y];

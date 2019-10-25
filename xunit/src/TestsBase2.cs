@@ -44,7 +44,7 @@ namespace CivOne.UnitTests
                 Thread.Sleep(5);
             } while (!foo.Ready);
 
-            // Start with Babylonians at King level
+            // Start with Chinese, 7 players, at King level
             Game.CreateGame(3, 7, Common.Civilizations.First(x => x.Name=="Chinese"));
             playa = Game.Instance.HumanPlayer;
         }
