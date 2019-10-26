@@ -244,7 +244,7 @@ namespace CivOne.Screens.GamePlayPanels
 			return (!Map.QueryMapPart(_x + viewRange, _y + viewRange, (_tilesX - (viewRange * 2)), (_tilesY - (viewRange * 2))).Any(t => t.X == unit.X + relX && t.Y == unit.Y + relY));
 		}
 
-		private bool MoveTo(int relX, int relY)
+		public bool MoveTo(int relX, int relY) // public for unit testing
 		{
 			_helperDirection = new Point(0, 0);
 			

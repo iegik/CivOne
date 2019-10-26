@@ -472,6 +472,27 @@ namespace CivOne.Units
 			.ToList();
 		}
 
+        public bool CanMoveTo(int relX, int relY)
+        {
+            // Issue #93: fix problems with zone-of-control.
+
+            // refactored out for unit testability
+            ITile moveTarget = Map[X, Y][relX, relY];
+            if (moveTarget == null) return false;
+
+            var thisUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units);
+            var destUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units);
+
+            // Any enemy units around my position OR the target position?
+            bool thisBlocked = thisUnits.Any(u => u.Owner != Owner);
+            bool destBlocked = destUnits.Any(u => u.Owner != Owner);
+            bool destOK = moveTarget.Units.Any(u => u.Owner == Owner) || moveTarget.HasCity;
+
+            // Cannot move from a square adjacent to enemy unit to a square adjacent to enemy unit
+            // but _can_ move to square occupied by own units or to any undefended city square
+            return (destOK || !thisBlocked || !destBlocked);
+        }
+
 		public virtual bool MoveTo(int relX, int relY)
 		{
             // TODO fire-eggs: isn't this all land unit logic? refactor MoveTo into BaseUnitLand?
@@ -494,17 +515,20 @@ namespace CivOne.Units
 			}
 			if (Class == UnitClass.Land && !(this is Diplomat || this is Caravan))
             {
-                var thisUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units);
-                var destUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units);
+                //var thisUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units);
+                //var destUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units);
 
-                // Any enemy units around my position OR the target position?
-                bool thisBlocked = thisUnits.Any(u => u.Owner != Owner);
-                bool destBlocked = destUnits.Any(u => u.Owner != Owner);
+                //// Any enemy units around my position OR the target position?
+                //bool thisBlocked = thisUnits.Any(u => u.Owner != Owner);
+                //bool destBlocked = destUnits.Any(u => u.Owner != Owner);
+                //bool destOK = moveTarget.Units.Any(u => u.Owner == Owner) || moveTarget.HasCity;
 
                 // Cannot move from a square adjacent to enemy unit to a square adjacent to enemy unit
+                // fire-eggs 20191026 but _can_ move to square occupied by own units
                 // Issue #93: did not take into account "this square" being adjacent to enemy
-                if (thisBlocked && destBlocked)
-				{
+//                if (!destOK && thisBlocked && destBlocked)
+                if (!CanMoveTo(relX, relY))
+                {
                     if( Human == Owner ) 
                     {
                        Goto = Point.Empty;             // Cancel any goto mode ( maybe for AI too ?? )

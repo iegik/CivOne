@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using CivOne.Enums;
-using CivOne.Screens;
 using CivOne.Tiles;
+using CivOne.Units;
 using Xunit;
 
 namespace CivOne.UnitTests
@@ -64,33 +64,87 @@ namespace CivOne.UnitTests
             Assert.True(TestZoc(false));
         }
 
-        public void AllowIrrigate()
+        [Fact]
+        public void ZOKRevertTest1()
         {
-            // Test bugfix: AllowIrrigation() would return true for 
-            // a tile immediately west of a city.
+            // Fixing Issue #93, I reverted the situation where the player's unit should be
+            // able to move to a space with it's own unit
 
-            // Using seed of 7595, Earth, Chinese, the initial city is
-            // like so:
-            //  P P O  - P: plains, O: ocean, M: Mtns, C: city
-            //  P C O
-            //  M P P
+            // find another player
+            var otherP = Game.Instance.Players.First(p => p.Civilization.Name != "Chinese");
 
-            var unit = Game.Instance.GetUnits().First(x => playa == x.Owner);
-            City acity = Game.Instance.AddCity(playa, 1, unit.X, unit.Y);
+            // give other player a city
+            Game.Instance.AddCity(otherP, 3, 52, 14);
+            Assert.Equal(true, Map.Instance[52,14].HasCity);
 
-            ITile tile = Map.Instance[unit.X, unit.Y];
-            Assert.Equal(true, tile.HasCity);
-            Assert.True(tile is Grassland);
+            // set up other player unit in city
+            Game.Instance.CreateUnit(UnitType.Militia, 52, 14, Game.Instance.PlayerNumber(otherP));
 
-            // Before 20190810, this would incorrectly return true
-            Assert.False(Map.Instance[unit.X-1, unit.Y].AllowIrrigation());
+            // give human two units
+            var chariot1 = Game.Instance.CreateUnit(UnitType.Chariot, 53, 14, Game.Instance.PlayerNumber(playa));
+            var chariot2 = Game.Instance.CreateUnit(UnitType.Chariot, 52, 15, Game.Instance.PlayerNumber(playa));
 
-            Assert.False(Map.Instance[unit.X-1, unit.Y-1].AllowIrrigation());
-            Assert.False(Map.Instance[unit.X-1, unit.Y+1].AllowIrrigation());
-            Assert.False(Map.Instance[unit.X-0, unit.Y+1].AllowIrrigation());
+            // try to move the human unit down and left to own unit
+            var gm = new Screens.GamePlayPanels.GameMap();
+            Game.Instance._currentPlayer = Game.Instance.PlayerNumber(playa);
+            Game.Instance.ActiveUnit = chariot1;
+            Assert.True(gm.MoveTo(-1, +1));
+        }
+        [Fact]
+        public void ZOKRevertTest2()
+        {
+            // Confirm that the player's unit should be able to move to a space with it's own city,
+            // even when "blocked" by enemy unit: player unit should be able to move down one space below:
+            /*
+              | enemy |player|
+              | city  | unit |
+              --------+------+-------
+              |       |player| 
+              |       | city | 
+              +-------+------+-------
+              |       |      |  
+              |       |      |
+             */
 
-            Assert.True(Map.Instance[unit.X-0, unit.Y-1].AllowIrrigation());
-            Assert.True(Map.Instance[unit.X+1, unit.Y+1].AllowIrrigation());
+            // find another player
+            var otherP = Game.Instance.Players.First(p => p.Civilization.Name != "Chinese");
+
+            // give other player a unit
+            Game.Instance.CreateUnit(UnitType.Militia, 51, 13, Game.Instance.PlayerNumber(otherP));
+
+            // give human a city
+            Game.Instance.AddCity(playa, 3, 52, 14);
+            Assert.Equal(true, Map.Instance[52,14].HasCity);
+
+            // give human a unit
+            var chariot1 = Game.Instance.CreateUnit(UnitType.Chariot, 52, 13, Game.Instance.PlayerNumber(playa));
+
+            // try to move the human unit down to own city
+            var gm = new Screens.GamePlayPanels.GameMap();
+            Game.Instance._currentPlayer = Game.Instance.PlayerNumber(playa);
+            Game.Instance.ActiveUnit = chariot1;
+            Assert.True(gm.MoveTo(0, +1));
+        }
+        [Fact]
+        public void ZOKRevertTest3()
+        {
+            // find another player
+            var otherP = Game.Instance.Players.First(p => p.Civilization.Name != "Chinese");
+
+            // give other player a city [undefended]
+            Game.Instance.AddCity(otherP, 3, 52, 14);
+            Assert.Equal(true, Map.Instance[52,14].HasCity);
+
+            // give other player a unit
+            Game.Instance.CreateUnit(UnitType.Militia, 51, 13, Game.Instance.PlayerNumber(otherP));
+
+            // give human a unit
+            var chariot1 = Game.Instance.CreateUnit(UnitType.Chariot, 52, 13, Game.Instance.PlayerNumber(playa));
+
+            // try to move the human unit down to enemy city
+            Game.Instance._currentPlayer = Game.Instance.PlayerNumber(playa);
+            Game.Instance.ActiveUnit = chariot1;
+            Assert.True(((BaseUnit)chariot1).CanMoveTo(0, +1));
         }
     }
 }
