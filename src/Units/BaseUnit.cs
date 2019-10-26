@@ -246,7 +246,7 @@ namespace CivOne.Units
         //    }
         //};
 
-		protected virtual bool Confront(int relX, int relY)
+		internal virtual bool Confront(int relX, int relY)
 		{
             Goto = Point.Empty;             // Cancel any goto mode when Confronting
 
@@ -262,7 +262,7 @@ namespace CivOne.Units
 			if (moveTarget == null) return false;
 			if (moveTarget.Units.Length == 0 && moveTarget.City != null && moveTarget.City.Owner != Owner)
 			{
-				if (Class != UnitClass.Land)
+				if (Class != UnitClass.Land) // can't occupy city with sea/air unit
 				{
 					GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText($"ERROR/OCCUPY")));
 					Movement = null;
@@ -511,22 +511,18 @@ namespace CivOne.Units
                         GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText($"ERROR/AMPHIB")));
 					return false;
 				}
+
+                // Issue #84 : failure to prompt on low-strength attack
+                if (Human == Owner && MovesLeft == 0 && PartMoves > 0)
+                {
+                    GameTask.Enqueue(Show.WeakAttack(this, relX, relY));
+                    return true;
+                }
+
 				return Confront(relX, relY);
 			}
 			if (Class == UnitClass.Land && !(this is Diplomat || this is Caravan))
             {
-                //var thisUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units);
-                //var destUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units);
-
-                //// Any enemy units around my position OR the target position?
-                //bool thisBlocked = thisUnits.Any(u => u.Owner != Owner);
-                //bool destBlocked = destUnits.Any(u => u.Owner != Owner);
-                //bool destOK = moveTarget.Units.Any(u => u.Owner == Owner) || moveTarget.HasCity;
-
-                // Cannot move from a square adjacent to enemy unit to a square adjacent to enemy unit
-                // fire-eggs 20191026 but _can_ move to square occupied by own units
-                // Issue #93: did not take into account "this square" being adjacent to enemy
-//                if (!destOK && thisBlocked && destBlocked)
                 if (!CanMoveTo(relX, relY))
                 {
                     if( Human == Owner ) 

@@ -123,6 +123,8 @@ namespace CivOne.Tasks
 
 		public static Show CaravanChoice(Caravan unit, City city) => new Show(new CaravanChoice(unit, city));
 
+        public static Show WeakAttack(BaseUnit unit, int relx, int rely) => new Show(new WeakAttack(unit, relx, rely));
+
 		public static Show DiplomatBribe(BaseUnitLand unitToBribe, Diplomat diplomat) => new Show(new DiplomatBribe(unitToBribe, diplomat));
 
 		public static Show DiplomatCity(City enemyCity, Diplomat diplomat) => new Show(new DiplomatCity(enemyCity, diplomat));

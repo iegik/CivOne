@@ -71,7 +71,7 @@ namespace CivOne.Units
 			}
 		}
 
-		protected override bool Confront(int relX, int relY)
+		internal override bool Confront(int relX, int relY)
 		{
 			ITile moveTarget = Map[X, Y][relX, relY];
 

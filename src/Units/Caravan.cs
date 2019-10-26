@@ -70,7 +70,7 @@ namespace CivOne.Units
 			Game.DisbandUnit(this);
 		}
 
-		protected override bool Confront(int relX, int relY)
+		internal override bool Confront(int relX, int relY)
 		{
 			ITile moveTarget = Map[X, Y][relX, relY];
 			City city = moveTarget.City;
