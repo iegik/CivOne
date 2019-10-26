@@ -11,17 +11,15 @@
 //
 using System;
 using CivOne.Graphics;
-using CivOne.Screens;
-using CivOne.Screens.Dialogs;
 using CivOne.Units;
 using CivOne.UserInterface;
 
-namespace CivOne.src.Screens.Dialogs
+namespace CivOne.Screens.Dialogs
 {
     // Prompt the user when performing a "weak" attack (Moves=0/PartMoves<=2)
     internal class WeakAttack : BaseDialog
     {
-        static private int WIDE = 80;
+        private static int WIDE = 80;
         private int _dX;
         private int _dY;
         private BaseUnit _unit;
