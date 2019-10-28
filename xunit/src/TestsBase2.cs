@@ -12,7 +12,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using CivOne.UnitTests;
 
 namespace CivOne.UnitTests
 {
@@ -31,9 +30,8 @@ namespace CivOne.UnitTests
         /// </summary>
         protected TestsBase2()
         {
-            var r = new Random(7595);
-
             rs = new RuntimeSettings();
+            rs.InitialSeed = 7595;
             runtime = new MockRuntime(rs);
 
             // Load Earth map

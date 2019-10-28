@@ -31,9 +31,8 @@ namespace CivOne.src
         /// </summary>
         protected TestsBase()
         {
-            var r = new Random(23905);
-
             rs = new RuntimeSettings();
+            rs.InitialSeed = 23905;
             runtime = new MockRuntime(rs);
 
             // Load Earth map
