@@ -43,6 +43,14 @@ namespace CivOne.UnitTests
         public int CanvasHeight { get; }
         public void Log(string text, params object[] parameters)
         {
+            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Civ.log");
+            using (TextWriter tw = new StreamWriter(path, append: true))
+            {
+                tw.WriteLine(text, parameters);
+                tw.Flush();
+                tw.Close();
+            }
+
             Console.WriteLine(text, parameters);
         }
 

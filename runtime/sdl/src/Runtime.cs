@@ -61,7 +61,19 @@ namespace CivOne
 #if RELEASE
 		public void Log(string value, params object[] formatArgs) { }
 #else
-		public void Log(string value, params object[] formatArgs) => Console.WriteLine(value, formatArgs);
+        public void Log(string value, params object[] formatArgs) // => Console.WriteLine(value, formatArgs);
+        {
+            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+                "Civ.log");
+            using (TextWriter tw = new StreamWriter(path, append: true))
+            {
+                tw.WriteLine(value, formatArgs);
+                tw.Flush();
+                tw.Close();
+            }
+
+            Console.WriteLine(value, formatArgs);
+        }
 #endif
 
 		Platform IRuntime.CurrentPlatform => Platform.Windows;
