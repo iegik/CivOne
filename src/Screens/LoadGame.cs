@@ -13,6 +13,7 @@ using CivOne.Graphics;
 using CivOne.UserInterface;
 using System;
 using System.Linq;
+using CivOne.Tasks;
 
 namespace CivOne.Screens
 {
@@ -49,6 +50,7 @@ namespace CivOne.Screens
 			Log("Empty save file, cancel");
 			Cancel = true;
 			_update = true;
+            BackToCredits();
 		}
 
 		private MenuItemEventHandler<int> LoadFileHandler(SaveGameFile file)
@@ -91,7 +93,19 @@ namespace CivOne.Screens
 			}
 			return Cancel;
 		}
-		
+
+        private void BackToCredits()
+        {
+            // fire-eggs fix for issue #34: when cancel out of this, go back to 
+            // credits screen, _always_ skipping the intro, and not animating 
+            // the logo.
+            var blah = new Credits();
+            blah.SkipIntro();
+            blah.SkipLogo();
+            Common.AddScreen(blah);
+            Destroy();
+        }
+
 		public override bool KeyDown(KeyboardEventArgs args)
 		{
 			if (Cancel) return false;
@@ -102,6 +116,7 @@ namespace CivOne.Screens
 				Log("Cancel");
 				Cancel = true;
 				_update = true;
+                BackToCredits();
 				return true;
 			}
 			else if (_menu != null)
@@ -165,5 +180,11 @@ namespace CivOne.Screens
 		{
 			Palette = palette;
 		}
+
+        public LoadGame()
+        {
+            var blah = Resources["LOGO"];
+            Palette = blah.Palette;
+        }
 	}
 }

@@ -23,8 +23,8 @@ namespace CivOne.Screens
 	{
 		private const int NOISE_COUNT = 40;
 		
-		private readonly int[] SHOW_INTRO_LINE = new[] { 312, 279, 254, 221, 196, 171, 146, 121, 96, 71, 46, 21, -4, -37, -62, -95, -120, -145, -170, -195, -220, -245, -270, -295 };
-		private readonly int[] HIDE_INTRO_LINE = new[] { 287, 229, -29, -87, -315 };
+		private readonly int[] SHOW_INTRO_LINE = { 312, 279, 254, 221, 196, 171, 146, 121, 96, 71, 46, 21, -4, -37, -62, -95, -120, -145, -170, -195, -220, -245, -270, -295 };
+		private readonly int[] HIDE_INTRO_LINE = { 287, 229, -29, -87, -315 };
 		
 		private readonly byte[] _menuColours;
 		private readonly string[] _introText;
@@ -32,19 +32,19 @@ namespace CivOne.Screens
 		private readonly byte[,] _noiseMap;
 		
 		private int _introLeft = 320;
-		private int _logoSwipe = 0;
-		private int _cycleCounter = 0;
-		private int _noiseCounter = NOISE_COUNT;
+        private int _logoSwipe;
+		private int _cycleCounter;
+        private int _noiseCounter = NOISE_COUNT;
 		
 		private bool _allowEnterSetup = true;
-		private bool _done = false;
-		private bool _showIntroLine = false;
-		private bool _introSkipped = false;
+		private bool _done;
+		private bool _showIntroLine;
+		private bool _introSkipped;
 		private int _introLine = -1;
 		
-		private IScreen _overlay = null;
+		private IScreen _overlay = null; // TODO fire-eggs: with fix for issue #34, this logic may no longer be required
 
-		private IScreen _nextScreen = null;
+		private IScreen _nextScreen;
 		
 		private void HandleIntroText()
 		{
@@ -190,7 +190,15 @@ namespace CivOne.Screens
 			_introSkipped = true;
 			return true;
 		}
-		
+
+        public void SkipLogo()
+        {
+            // fire-eggs: part of fix for issue #34
+            // when user has cancelled out of "load game": don't animate the logo
+            _logoSwipe = 350;
+            _noiseCounter = 0;
+        }
+
 		private void CreateMenu()
 		{
 			_allowEnterSetup = false;
@@ -218,7 +226,7 @@ namespace CivOne.Screens
 
 		private void StartIntro()
 		{
-			foreach (IScreen menu in _menus)
+			foreach (IMenu menu in _menus)
 				this.AddLayer(menu);
 			CloseMenus();
 			if (!Runtime.Settings.ShowIntro)
@@ -240,12 +248,10 @@ namespace CivOne.Screens
 		
 		private void LoadSavedGame(object sender, EventArgs args)
 		{
-			_overlay = null;
 			Log("Main Menu: Load a Saved Game");
-			CloseMenus();
-			
-			_overlay = new LoadGame(this.Palette);
-			_overlay.Closed += (s, a) => Destroy();
+            // fire-eggs: fix issue #34: switch to the LoadGame screen; on cancel there, come back to here
+            Destroy();
+            Common.AddScreen(new LoadGame());
 		}
 		
 		private void Earth(object sender, EventArgs args)
