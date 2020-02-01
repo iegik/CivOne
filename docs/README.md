@@ -1,3 +1,9 @@
+**With a Little Help From ...**
+
+![logo1](https://github.com/fire-eggs/yagp/blob/master/Files/jetbrains_sm.png) - [JetBrains](https://www.jetbrains.com/) : the Acme of .NET tool suites!
+
+![logo2](https://github.com/fire-eggs/yagp/blob/master/Files/deleaker_logo.png) - [Deleaker](https://www.deleaker.com) : the _best_ tool for finding memory, GDI and other leaks!
+
 # CivOne
 
 Bugfixes and enhancements to SWY's original. The primary goal is to emulate CIV Dos as closely as convenient, 
