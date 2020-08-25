@@ -6,14 +6,18 @@
 
 # CivOne
 
-Bugfixes and enhancements to SWY's original. The primary goal is to emulate CIV Dos as closely as convenient, 
+## What is it?
+A re-creation of Sid Meier's Civilization 1 using C# and .NET.
+
+## What is in this repository?
+Bugfixes and enhancements to [SWY's original](https://github.com/SWY1985/CivOne). The primary goal is to emulate CIV Dos as closely as convenient, 
 barring those areas where no one knows exactly how CIV Dos works. Some cheats and features will be provided
 as 'patches', accessible via the setup menu.
 
 Incremental releases have been made - see the [Releases](https://github.com/fire-eggs/CivOne/releases) page for details.
 
 **NOTE:**
-This program is not complete in itself. You need to have a copy of the files from CIV Dos! In addition, in order
+This program is not complete in itself. You need to have a copy of the files, especially the graphic assets, from CIV Dos! In addition, in order
 to use sound support, you need the sound files from CIV Win.
 
 ## Contributing
@@ -34,3 +38,6 @@ the likely location for the fix. In SWY's repo, there may be some useful Issues 
 enhance the Unit Testing support. And there is a high-level list of stuff to work on in the [Wiki](https://github.com/fire-eggs/CivOne/wiki).
 
 For Pull Requests, I would appreciate it if you could stick to the existing coding style.
+
+## More information
+- Discussion thread: https://forums.civfanatics.com/threads/civone-an-open-source-remake-of-civilization-1.535036/
