@@ -15,6 +15,7 @@ using CivOne.Advances;
 using CivOne.Buildings;
 using CivOne.Enums;
 using CivOne.Governments;
+using CivOne.src;
 using CivOne.Tasks;
 using CivOne.Tiles;
 using CivOne.Units;
@@ -231,16 +232,10 @@ namespace CivOne
 						distance = 10;
 						break;
 					default:
-						if (HasBuilding<Palace>()) return 0;
-						if (Game.GetPlayer(Owner).Cities.Any(x => x.HasBuilding<Palace>()))
-						{
-							City capital = Game.GetPlayer(Owner).Cities.First(x => x.HasBuilding<Palace>());
-							distance = Common.DistanceToTile(X, Y, capital.X, capital.Y);
-						}
-						else
-						{
-							distance = 32;
-						}
+						if (HasBuilding<Palace>()) 
+							return 0;
+						City capital = Game.GetPlayer(Owner).GetCapital();
+						distance = capital == null ? 32 : Common.DistanceToTile(X, Y, capital.X, capital.Y);
 						break;
 				}
 

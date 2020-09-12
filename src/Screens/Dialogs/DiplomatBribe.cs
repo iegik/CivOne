@@ -8,13 +8,12 @@
 // work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 using System;
-using System.Linq;
 using CivOne.Graphics;
 using CivOne.Tiles;
 using CivOne.Units;
 using CivOne.UserInterface;
-using CivOne.Buildings;
 using CivOne.Civilizations;
+using CivOne.src; // player extensions
 
 namespace CivOne.Screens.Dialogs
 {
@@ -51,7 +50,7 @@ namespace CivOne.Screens.Dialogs
 
 		private static int BribeCost(BaseUnitLand unitToBribe)
 		{
-			City capital = unitToBribe.Player.Cities.Where(c => c.HasBuilding(new Palace())).FirstOrDefault();
+			City capital = unitToBribe.Player.GetCapital();
 
 			int distance = capital == null ? 16 : unitToBribe.Tile.DistanceTo(capital);
 

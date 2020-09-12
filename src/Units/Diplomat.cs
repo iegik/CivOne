@@ -14,19 +14,20 @@ using CivOne.Tiles;
 using System.Linq;
 using CivOne.Buildings;
 using System.Collections.Generic;
+using CivOne.src;
 
 namespace CivOne.Units
 {
 	internal class Diplomat : BaseUnitLand
 	{
-		public static bool CanIncite(City cityToIncice, short gold)
+		public static bool CanIncite(City cityToIncite, short gold)
 		{
-			return gold >= InciteCost(cityToIncice) && !cityToIncice.HasBuilding<Palace>();
+			return gold >= InciteCost(cityToIncite) && !cityToIncite.HasBuilding<Palace>();
 		}
 
 		public static int InciteCost(City cityToIncite)
 		{
-			City capital = cityToIncite.Player.Cities.FirstOrDefault(c => c.HasBuilding(new Palace()));
+			City capital = cityToIncite.Player.GetCapital();
 
 			int distance = capital == null ? 16 : cityToIncite.Tile.DistanceTo(capital);
 			

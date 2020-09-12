@@ -13,6 +13,7 @@ using System.Linq;
 using CivOne.Enums;
 using CivOne.Events;
 using CivOne.Graphics;
+using CivOne.src;
 
 namespace CivOne.Screens.Reports
 {
@@ -43,7 +44,7 @@ namespace CivOne.Screens.Reports
 					this.DrawText(line, 0, 7, 24, (y += fontHeight));
 
 				this.DrawText("Capital:", 0, 9, 16, (y += fontHeight + 4))
-					.DrawText(player.Capital, 0, 15, 63, y)
+					.DrawText(player.GetCapitalName(), 0, 15, 63, y)
 					.DrawText("Government:", 0, 9, 16, (y += fontHeight))
 					.DrawText(player.Government.Name, 0, 15, 83, y)
 					.DrawText("Treasury:", 0, 9, 16, (y += fontHeight))

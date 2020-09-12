@@ -14,6 +14,7 @@ using CivOne.Events;
 using CivOne.IO;
 using CivOne.Graphics;
 using CivOne.Graphics.Sprites;
+using CivOne.src;
 
 namespace CivOne.Screens
 {
@@ -70,11 +71,8 @@ namespace CivOne.Screens
 			string newsflash = TextFile.Instance.GetGameText($"KING/NEWS{(char)Common.Random.Next((int)'A', (int)'O')}")[0];
 			string shout = (Common.Random.Next(0, 2) == 0) ? "FLASH" : "EXTRA!";
 			string date = $"January 1, {Common.YearString(Game.GameTurn)}";
-			string name = "NONE";
-			if (city != null)
-				name = city.Name;
-			else if (Human.Cities.Length > 0)
-				name = Human.Cities[0].Name;
+			string name = city == null ? Human.GetCapitalName() : city.Name;
+
 			switch (Common.Random.Next(0, 3))
 			{
 				case 0: name = $"The {name} Times"; break;
@@ -84,8 +82,8 @@ namespace CivOne.Screens
 
 			Palette = palette;
 			this.FillRectangle(0, 0, 320, 100, 15)
-				.DrawText("FLASH", 2, 5, 6, 3)
-				.DrawText("FLASH", 2, 5, 272, 3)
+				.DrawText(shout, 2, 5, 6, 3)
+				.DrawText(shout, 2, 5, 272, 3)
 				.DrawText(newsflash, 1, 5, 158, 3, TextAlign.Center)
 				.DrawText(newsflash, 1, 5, 158, 3, TextAlign.Center)
 				.DrawText(",-.", 4, 5, 8, 11)
