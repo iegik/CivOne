@@ -320,9 +320,13 @@ namespace CivOne.Units
 
                             if (capturedCity.Size == 0 || Human != Owner) return;
                             GameTask.Insert(Show.CityManager(capturedCity));
-                        };
 
-                        if (!Game.Animations)
+							// fire-eggs 20190628 no 'select advance' dialog when non-human is doing the capturing!
+							if (advancesToSteal.Any() && Human == Owner)
+								GameTask.Enqueue(Show.SelectAdvanceAfterCityCapture(Player, advancesToSteal));
+						};
+
+                        if (Game.Animations)
                         {
                             Show captureCity = Show.CaptureCity(capturedCity, lines);
                             captureCity.Done += doneCapture;
@@ -334,10 +338,6 @@ namespace CivOne.Units
                             captureNews.Closed += doneCapture;
                             Common.AddScreen(captureNews);
                         }
-
-                        // fire-eggs 20190628 no 'select advance' dialog when non-human is doing the capturing!
-                        if (advancesToSteal.Any() && Human==Owner)
-							GameTask.Enqueue(Show.SelectAdvanceAfterCityCapture(Player, advancesToSteal));
 					}
 					else
 					{
