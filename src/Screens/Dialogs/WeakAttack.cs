@@ -44,6 +44,10 @@ namespace CivOne.Screens.Dialogs
 
             menu.Items.Add("Cancel").OnSelect(Cancel);
             menu.Items.Add("Attack").OnSelect(Continue);
+
+            menu.MissClick += Cancel;
+            menu.Cancel += Cancel;
+
             AddMenu(menu);
         }
 
