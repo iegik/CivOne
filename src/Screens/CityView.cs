@@ -13,6 +13,7 @@ using CivOne.Advances;
 using CivOne.Buildings;
 using CivOne.Enums;
 using CivOne.Events;
+using CivOne.Governments;
 using CivOne.Graphics;
 using CivOne.Graphics.Sprites;
 using CivOne.Wonders;
@@ -835,8 +836,16 @@ namespace CivOne.Screens
 					_invadersOrRevolters[ii] = marchers[xx + (frameX * (ww + 1)), yy + (frameY * (hh + 1)), ww, hh];
 				}
 				_x = 240;
-                // TODO fire-eggs shouldn't this be 'king'/'?'/'president' based on government?
- 				string[] lines =  { "'We Love the President'", "day celebrated in", $"{city.Name}!" };
+
+				string leaderTitle = "President";
+				if (Game.CurrentPlayer.Government is Governments.Monarchy)
+					leaderTitle = "King";
+				if (Game.CurrentPlayer.Government is Governments.Communism)
+					leaderTitle = "Comrade";
+				if (Game.CurrentPlayer.Government is Despotism)
+					leaderTitle = "Emperor";
+
+ 				string[] lines =  { "'We Love the " + leaderTitle + "'", "day celebrated in", $"{city.Name}!" };
                 drawMessage(lines);
 			}
 
