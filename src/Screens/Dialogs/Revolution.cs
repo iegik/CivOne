@@ -9,6 +9,7 @@
 
 using System;
 using CivOne.Graphics;
+using CivOne.Tasks;
 
 namespace CivOne.Screens.Dialogs
 {
@@ -17,6 +18,9 @@ namespace CivOne.Screens.Dialogs
 		private void MenuRevolution(object sender, EventArgs args)
 		{
 			Human.Revolt();
+			GameTask.Enqueue(Message.Newspaper(null, 
+				$"The {Human.Civilization.NamePlural} are", 
+				"revolting! Citizens", "demand new govt."));
 			Cancel();
 		}
 
