@@ -1235,7 +1235,7 @@ namespace CivOne
 					break;				
 			}
 
-			if (message.Count > 0 && (Player == Owner || humanGetsCity))
+			if (message.Count > 0 && (Player.IsHuman || humanGetsCity))
 			{
 				GameTask.Enqueue(Message.Advisor(Advisor.Domestic, false, message.ToArray()));
 			}
