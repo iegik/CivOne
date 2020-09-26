@@ -12,19 +12,19 @@ using CivOne.Units;
 
 namespace CivOne.Tasks
 {
-	[Fast]
+	//[Fast]
 	public class MoveUnit : GameTask
 	{
 		private const int STEP_SIZE = 1;
 
 		public readonly int RelX, RelY;
 
-		private int _step = 1;
+        private int _step = 1;
 
 		public int X { get; private set; }
 		public int Y { get; private set; }
 
-		public IUnit ActiveUnit { get; private set; }
+		public IUnit ActiveUnit { get; }
 
 		protected override bool Step()
 		{

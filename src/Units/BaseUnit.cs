@@ -698,6 +698,8 @@ namespace CivOne.Units
 		public byte ProductionId => (byte)Type;
 
 		private byte _price;
+
+		///<summary>Cost to build in shields</summary>
 		public byte Price
 		{
 			get => Modifications.LastOrDefault(x => x.Price.HasValue)?.Price.Value ?? _price;
@@ -863,8 +865,8 @@ namespace CivOne.Units
 		{
 			if (_iconCache[(int)Type] == null)
 			{
-				_iconCache[(int)Type] = Resources[$"ICONPG{page}"][col * 160, row * 62, 160, 60]
-					.ColourReplace((byte)(GFX256 ? 253 : 15), 0);
+				_iconCache[(int)Type] = Resources[$"ICONPG{page}"][col * 160, row * 62, 160, 60];
+//					.ColourReplace((byte)(GFX256 ? 253 : 15), 0);
 			}
 			Icon = _iconCache[(int)Type];
 		}

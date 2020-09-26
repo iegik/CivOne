@@ -112,5 +112,10 @@ namespace CivOne.Tasks
 		{
 			
 		}
+
+        public override string ToString()
+        {
+            return $"Turn:{_turnObject}:{_unit}:{_endTurn}:{_step}";
+        }
 	}
 }

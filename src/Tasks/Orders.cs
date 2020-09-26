@@ -101,12 +101,12 @@ namespace CivOne.Tasks
                         return;
                     }
 
-                    {
-                        CityManager cityManager = new CityManager(_city);
-                        cityManager.Closed += CityManagerClosed;
-                        Common.AddScreen(cityManager);
-                        return;
-                    }
+                    //{
+                    //    CityManager cityManager = new CityManager(_city);
+                    //    cityManager.Closed += CityManagerClosed;
+                    //    Common.AddScreen(cityManager);
+                    //    return;
+                    //}
                 }
 				if (_unit != null)
 				{
@@ -331,5 +331,10 @@ namespace CivOne.Tasks
 		{
 			
 		}
-	}
+
+        public override string ToString()
+        {
+            return $"Orders:{_unit}:{_order}";
+        }
+    }
 }
