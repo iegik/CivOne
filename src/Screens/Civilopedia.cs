@@ -338,9 +338,11 @@ namespace CivOne.Screens
 			_update = false;
 			_singlePage = page;
 			Palette = Common.DefaultPalette;
-			if (page.Icon != null)Palette.MergePalette(page.Icon.Palette, 16);
 
-			SetOriginalColours();
+            if (page.Icon != null)
+                Palette.MergePalette(page.Icon.Palette, 16);
+
+		    SetOriginalColours();
 			
 			this.Clear(15);
 			DrawBorder(Common.Random.Next(2));

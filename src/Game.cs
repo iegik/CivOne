@@ -336,6 +336,15 @@ namespace CivOne
 		}
 		
 		private static IUnit CreateUnit(UnitType type, int x, int y)
+        {
+			IUnit unit = CreateUnit(type);
+			unit.X = x;
+			unit.Y = y;
+			unit.MovesLeft = unit.Move;
+			return unit;
+		}
+
+		public static IUnit CreateUnit(UnitType type)
 		{
 			IUnit unit;
 			switch (type)
@@ -370,9 +379,6 @@ namespace CivOne
 				case UnitType.Caravan: unit = new Caravan(); break;
 				default: return null;
 			}
-			unit.X = x;
-			unit.Y = y;
-			unit.MovesLeft = unit.Move;
 			return unit;
 		}
 
