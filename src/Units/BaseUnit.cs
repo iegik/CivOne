@@ -296,16 +296,12 @@ namespace CivOne.Units
 
                     if (Human == capturedCity.Owner || Human == Owner)
 					{
-                        int totalLuxuries = Game.GetPlayer(capturedCity.Owner).Cities.Sum(x => x.Luxuries);
-                        int totalGold = Game.GetPlayer(capturedCity.Owner).Gold;
-                        int cityLuxuries = capturedCity.Luxuries;
-                        if (cityLuxuries == 0) cityLuxuries = 1;
+						Player cityOwner = Game.GetPlayer(capturedCity.Owner);
+						float totalSize = cityOwner.Cities.Sum(x => x.Size);
+						int totalGold = cityOwner.Gold;
 
-                        // fire-eggs prevent divide-by-zero
-                        int captureGold = 0;
-                        if (totalLuxuries != 0)
-                            captureGold = (int)Math.Floor(((float)totalGold / totalLuxuries) * cityLuxuries);
-                        if (captureGold < 0) captureGold = 0;
+						// Issue #56 : Gold formula from CivFanatics
+						int captureGold = (int)(totalGold * ((float)capturedCity.Size / totalSize));
 
                         Game.GetPlayer(capturedCity.Owner).Gold -= (short)captureGold;
                         Game.CurrentPlayer.Gold += (short)captureGold;
