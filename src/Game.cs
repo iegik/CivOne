@@ -159,11 +159,26 @@ namespace CivOne
 
 				if (Barbarian.IsSeaSpawnTurn)
 				{
-					ITile tile = Barbarian.SeaSpawnPosition;
-					if (tile != null)
-					{
-						foreach (UnitType unitType in Barbarian.SeaSpawnUnits)
-							CreateUnit(unitType, tile.X, tile.Y, 0, false);
+					// KBR 20200927 use cdonges land spawn code
+					// https://github.com/cdonges/CivOne/commit/e54fe9377030de625c51b674c0ecf29a335e0556
+					// TODO land spawning and sea spawning as separate timing / acts
+					if (Common.Random.Next(100) > 50)
+                    {
+						ITile tile = Barbarian.LandSpawnPosition;
+						if (tile != null)
+						{
+							foreach (UnitType unitType in Barbarian.LandSpawnUnits)
+								CreateUnit(unitType, tile.X, tile.Y, 0, false);
+						}
+					}
+					else
+                    {
+						ITile tile = Barbarian.SeaSpawnPosition;
+						if (tile != null)
+						{
+							foreach (UnitType unitType in Barbarian.SeaSpawnUnits)
+								CreateUnit(unitType, tile.X, tile.Y, 0, false);
+						}
 					}
 				}
 			}
