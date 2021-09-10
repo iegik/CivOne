@@ -19,16 +19,16 @@ namespace CivOne.IO
 
 		private readonly string[] TEXT_FILES = new[] { "BLURB0", "BLURB1", "BLURB2", "BLURB3", "BLURB4", "ERROR", "HELP", "KING", "PRODUCE" };
 		private readonly Dictionary<string, string[]> _gameTexts = new Dictionary<string,string[]>();
-		
+
 		public string[] LoadArray(string filename)
 		{
 			filename += ".TXT";
-			
+
 			Regex rgx = new Regex("[^a-zA-Z0-9 -_]");
 			List<string> textLines = new List<string>();
 			if (!File.Exists(Path.Combine(Settings.Instance.DataDirectory, filename)))
 			{
-				Log($"File not found: {filename}");
+				Log("- File not found: {0} in {1}", filename, Settings.Instance.DataDirectory);
 				return new string[0];
 			}
 			using (FileStream fs = new FileStream(Path.Combine(Settings.Instance.DataDirectory, filename), FileMode.Open, FileAccess.Read))
@@ -37,14 +37,14 @@ namespace CivOne.IO
 					textLines.Add(rgx.Replace(sr.ReadLine(), "").Trim());
 			return textLines.ToArray();
 		}
-		
+
 		public string[] GetGameText(string key)
 		{
 			if (_gameTexts.ContainsKey(key))
 				return _gameTexts[key];
 			return new string[0];
 		}
-		
+
 		private static TextFile _instance;
 		public static TextFile Instance
 		{
@@ -60,7 +60,7 @@ namespace CivOne.IO
 		{
 			_instance = null;
 		}
-		
+
 		private TextFile()
 		{
 			foreach (string file in TEXT_FILES)
@@ -78,7 +78,7 @@ namespace CivOne.IO
 						keys.Add(textfile[i++].Substring(1));
 					while (textfile.Length > i && textfile[i].Length > 0 && !textfile[i].StartsWith("*"))
 						lines.Add(textfile[i++]);
-					
+
 					if (lines.Count == 0) continue;
 					foreach (string key in keys)
 					{
