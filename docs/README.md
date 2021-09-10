@@ -10,7 +10,7 @@
 A re-creation of Sid Meier's Civilization 1 using C# and .NET.
 
 ## What is in this repository?
-Bugfixes and enhancements to [SWY's original](https://github.com/SWY1985/CivOne). The primary goal is to emulate CIV Dos as closely as convenient, 
+Bugfixes and enhancements to [SWY's original](https://github.com/SWY1985/CivOne). The primary goal is to emulate CIV Dos as closely as convenient,
 barring those areas where no one knows exactly how CIV Dos works. Some cheats and features will be provided
 as 'patches', accessible via the setup menu.
 
@@ -22,8 +22,8 @@ to use sound support, you need the sound files from CIV Win.
 
 ## Contributing
 
-I am not the original author. My focus has been to fix bugs and add features, and I'm still learning my way 
-around large parts of the code and architecture. That said, I've started writing up some notes on parts of the 
+I am not the original author. My focus has been to fix bugs and add features, and I'm still learning my way
+around large parts of the code and architecture. That said, I've started writing up some notes on parts of the
 code, and placed them in the [Wiki](https://github.com/fire-eggs/CivOne/wiki).
 
 So far I'm adhering to SWY's original intent of not making any radical changes to the behavior, attempting to
@@ -32,6 +32,8 @@ a setting (e.g. see Enock Nitti's A* movement).
 
 SWY intended to provde alternative graphics (instead of requiring the original CIV Dos data files); someone
 could survey the state of that and provide better, copyright-free versions.
+
+> NOTE: Now it's hardcoded `"E:\proj\CivOne"`
 
 In the Issues you can find a number of bugs that can be worked on. In a few cases I've tried to narrow down
 the likely location for the fix. In SWY's repo, there may be some useful Issues as well. I'm also trying to
