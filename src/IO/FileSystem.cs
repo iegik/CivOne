@@ -36,14 +36,14 @@ namespace CivOne.IO
 			foreach (string filename in files)
 			{
 				if (Directory.GetFiles(Settings.Instance.DataDirectory, filename).Length > 0) continue;
-				
-				Log("- File not found: {0}", filename);
+
+				Log("- File not found: {0} in {1}", filename, Settings.Instance.DataDirectory);
 				return false;
 			}
 			Log("- Done, all files exist");
 			return true;
 		}
-		
+
 		public static bool CopyDataFiles(string folder)
 		{
 			Log("Copying data files...");
@@ -56,7 +56,7 @@ namespace CivOne.IO
 					File.Copy(Path.Combine(folder, files[0]), Path.Combine(Settings.Instance.DataDirectory, filename));
 					continue;
 				}
-				Log("- File not found: {0}", filename);
+				Log("- File not found: {0} in {1}", filename, Settings.Instance.DataDirectory);
 				return false;
 			}
 			Log("- Done, all copied");
@@ -70,8 +70,8 @@ namespace CivOne.IO
 			foreach (string filename in files)
 			{
 				if (Directory.GetFiles(Settings.Instance.SoundsDirectory, filename).Length > 0) continue;
-				
-				Log("- File not found: {0}", filename);
+
+				Log("- File not found: {0} in {1}", filename, Settings.Instance.DataDirectory);
 				return false;
 			}
 			Log("- Done, all files exist");
@@ -90,7 +90,7 @@ namespace CivOne.IO
 					File.Copy(Path.Combine(folder, files[0]), Path.Combine(Settings.Instance.SoundsDirectory, filename));
 					continue;
 				}
-				Log("- File not found: {0}", filename);
+				Log("- File not found: {0} in {1}", filename, Settings.Instance.DataDirectory);
 				return false;
 			}
 			Log("- Done, all copied");
@@ -136,5 +136,5 @@ namespace CivOne.IO
 
 			return true;
 		}
-	} 
+	}
 }
