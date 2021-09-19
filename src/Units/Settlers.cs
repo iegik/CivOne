@@ -108,9 +108,9 @@ namespace CivOne.Units
 				return true;
 			}
 
-            //bool irrigate1 = (tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) && 
-            //                                                 (t.City == null) && 
-            //                                                 (t.IsOcean || t.Irrigation || (t is River)))) || 
+            //bool irrigate1 = (tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) &&
+            //                                                 (t.City == null) &&
+            //                                                 (t.IsOcean || t.Irrigation || (t is River)))) ||
             //                 (tile is River);
             //bool irrigate1a =
             //    tile.CrossTiles().Any(t => !t.HasCity && (t.IsOcean || t.Irrigation || t.Type == Terrain.River)) ||
@@ -124,9 +124,9 @@ namespace CivOne.Units
 
             //bool irrigate3 = !tile.IsOcean &&       // always false
             //                 !(tile.Irrigation) &&  // always false
-            //                 ((tile is Desert) || 
-            //                  (tile is Grassland) || 
-            //                  (tile is Hills) || 
+            //                 ((tile is Desert) ||
+            //                  (tile is Grassland) ||
+            //                  (tile is Hills) ||
             //                  (tile is Plains) ||
             //                  (tile is River));
 
@@ -200,7 +200,7 @@ namespace CivOne.Units
 		{
 			if (!Game.CurrentPlayer.HasAdvance<Construction>())
 				return false;
-			
+
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Fortress) && tile.City == null)
 			{
@@ -218,7 +218,7 @@ namespace CivOne.Units
 			if (BuildingRoad > 0)
 			{
 				BuildingRoad--;
-				// fire-eggs if (BuildingRoad > 0)
+				if (BuildingRoad > 0)
 				{
 					if (Map[X, Y].Road)
 					{
@@ -235,8 +235,8 @@ namespace CivOne.Units
 						}
 					}
 					Map[X, Y].Road = true;
-					// fire-eggs MovesLeft = 0;
-					// fire-eggs PartMoves = 0;
+					MovesLeft = 0;
+					PartMoves = 0;
                     MovesLeft = 1;
                     PartMoves = 0;
                 }
@@ -244,12 +244,12 @@ namespace CivOne.Units
 			else if (BuildingIrrigation > 0)
 			{
 				BuildingIrrigation--;
-				//if (BuildingIrrigation > 0)
-				//{
-				//	MovesLeft = 0;
-				//	PartMoves = 0;
-				//}
-				//else 
+				if (BuildingIrrigation > 0)
+				{
+					MovesLeft = 0;
+					PartMoves = 0;
+				}
+				else
                 if (Map[X, Y] is Forest)
 				{
 					Map[X, Y].Irrigation = false;
@@ -273,12 +273,12 @@ namespace CivOne.Units
             else if (BuildingMine > 0)
 			{
 				BuildingMine--;
-				//if (BuildingMine > 0)
-				//{
-				//	MovesLeft = 0;
-				//	PartMoves = 0;
-				//}
-				//else 
+				if (BuildingMine > 0)
+				{
+					MovesLeft = 0;
+					PartMoves = 0;
+				}
+				else
                 if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
 				{
 					Map[X, Y].Irrigation = false;
@@ -296,12 +296,12 @@ namespace CivOne.Units
             else if (BuildingFortress > 0)
 			{
 				BuildingFortress--;
-				//if (BuildingFortress > 0)
-				//{
-				//	MovesLeft = 0;
-				//	PartMoves = 0;
-				//}
-				//else
+				if (BuildingFortress > 0)
+				{
+					MovesLeft = 0;
+					PartMoves = 0;
+				}
+				else
 				{
 					Map[X, Y].Fortress = true;
 				}
@@ -339,7 +339,7 @@ namespace CivOne.Units
 			.SetShortcut("f")
 			.SetEnabled(Game.CurrentPlayer.HasAdvance<Construction>())
 			.OnSelect((s, a) => GameTask.Enqueue(Orders.BuildFortress(this)));
-		
+
 		public override IEnumerable<MenuItem<int>> MenuItems
 		{
 			get
@@ -352,7 +352,7 @@ namespace CivOne.Units
 					yield return MenuFoundCity();
 				}
 				if (!tile.IsOcean && (!tile.Road || (Human.HasAdvance<RailRoad>() && !tile.RailRoad)))
-				{	
+				{
 					yield return MenuBuildRoad();
 				}
 				if (!tile.Irrigation && (tile.TerrainAllowsIrrigation() || tile.IrrigationChangesTerrain())) // ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River) || (tile is Forest) || (tile is Jungle) || (tile is Swamp)))
