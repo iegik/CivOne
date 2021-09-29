@@ -75,19 +75,19 @@ namespace CivOne.Units
             // translate internal state to save file format
 			switch (_order) {
 				case Order.Road:
-					result |= 2;
+					result |= 0x2;
 					break;
 				case Order.Irrigate:
-					result |= 64;
+					result |= 0x40;
 					break;
             	case Order.Mines:
-					result |= 128;
+					result |= 0x80;
 					break;
             	case Order.Fortress:
-					result |= (64 + 128);
+					result |= 0xc0;
 					break;
             	case Order.Pillage:
-					result |= (2 + 128);
+					result |= 0x82;
 					break;
 			}
         }
@@ -224,7 +224,7 @@ namespace CivOne.Units
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Fortress) && tile.City == null)
 			{
-                Status = (64 + 128);
+                Status = 0xc0;
 				return true;
 			}
 			return false;

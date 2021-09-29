@@ -6,14 +6,14 @@ namespace CivOne.Enums
 		NewCity,
 		Sentry,
 		Fortify,
-		Road,
-		Irrigate,
-		Mines,
-		Fortress,
+		Road, // 0x2
+		Irrigate, // 0x40
+		Mines, // 0x80
+		Fortress, // 0xc0
 		Wait,
 		Skip,
 		Unload,
 		Disband,
-		Pillage
+		Pillage // 0x82
 	}
 }
