@@ -280,7 +280,12 @@ namespace CivOne.Units
 				}
 				else if (_order == Order.Mines)
 				{
-					if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
+					if (Map[X, Y] is Forest)
+					{
+						Map[X, Y].Irrigation = false;
+						Map[X, Y].Mine = false;
+					}
+					else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
 					{
 						Map[X, Y].Irrigation = false;
 						Map[X, Y].Mine = false;
