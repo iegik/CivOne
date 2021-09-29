@@ -12,27 +12,12 @@ using CivOne.Advances;
 using CivOne.IO;
 using CivOne.Screens;
 using CivOne.Units;
+using CivOne.Enums;
 
 namespace CivOne.Tasks
 {
 	internal class Orders : GameTask
 	{
-		private enum Order
-		{
-			None,
-			NewCity,
-			Sentry,
-			Fortify,
-			Road,
-			Irrigate,
-			Mines,
-			Fortress,
-			Wait,
-			Skip,
-			Unload,
-			Disband
-		}
-
 		private City _city;
 		private Player _player;
 		private IUnit _unit = null;
@@ -43,7 +28,7 @@ namespace CivOne.Tasks
 		{
 			GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText($"ERROR/{error}")));
 		}
-		
+
 		private void CityManagerClosed(object sender, EventArgs args)
 		{
 			if (_unit != null)
@@ -86,7 +71,7 @@ namespace CivOne.Tasks
 
 		private void CreateCity(int nameId)
 		{
-			_city = Game.AddCity(_player, nameId, _x, _y); 
+			_city = Game.AddCity(_player, nameId, _x, _y);
 			if (_city != null)
 			{
 				if (_player.IsHuman)
@@ -128,7 +113,7 @@ namespace CivOne.Tasks
 				Common.AddScreen(cityName);
 				return;
 			}
-			
+
 			CreateCity(nameId);
 		}
 
@@ -329,7 +314,6 @@ namespace CivOne.Tasks
 
 		private Orders()
 		{
-			
 		}
 	}
 }

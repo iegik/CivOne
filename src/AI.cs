@@ -39,22 +39,22 @@ namespace CivOne
 				BarbarianMove(unit);
 				return;
 			}
-			
+
 			if (unit is Settlers)
 			{
 				ITile tile = unit.Tile;
 
 				bool hasCity = (tile.City != null);
 				bool validCity = (tile is Grassland || tile is River || tile is Plains) && (tile.City == null);
-				bool validIrrigaton = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && (tile.City == null) && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
+				bool validIrrigation = (tile is Grassland || tile is River || tile is Plains || tile is Desert) && (tile.City == null) && (!tile.Mine) && (!tile.Irrigation) && tile.CrossTiles().Any(x => x.IsOcean || x is River || x.Irrigation);
 				bool validMine = (tile is Mountains || tile is Hills) && (tile.City == null) && (!tile.Mine) && (!tile.Irrigation);
 				bool validRoad = (tile.City == null) && tile.Road;
 				int nearestCity = 255;
 				int nearestOwnCity = 255;
-				
+
 				if (Game.GetCities().Any()) nearestCity = Game.GetCities().Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
 				if (Game.GetCities().Any(x => x.Owner == unit.Owner)) nearestOwnCity = Game.GetCities().Where(x => x.Owner == unit.Owner).Min(x => Common.DistanceToTile(x.X, x.Y, tile.X, tile.Y));
-				
+
 				if (validCity && nearestCity > 3)
 				{
 					GameTask.Enqueue(Orders.FoundCity(unit as Settlers));
@@ -72,7 +72,7 @@ namespace CivOne
 							}
 							break;
 						case 1:
-							if (validIrrigaton)
+							if (validIrrigation)
 							{
 								GameTask.Enqueue(Orders.BuildIrrigation(unit));
 								return;
@@ -206,9 +206,9 @@ namespace CivOne
 		internal void ChooseResearch()
 		{
 			if (Player.CurrentResearch != null) return;
-			
+
 			IAdvance[] advances = Player.AvailableResearch.ToArray();
-			
+
 			// No further research possible
 			if (advances.Length == 0) return;
 
@@ -244,7 +244,7 @@ namespace CivOne
 			{
 				if (city.Tile.Units.Count(x => x is Militia) < 2) production = new Militia();
 			}
-			
+
 			// Create city improvements
 			if (production == null)
 			{
@@ -271,7 +271,7 @@ namespace CivOne
 					{
 						if (Player.HasAdvance<Writing>()) production = new Diplomat();
 					}
-					else 
+					else
 					{
 						if (Player.HasAdvance<Automobile>()) production = new Armor();
 						else if (Player.HasAdvance<Metallurgy>()) production = new Cannon();

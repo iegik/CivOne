@@ -25,41 +25,71 @@ namespace CivOne.Units
 		{
 			get
 			{
-				return (base.Busy || BuildingRoad > 0 || BuildingIrrigation > 0 || BuildingMine > 0 || BuildingFortress > 0);
+				return (base.Busy || MovesSkip > 0);
 			}
 			set
 			{
 				base.Busy = false;
-				BuildingRoad = 0;
-				BuildingIrrigation = 0;
-				BuildingMine = 0;
-				BuildingFortress = 0;
+				MovesSkip = 0;
 			}
 		}
-		public int BuildingRoad { get; private set; }
-		public int BuildingIrrigation { get; private set; }
-		public int BuildingMine { get; private set; }
-		public int BuildingFortress { get; private set; }
-
-        public int CleaningPollution { get; private set; }
-
+		public Order _order;
 		internal void SetStatus(bool[] bits)
 		{
-			BuildingRoad = (bits[1] && !bits[6] && !bits[7]) ? 2 : 0;
-			BuildingIrrigation = (!bits[1] && bits[6] && !bits[7]) ? 3 : 0;
-			BuildingMine = (!bits[1] && !bits[6] && bits[7]) ? 4 : 0;
-			BuildingFortress = (!bits[1] && bits[6] && bits[7]) ? 5 : 0;
-            CleaningPollution = (bits[1] && !bits[6] && bits[7]) ? 5 : 0; // TODO verify pollution cost
+			if (Owner == 0)
+			{
+				return;
+			}
+			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
+			if (bits[1] && !bits[6] && !bits[7])
+			{
+				_order = Order.Road;
+				MovesSkip = cheatEnabled ? 1 : 2;
+			}
+			if (!bits[1] && bits[6] && !bits[7])
+			{
+				_order = Order.Irrigate;
+				MovesSkip = cheatEnabled ? 1 : 3;
+			}
+			if (!bits[1] && !bits[6] && bits[7])
+			{
+				_order = Order.Mines;
+				MovesSkip = cheatEnabled ? 1 : 4;
+			}
+			if (!bits[1] && bits[6] && bits[7])
+			{
+				_order = Order.Fortress;
+				MovesSkip = cheatEnabled ? 1 : 5;
+			}
+            if (bits[1] && !bits[6] && bits[7])
+			{
+				_order = Order.Pillage;
+				MovesSkip = cheatEnabled ? 1 : 5; // TODO verify pollution cost
+			}
+			MovesLeft = 0;
+			PartMoves = 0;
         }
 
         internal void GetStatus(ref byte result)
         {
             // translate internal state to save file format
-            if (BuildingRoad != 0) result |= 2;
-            if (BuildingIrrigation != 0) result |= 64;
-            if (BuildingMine != 0) result |= 128;
-            if (BuildingFortress != 0) result |= (64 + 128);
-            if (CleaningPollution != 0) result |= (2 + 128);
+			switch (_order) {
+				case Order.Road:
+					result |= 2;
+					break;
+				case Order.Irrigate:
+					result |= 64;
+					break;
+            	case Order.Mines:
+					result |= 128;
+					break;
+            	case Order.Fortress:
+					result |= (64 + 128);
+					break;
+            	case Order.Pillage:
+					result |= (2 + 128);
+					break;
+			}
         }
 
 		public bool BuildRoad()
@@ -75,16 +105,12 @@ namespace CivOne.Units
 			{
 				if ((tile is River) && !Game.CurrentPlayer.HasAdvance<BridgeBuilding>())
 					return false;
-                BuildingRoad = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 2; // cheat for human
-                MovesLeft = 0;
-				PartMoves = 0;
+                Status = 2;
 				return true;
 			}
 			if (Game.CurrentPlayer.HasAdvance<RailRoad>() && !tile.IsOcean && tile.Road && !tile.RailRoad && tile.City == null)
 			{
-                BuildingRoad = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
-                MovesLeft = 0;
-				PartMoves = 0;
+                Status = 2;
 				return true;
 			}
 			return false;
@@ -101,10 +127,8 @@ namespace CivOne.Units
             // Changing terrain type
 			if (tile.IrrigationChangesTerrain())
 			{
-                // TODO fire-eggs setting BuildingIrrigation to true should clear moves
-                BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 4; // cheat for human
-                MovesLeft = 0;
-				PartMoves = 0;
+                // TODO fire-eggs setting MovesSkip to true should clear moves
+                Status = 64;
 				return true;
 			}
 
@@ -144,9 +168,7 @@ namespace CivOne.Units
 
             if (tile.AllowIrrigation() || tile.Type == Terrain.River)
             {
-                BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
-                MovesLeft = 0;
-                PartMoves = 0;
+                Status = 64;
                 return true;
             }
 
@@ -160,7 +182,7 @@ namespace CivOne.Units
 //				//if (!tile.IsOcean && !(tile.Irrigation) && ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)))
 //                if (tile.TerrainAllowsIrrigation()) // irrigation may be applied
 //				{
-//                    BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
+//                    MovesSkip = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
 //                    MovesLeft = 0;
 //					PartMoves = 0;
 //					return true;
@@ -188,9 +210,7 @@ namespace CivOne.Units
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Mine) && ((tile is Desert) || (tile is Hills) || (tile is Mountains) || (tile is Jungle) || (tile is Grassland) || (tile is Plains) || (tile is Swamp)))
 			{
-                BuildingMine = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 4; // cheat for human
-                MovesLeft = 0;
-				PartMoves = 0;
+                Status = 128;
 				return true;
 			}
 			return false;
@@ -204,9 +224,7 @@ namespace CivOne.Units
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Fortress) && tile.City == null)
 			{
-                BuildingFortress = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 5; // cheat for human
-				MovesLeft = 0;
-				PartMoves = 0;
+                Status = (64 + 128);
 				return true;
 			}
 			return false;
@@ -215,10 +233,10 @@ namespace CivOne.Units
 		public override void NewTurn()
 		{
 			base.NewTurn();
-			if (BuildingRoad > 0)
+			if (MovesSkip > 0)
 			{
-				BuildingRoad--;
-				if (BuildingRoad > 0)
+				MovesSkip--;
+				if (_order == Order.Road)
 				{
 					if (Map[X, Y].Road)
 					{
@@ -228,86 +246,61 @@ namespace CivOne.Units
 						}
 						else
 						{
-							foreach (Settlers settlers in Map[X, Y].Units.Where(u => (u is Settlers) && (u as Settlers).BuildingRoad > 0).Select(u => (u as Settlers)))
+							foreach (Settlers settlers in Map[X, Y].Units.Where(u => (u is Settlers) && (u as Settlers)._order == Order.Road).Select(u => (u as Settlers)))
 							{
-								settlers.BuildingRoad = 0;
+								settlers.MovesSkip = 0;
 							}
 						}
 					}
 					Map[X, Y].Road = true;
-					MovesLeft = 0;
-					PartMoves = 0;
-                    MovesLeft = 1;
-                    PartMoves = 0;
-                }
-            }
-			else if (BuildingIrrigation > 0)
-			{
-				BuildingIrrigation--;
-				if (BuildingIrrigation > 0)
-				{
-					MovesLeft = 0;
+					MovesLeft = 1;
 					PartMoves = 0;
 				}
-				else
-                if (Map[X, Y] is Forest)
+				else if (_order == Order.Irrigate)
 				{
-					Map[X, Y].Irrigation = false;
-					Map[X, Y].Mine = false;
-					Map.ChangeTileType(X, Y, Terrain.Plains);
-				}
-				else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Swamp))
-				{
-					Map[X, Y].Irrigation = false;
-					Map[X, Y].Mine = false;
-					Map.ChangeTileType(X, Y, Terrain.Grassland1);
-				}
-				else
-				{
-					Map[X, Y].Irrigation = true;
-					Map[X, Y].Mine = false;
-				}
-                MovesLeft = 1;
-                PartMoves = 0;
-            }
-            else if (BuildingMine > 0)
-			{
-				BuildingMine--;
-				if (BuildingMine > 0)
-				{
-					MovesLeft = 0;
+					if (Map[X, Y] is Forest)
+					{
+						Map[X, Y].Irrigation = false;
+						Map[X, Y].Mine = false;
+						Map.ChangeTileType(X, Y, Terrain.Plains);
+					}
+					else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Swamp))
+					{
+						Map[X, Y].Irrigation = false;
+						Map[X, Y].Mine = false;
+						Map.ChangeTileType(X, Y, Terrain.Grassland1);
+					}
+					else
+					{
+						Map[X, Y].Irrigation = true;
+						Map[X, Y].Mine = false;
+					}
+					MovesLeft = 1;
 					PartMoves = 0;
 				}
-				else
-                if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
+				else if (_order == Order.Mines)
 				{
-					Map[X, Y].Irrigation = false;
-					Map[X, Y].Mine = false;
-					Map.ChangeTileType(X, Y, Terrain.Forest);
-				}
-				else
-				{
-					Map[X, Y].Irrigation = false;
-					Map[X, Y].Mine = true;
-				}
-                MovesLeft = 1;
-                PartMoves = 0;
-            }
-            else if (BuildingFortress > 0)
-			{
-				BuildingFortress--;
-				if (BuildingFortress > 0)
-				{
-					MovesLeft = 0;
+					if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
+					{
+						Map[X, Y].Irrigation = false;
+						Map[X, Y].Mine = false;
+						Map.ChangeTileType(X, Y, Terrain.Forest);
+					}
+					else
+					{
+						Map[X, Y].Irrigation = false;
+						Map[X, Y].Mine = true;
+					}
+					MovesLeft = 1;
 					PartMoves = 0;
 				}
-				else
+				else if (_order == Order.Fortress)
 				{
 					Map[X, Y].Fortress = true;
+					MovesLeft = 1;
+					PartMoves = 0;
 				}
-                MovesLeft = 1;
-                PartMoves = 0;
-            }
+			}
         }
 
 		private MenuItem<int> MenuFoundCity() => MenuItem<int>

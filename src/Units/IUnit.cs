@@ -46,6 +46,7 @@ namespace CivOne.Units
 		bool MoveTo(int relX, int relY);
 		byte Owner { get; set; }
 		byte Status { get; set; }
+		int MovesSkip { get; set; }
 		byte MovesLeft { get; set; }
 		byte PartMoves { get; set; }
 		void SkipTurn();
