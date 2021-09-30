@@ -236,76 +236,77 @@ namespace CivOne.Units
 			if (MovesSkip > 0)
 			{
 				MovesSkip--;
-				if (_order == Order.Road)
-				{
-					if (Map[X, Y].Road)
-					{
-						if (Human.HasAdvance<RailRoad>()) // TODO is this 'Human' or 'Owner'?
-						{
-							Map[X, Y].RailRoad = true;
-						}
-						else
-						{
-							foreach (Settlers settlers in Map[X, Y].Units.Where(u => (u is Settlers) && (u as Settlers)._order == Order.Road).Select(u => (u as Settlers)))
-							{
-								settlers.MovesSkip = 0;
-							}
-						}
-					}
-					Map[X, Y].Road = true;
-					MovesLeft = 1;
-					PartMoves = 0;
-				}
-				else if (_order == Order.Irrigate)
-				{
-					if (Map[X, Y] is Forest)
-					{
-						Map[X, Y].Irrigation = false;
-						Map[X, Y].Mine = false;
-						Map.ChangeTileType(X, Y, Terrain.Plains);
-					}
-					else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Swamp))
-					{
-						Map[X, Y].Irrigation = false;
-						Map[X, Y].Mine = false;
-						Map.ChangeTileType(X, Y, Terrain.Grassland1);
-					}
-					else
-					{
-						Map[X, Y].Irrigation = true;
-						Map[X, Y].Mine = false;
-					}
-					MovesLeft = 1;
-					PartMoves = 0;
-				}
-				else if (_order == Order.Mines)
-				{
-					if (Map[X, Y] is Forest)
-					{
-						Map[X, Y].Irrigation = false;
-						Map[X, Y].Mine = false;
-					}
-					else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
-					{
-						Map[X, Y].Irrigation = false;
-						Map[X, Y].Mine = false;
-						Map.ChangeTileType(X, Y, Terrain.Forest);
-					}
-					else
-					{
-						Map[X, Y].Irrigation = false;
-						Map[X, Y].Mine = true;
-					}
-					MovesLeft = 1;
-					PartMoves = 0;
-				}
-				else if (_order == Order.Fortress)
-				{
-					Map[X, Y].Fortress = true;
-					MovesLeft = 1;
-					PartMoves = 0;
-				}
+				MovesLeft = 0;
+				PartMoves = 0;
+				return;
 			}
+			if (_order == Order.Road)
+			{
+				if (Map[X, Y].Road)
+				{
+					if (Human.HasAdvance<RailRoad>()) // TODO is this 'Human' or 'Owner'?
+					{
+						Map[X, Y].RailRoad = true;
+					}
+					foreach (Settlers settlers in Map[X, Y].Units.Where(u => (u is Settlers) && (u as Settlers)._order == Order.Road).Select(u => (u as Settlers)))
+					{
+						settlers.MovesSkip = 0;
+					}
+				}
+				else
+				{
+					Map[X, Y].Road = true;
+				}
+				MovesLeft = 1;
+				PartMoves = 0;
+			}
+			else if (_order == Order.Irrigate)
+			{
+				Map[X, Y].Irrigation = false;
+				Map[X, Y].Mine = false;
+				if (Map[X, Y] is Forest)
+				{
+					Map.ChangeTileType(X, Y, Terrain.Plains);
+				}
+				else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Swamp))
+				{
+					Map.ChangeTileType(X, Y, Terrain.Grassland1);
+				}
+				else
+				{
+					Map[X, Y].Irrigation = true;
+				}
+				MovesLeft = 1;
+				PartMoves = 0;
+			}
+			else if (_order == Order.Mines)
+			{
+				if (Map[X, Y] is Forest)
+				{
+					Map[X, Y].Irrigation = false;
+					Map[X, Y].Mine = false;
+				}
+				else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
+				{
+					Map[X, Y].Irrigation = false;
+					Map[X, Y].Mine = false;
+					Map.ChangeTileType(X, Y, Terrain.Forest);
+				}
+				else
+				{
+					Map[X, Y].Irrigation = false;
+					Map[X, Y].Mine = true;
+				}
+				MovesLeft = 1;
+				PartMoves = 0;
+			}
+			else if (_order == Order.Fortress)
+			{
+				Map[X, Y].Fortress = true;
+				MovesLeft = 1;
+				PartMoves = 0;
+			}
+			_order = Order.None;
         }
 
 		private MenuItem<int> MenuFoundCity() => MenuItem<int>
