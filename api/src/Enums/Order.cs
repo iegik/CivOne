@@ -4,7 +4,7 @@ namespace CivOne.Enums
 	{
 		None,
 		NewCity,
-		Sentry,
+		Sentry, // 0x1
 		Fortify,
 		Road, // 0x2
 		Irrigate, // 0x40
