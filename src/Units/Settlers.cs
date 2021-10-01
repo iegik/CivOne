@@ -93,12 +93,12 @@ namespace CivOne.Units
 			{
 				if ((tile is River) && !Game.CurrentPlayer.HasAdvance<BridgeBuilding>())
 					return false;
-                Status = 2;
+                Status = 2; // 2 moves left
 				return true;
 			}
 			if (Game.CurrentPlayer.HasAdvance<RailRoad>() && !tile.IsOcean && tile.Road && !tile.RailRoad && tile.City == null)
 			{
-                Status = 2;
+                Status = 2; // 3 moves left
 				return true;
 			}
 			return false;
@@ -115,7 +115,7 @@ namespace CivOne.Units
             // Changing terrain type
 			if (tile.IrrigationChangesTerrain())
 			{
-                Status = 64;
+                Status = 64; // 4 moves left
 				return true;
 			}
 
@@ -155,7 +155,7 @@ namespace CivOne.Units
 
             if (tile.AllowIrrigation() || tile.Type == Terrain.River)
             {
-                Status = 64;
+                Status = 64; // 3 moves left
                 return true;
             }
 
