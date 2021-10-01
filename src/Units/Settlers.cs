@@ -115,7 +115,6 @@ namespace CivOne.Units
             // Changing terrain type
 			if (tile.IrrigationChangesTerrain())
 			{
-                // TODO fire-eggs setting MovesSkip to true should clear moves
                 Status = 64;
 				return true;
 			}
