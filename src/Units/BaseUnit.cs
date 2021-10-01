@@ -35,13 +35,14 @@ namespace CivOne.Units
 		{
 			get
 			{
-				return (Sentry || Fortify);
+				return (Sentry || Fortify || MovesSkip > 0);
 			}
 			set
 			{
 				Sentry = false;
 				Fortify = false;
 				FortifyActive = false;
+				MovesSkip = 0;
 			}
 		}
 		public bool Veteran { get; set; }

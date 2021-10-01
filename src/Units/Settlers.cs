@@ -21,18 +21,6 @@ namespace CivOne.Units
 {
     internal class Settlers : BaseUnitLand
 	{
-		public override bool Busy
-		{
-			get
-			{
-				return (base.Busy || MovesSkip > 0);
-			}
-			set
-			{
-				base.Busy = false;
-				MovesSkip = 0;
-			}
-		}
 		public Order _order;
 		internal void SetStatus(bool[] bits)
 		{
