@@ -14,6 +14,7 @@ namespace CivOne.Enums
 		Skip,
 		Unload,
 		Disband,
-		Pillage // 0x82
+		Pillage, // 0x82
+		ClearPollution,
 	}
 }
