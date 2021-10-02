@@ -42,8 +42,7 @@ namespace CivOne.Screens.Dialogs
 			_diplomat.Player.Gold -= (short)_bribeCost;
 
             // fire-eggs 20190725 bribed unit doesn't get to move this turn
-            newUnit.MovesLeft = 0;
-            newUnit.PartMoves = 0;
+            newUnit.SkipTurn();
 
 			Cancel();
 		}
@@ -82,7 +81,7 @@ namespace CivOne.Screens.Dialogs
 
 				menu.Items.Add("Forget It.").OnSelect(DontBrbe);
 				menu.Items.Add("Pay").OnSelect(Bribe);
-				
+
 				AddMenu(menu);
 			}
 		}

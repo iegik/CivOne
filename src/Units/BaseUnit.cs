@@ -31,6 +31,20 @@ namespace CivOne.Units
 	{
 		protected int _x, _y;
 
+		protected Order _order;
+		public Order order
+		{
+			get
+			{
+				return _order;
+			}
+			set
+			{
+				_order = value;
+				MovesLeft = 1;
+				PartMoves = 0;
+			}
+		}
 		public virtual bool Busy
 		{
 			get
@@ -79,8 +93,7 @@ namespace CivOne.Units
 				if (_sentry == value) return;
                 _sentry = value;
 				if (!_sentry || !Game.Started) return;
-				MovesLeft = 0;
-				PartMoves = 0;
+				SkipTurn();
 				MovementDone(Map[X, Y]);
 			}
 		}
@@ -797,6 +810,7 @@ namespace CivOne.Units
 				if (bits[0]) Sentry = true;
 				else if (bits[2]) FortifyActive = true;
 				else if (bits[3]) _fortify = true;
+				// ? Pillage
 
 				if (this is Settlers)
 				{
@@ -832,6 +846,7 @@ namespace CivOne.Units
 
 		public void Pillage()
 		{
+			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
 			if (!(Tile.Irrigation || Tile.Mine || Tile.Road || Tile.RailRoad))
 				return;
 
@@ -847,8 +862,10 @@ namespace CivOne.Units
 				Tile.Road = true;
 			}
 
-			MovesLeft = 0;
-			PartMoves = 0;
+			// ? Status =
+			MovesSkip = cheatEnabled ? 1 : 5; // TODO verify pollution cost
+			order = Order.Pillage;
+			SkipTurn();
 		}
 
 		public virtual void SkipTurn()

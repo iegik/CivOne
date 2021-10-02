@@ -25,19 +25,19 @@ namespace CivOne.Units
 				switch (unit)
 				{
 					case Settlers settlers:
-						if (settlers._order == Enums.Order.Road)
+						if (settlers.order == Enums.Order.Road)
 						{
 							return Unit.Letter(settlers.Type, 'R', colour).Bitmap;
 						}
-						else if (settlers._order == Enums.Order.Irrigate)
+						else if (settlers.order == Enums.Order.Irrigate)
 						{
 							return Unit.Letter(settlers.Type, 'I', colour).Bitmap;
 						}
-						else if (settlers._order == Enums.Order.Mines)
+						else if (settlers.order == Enums.Order.Mines)
 						{
 							return Unit.Letter(settlers.Type, 'M', colour).Bitmap;
 						}
-						else if (settlers._order == Enums.Order.Fortress)
+						else if (settlers.order == Enums.Order.Fortress)
 						{
 							return Unit.Letter(settlers.Type, 'F', colour).Bitmap;
 						}

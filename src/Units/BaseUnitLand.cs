@@ -25,8 +25,7 @@ namespace CivOne.Units
 		{
 			if (previousTile.IsOcean || Tile.IsOcean)
 			{
-				MovesLeft = 0;
-				PartMoves = 0;
+				SkipTurn();
 			}
 
 			Tile.Visit(Owner);
@@ -58,8 +57,7 @@ namespace CivOne.Units
 			{
 				if (!previousTile.IsOcean)
 				{
-					MovesLeft = 0;
-					PartMoves = 0;
+					SkipTurn();
 				}
 				Sentry = true;
 				foreach (IUnit unit in Tile.Units.Where(u => u is IBoardable))
@@ -118,13 +116,13 @@ namespace CivOne.Units
 			switch(result)
 			{
 				case HutResult.MetalDeposits:
-                    TribalHutMessage((s, e) => { Player.Gold += 50; }, false, 
+                    TribalHutMessage((s, e) => { Player.Gold += 50; }, false,
                         "You have discovered", "valuable metal deposits", "worth 50$");
 					return;
 				case HutResult.FriendlyTribe:
 					TribalHutMessage((s, e) => {
-						Game.Instance.CreateUnit(Common.Random.Next(0, 100) < 50 ? 
-                                                UnitType.Cavalry : UnitType.Legion, 
+						Game.Instance.CreateUnit(Common.Random.Next(0, 100) < 50 ?
+                                                UnitType.Cavalry : UnitType.Legion,
                                                 X, Y, Owner, true);
 					}, false, "You have discovered", "a friendly tribe of", "skilled mercenaries.");
 					return;
@@ -207,7 +205,7 @@ namespace CivOne.Units
 					break;
 			}
 		}
-		
+
 		public override IEnumerable<MenuItem<int>> MenuItems
 		{
 			get
@@ -238,7 +236,7 @@ namespace CivOne.Units
 			// If the tile is not an ocean tile, movement is allowed
 			if (tile.Type != Terrain.Ocean)
 				return true;
-			
+
 			// This query checks if there's a boardable cargo vessel with free slots on the tile.
 			return (tile.Units.Any(x => x.Owner == Owner) && tile.Units.Any(u => (u is IBoardable)) && tile.Units.Where(u => u is IBoardable).Sum(u => (u as IBoardable).Cargo) > tile.Units.Count(u => u.Class == UnitClass.Land));
 		}
