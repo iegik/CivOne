@@ -59,6 +59,10 @@ namespace CivOne.Units
 				{
 					return Unit.Letter(unit.Type, 'G', colour).Bitmap;
 				}
+				else if (unit.order == Enums.Order.Pillage)
+				{
+					return Unit.Letter(unit.Type, 'P', colour).Bitmap;
+				}
 			}
 			return Unit.Base(unit.Type, colour).Bitmap;
 		}
