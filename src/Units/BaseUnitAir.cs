@@ -32,7 +32,7 @@ namespace CivOne.Units
 				return;
 			}
 			if (MovesLeft > 0 || FuelLeft > 0) return;
-			
+
 			// Air unit is out of fuel
 			Game.DisbandUnit(this);
 			GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/FUEL")));
@@ -41,20 +41,21 @@ namespace CivOne.Units
 		protected override void MovementDone(ITile previousTile)
 		{
 			base.MovementDone(previousTile);
-			
+
 			FuelLeft--;
 			HandleFuel();
 		}
 
-		public override void SkipTurn()
+		public override void SkipTurn(int turns = 0)
 		{
+			MovesSkip = turns;
 			MovesLeft = 0;
 			if (FuelLeft == Move)
 				FuelLeft -= Move;
 			FuelLeft -= (FuelLeft % Move);
 			HandleFuel();
 		}
-		
+
 		public override IEnumerable<MenuItem<int>> MenuItems
 		{
 			get

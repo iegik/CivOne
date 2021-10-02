@@ -846,7 +846,6 @@ namespace CivOne.Units
 
 		public void Pillage()
 		{
-			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
 			if (!(Tile.Irrigation || Tile.Mine || Tile.Road || Tile.RailRoad))
 				return;
 
@@ -863,13 +862,13 @@ namespace CivOne.Units
 			}
 
 			// ? Status =
-			MovesSkip = cheatEnabled ? 1 : 5; // TODO verify pollution cost
 			order = Order.Pillage;
-			SkipTurn();
+			SkipTurn(4);
 		}
 
-		public virtual void SkipTurn()
+		public virtual void SkipTurn(int turns = 0)
 		{
+			MovesSkip = turns;
 			MovesLeft = 0;
 			PartMoves = 0;
 		}

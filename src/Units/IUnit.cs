@@ -50,7 +50,7 @@ namespace CivOne.Units
 		int MovesSkip { get; set; }
 		byte MovesLeft { get; set; }
 		byte PartMoves { get; set; }
-		void SkipTurn();
+		void SkipTurn(int turns = 0);
 		IEnumerable<ITile> MoveTargets { get; }
 		void Explore();
 		void SetHome();

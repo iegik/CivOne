@@ -69,7 +69,6 @@ namespace CivOne.Units
 
 		public bool BuildRoad()
 		{
-			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
 			ITile tile = Map[X, Y];
 			if (tile.RailRoad)
 			{
@@ -82,15 +81,13 @@ namespace CivOne.Units
 				if ((tile is River) && !Game.CurrentPlayer.HasAdvance<BridgeBuilding>())
 					return false;
                 Status = 2;
-				MovesSkip = cheatEnabled ? 1 : 2;
-				SkipTurn();
+				SkipTurn(2);
 				return true;
 			}
 			if (Game.CurrentPlayer.HasAdvance<RailRoad>() && !tile.IsOcean && tile.Road && !tile.RailRoad && tile.City == null)
 			{
                 Status = 2;
-				MovesSkip = cheatEnabled ? 1 : 3;
-				SkipTurn();
+				SkipTurn(3);
 				return true;
 			}
 			return false;
@@ -98,7 +95,6 @@ namespace CivOne.Units
 
 		public bool BuildIrrigation()
 		{
-			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
 			ITile tile = Map[X, Y];
 			if (tile.Irrigation || tile.IsOcean) // already irrigated or illogical: ignore
 			{
@@ -109,8 +105,7 @@ namespace CivOne.Units
 			if (tile.IrrigationChangesTerrain())
 			{
                 Status = 64;
-				MovesSkip = cheatEnabled ? 1 : 4;
-				SkipTurn();
+				SkipTurn(4);
 				return true;
 			}
 
@@ -151,8 +146,7 @@ namespace CivOne.Units
             if (tile.AllowIrrigation() || tile.Type == Terrain.River)
             {
                 Status = 64;
-				MovesSkip = cheatEnabled ? 1 : 3;
-				SkipTurn();
+				SkipTurn(3);
                 return true;
             }
 
@@ -190,13 +184,11 @@ namespace CivOne.Units
 
 		public bool BuildMines()
 		{
-			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Mine) && ((tile is Desert) || (tile is Hills) || (tile is Mountains) || (tile is Jungle) || (tile is Grassland) || (tile is Plains) || (tile is Swamp)))
 			{
                 Status = 128;
-				MovesSkip = cheatEnabled ? 1 : 4;
-				SkipTurn();
+				SkipTurn(4);
 				return true;
 			}
 			return false;
@@ -204,7 +196,6 @@ namespace CivOne.Units
 
 		public bool BuildFortress()
 		{
-			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
 			if (!Game.CurrentPlayer.HasAdvance<Construction>())
 				return false;
 
@@ -212,8 +203,7 @@ namespace CivOne.Units
 			if (!tile.IsOcean && !(tile.Fortress) && tile.City == null)
 			{
                 Status = 0xc0;
-				MovesSkip = cheatEnabled ? 1 : 5;
-				SkipTurn();
+				SkipTurn(5);
 				return true;
 			}
 			return false;
@@ -364,6 +354,15 @@ namespace CivOne.Units
 				yield return null;
 				yield return MenuDisbandUnit();
 			}
+		}
+
+		public override void SkipTurn(int turns = 0)
+		{
+			MovesSkip = turns;
+			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
+			if (turns > 1 && cheatEnabled) MovesSkip = 1;
+			MovesLeft = 0;
+			PartMoves = 0;
 		}
 
 		public Settlers() : base(4, 0, 1, 1)
