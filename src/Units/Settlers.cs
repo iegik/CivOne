@@ -209,15 +209,14 @@ namespace CivOne.Units
 			return false;
 		}
 
-		public override void NewTurn()
+		public override void ExecuteOrder()
 		{
-			base.NewTurn();
+			base.ExecuteOrder();
 			if (MovesSkip > 0)
 			{
-				MovesSkip--;
-				SkipTurn();
 				return;
 			}
+
 			if (order == Order.Road)
 			{
 				if (Map[X, Y].Road)
@@ -235,8 +234,6 @@ namespace CivOne.Units
 				{
 					Map[X, Y].Road = true;
 				}
-				MovesLeft = 1;
-				PartMoves = 0;
 			}
 			else if (order == Order.Irrigate)
 			{
@@ -254,8 +251,6 @@ namespace CivOne.Units
 				{
 					Map[X, Y].Irrigation = true;
 				}
-				MovesLeft = 1;
-				PartMoves = 0;
 			}
 			else if (order == Order.Mines)
 			{
@@ -270,14 +265,10 @@ namespace CivOne.Units
 					Map[X, Y].Irrigation = false;
 					Map[X, Y].Mine = true;
 				}
-				MovesLeft = 1;
-				PartMoves = 0;
 			}
 			else if (order == Order.Fortress)
 			{
 				Map[X, Y].Fortress = true;
-				MovesLeft = 1;
-				PartMoves = 0;
 			}
 			order = Order.None;
         }

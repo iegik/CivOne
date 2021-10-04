@@ -41,8 +41,8 @@ namespace CivOne.Units
 			set
 			{
 				_order = value;
-				MovesLeft = 1;
-				PartMoves = 0;
+				MovesLeft = Move;
+				PartMoves = 0; // KBR
 			}
 		}
 		public virtual bool Busy
@@ -73,7 +73,10 @@ namespace CivOne.Units
 				if (Class != UnitClass.Land) return;
 				if (this is Settlers) return;
 				if (!value)
+				{
 					_fortify = false;
+					FortifyActive = false;
+				}
 				else if (Fortify)
 					return;
 				else
@@ -823,16 +826,43 @@ namespace CivOne.Units
 		public byte MovesLeft { get; set; }
 		public int MovesSkip { get; set; }
 		public byte PartMoves { get; set; }
-
+		public virtual void FinishOrder()
+		{
+				MovesLeft = Move;
+				PartMoves = 0;
+		}
+		public virtual void ExecuteOrder()
+		{
+			if (MovesSkip > 0)
+			{
+				SkipTurn(MovesSkip - 1);
+				return;
+			}
+			// Fortify sets in one turn
+			// if (FortifyActive)
+			// {
+			// 	FortifyActive = false;
+			// 	_fortify = true;
+			// }
+			if (order == Order.Pillage)
+			{
+				if (Tile.Irrigation)
+					Tile.Irrigation = false;
+				else if (Tile.Mine)
+					Tile.Mine = false;
+				else if (Tile.Road)
+					Tile.Road = false;
+				else if (Tile.RailRoad)
+				{
+					Tile.RailRoad = false;
+					Tile.Road = true;
+				}
+			}
+			order = Order.None;
+		}
 		public virtual void NewTurn()
 		{
-			if (FortifyActive)
-			{
-				FortifyActive = false;
-				_fortify = true;
-			}
-			MovesLeft = Move;
-            PartMoves = 0; // KBR
+			ExecuteOrder();
 			Explore();
 		}
 
@@ -849,19 +879,7 @@ namespace CivOne.Units
 			if (!(Tile.Irrigation || Tile.Mine || Tile.Road || Tile.RailRoad))
 				return;
 
-			if (Tile.Irrigation)
-				Tile.Irrigation = false;
-			else if (Tile.Mine)
-				Tile.Mine = false;
-			else if (Tile.Road)
-				Tile.Road = false;
-			else if (Tile.RailRoad)
-			{
-				Tile.RailRoad = false;
-				Tile.Road = true;
-			}
-
-			// ? Status =
+			Status = 0x82;
 			order = Order.Pillage;
 			SkipTurn(4);
 		}
