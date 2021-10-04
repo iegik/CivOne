@@ -50,19 +50,19 @@ namespace CivOne.Units
             // translate internal state to save file format
 			switch (order) {
 				case Order.Road:
-					result |= 0x2;
+					result |= 0b00000010;
 					break;
 				case Order.Irrigate:
-					result |= 0x40;
+					result |= 0b01000000;
 					break;
             	case Order.Mines:
-					result |= 0x80;
+					result |= 0b10000000;
 					break;
             	case Order.Fortress:
-					result |= 0xc0;
+					result |= 0b11000000;
 					break;
             	case Order.Pillage:
-					result |= 0x82;
+					result |= 0b10000010;
 					break;
 			}
         }
@@ -234,6 +234,7 @@ namespace CivOne.Units
 				{
 					Map[X, Y].Road = true;
 				}
+				order = Order.None;
 			}
 			else if (order == Order.Irrigate)
 			{
@@ -251,6 +252,7 @@ namespace CivOne.Units
 				{
 					Map[X, Y].Irrigation = true;
 				}
+				order = Order.None;
 			}
 			else if (order == Order.Mines)
 			{
@@ -265,12 +267,13 @@ namespace CivOne.Units
 					Map[X, Y].Irrigation = false;
 					Map[X, Y].Mine = true;
 				}
+				order = Order.None;
 			}
 			else if (order == Order.Fortress)
 			{
 				Map[X, Y].Fortress = true;
+				order = Order.None;
 			}
-			order = Order.None;
         }
 
 		private MenuItem<int> MenuFoundCity() => MenuItem<int>

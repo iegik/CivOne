@@ -813,7 +813,7 @@ namespace CivOne.Units
 				if (bits[0]) Sentry = true;
 				else if (bits[2]) FortifyActive = true;
 				else if (bits[3]) _fortify = true;
-				// ? Pillage
+				else if (bits[7] && bits[1]) order = Order.Pillage; // 0b10000010
 
 				if (this is Settlers)
 				{
@@ -826,16 +826,17 @@ namespace CivOne.Units
 		public byte MovesLeft { get; set; }
 		public int MovesSkip { get; set; }
 		public byte PartMoves { get; set; }
-		public virtual void FinishOrder()
+		public virtual void EndTurn()
 		{
 				MovesLeft = Move;
 				PartMoves = 0;
 		}
 		public virtual void ExecuteOrder()
 		{
-			if (MovesSkip > 0)
+			// Decrease counter before
+			if (--MovesSkip > 0)
 			{
-				SkipTurn(MovesSkip - 1);
+				SkipTurn(MovesSkip);
 				return;
 			}
 			// Fortify sets in one turn
@@ -857,13 +858,14 @@ namespace CivOne.Units
 					Tile.RailRoad = false;
 					Tile.Road = true;
 				}
+				order = Order.None;
 			}
-			order = Order.None;
 		}
 		public virtual void NewTurn()
 		{
 			ExecuteOrder();
 			Explore();
+			EndTurn();
 		}
 
 		public void SetHome()
@@ -879,14 +881,14 @@ namespace CivOne.Units
 			if (!(Tile.Irrigation || Tile.Mine || Tile.Road || Tile.RailRoad))
 				return;
 
-			Status = 0x82;
+			Status = 0b10000010;
 			order = Order.Pillage;
 			SkipTurn(4);
 		}
 
 		public virtual void SkipTurn(int turns = 0)
 		{
-			MovesSkip = turns;
+			if (MovesSkip != turns) MovesSkip = turns;
 			MovesLeft = 0;
 			PartMoves = 0;
 		}
