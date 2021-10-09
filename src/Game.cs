@@ -32,9 +32,9 @@ namespace CivOne
 		private readonly List<IUnit> _units;
 		private readonly Dictionary<byte, byte> _advanceOrigin = new Dictionary<byte, byte>();
 		private readonly List<ReplayData> _replayData = new List<ReplayData>();
-		
+
 		internal readonly string[] CityNames = Common.AllCityNames.ToArray();
-		
+
 		public int _currentPlayer = 0; // public for unit testing
 		private int _activeUnit;
 
@@ -68,7 +68,7 @@ namespace CivOne
 		public int Difficulty => _difficulty;
 
 		public bool HasUpdate => false;
-		
+
 		private ushort _gameTurn;
 		internal ushort GameTurn
 		{
@@ -87,11 +87,11 @@ namespace CivOne
 				}
 			}
 		}
-		
+
 		internal string GameYear => Common.YearString(GameTurn);
-		
+
 		internal Player HumanPlayer { get; set; }
-		
+
 		internal Player CurrentPlayer => _players[_currentPlayer];
 
 		internal ReplayData[] GetReplayData() => _replayData.ToArray();
@@ -115,7 +115,7 @@ namespace CivOne
 
 			GameTask.Insert(Message.Advisor(Advisor.Defense, false, destroyed.Name, "civilization", "destroyed", $"by {destroyedBy.NamePlural}!"));
 		}
-		
+
 		internal byte PlayerNumber(Player player)
 		{
 			byte i = 0;
@@ -204,13 +204,13 @@ namespace CivOne
 			GameTask.Enqueue(Turn.New(CurrentPlayer));
 
 			if (CurrentPlayer != HumanPlayer) return;
-			
+
 			if (Game.InstantAdvice && (Common.TurnToYear(Game.GameTurn) == -3600 || Common.TurnToYear(Game.GameTurn) == -2800))
 				GameTask.Enqueue(Message.Help("--- Civilization Note ---", TextFile.Instance.GetGameText("HELP/HELP1")));
 			else if (Game.InstantAdvice && (Common.TurnToYear(Game.GameTurn) == -3200 || Common.TurnToYear(Game.GameTurn) == -2400))
 				GameTask.Enqueue(Message.Help("--- Civilization Note ---", TextFile.Instance.GetGameText("HELP/HELP2")));
 		}
-		
+
 		public void Update()
 		{
 			IUnit unit = ActiveUnit;
@@ -340,7 +340,7 @@ namespace CivOne
 			city.Y = 255;
 			city.Owner = 0;
 		}
-		
+
 		internal City GetCity(int x, int y)
 		{
 			while (x < 0) x += Map.WIDTH;
@@ -349,7 +349,7 @@ namespace CivOne
 			if (y >= Map.HEIGHT) return null;
 			return _cities.Where(c => c.X == x && c.Y == y && c.Size > 0).FirstOrDefault();
 		}
-		
+
 		private static IUnit CreateUnit(UnitType type, int x, int y)
         {
 			IUnit unit = CreateUnit(type);
@@ -364,7 +364,7 @@ namespace CivOne
 			IUnit unit;
 			switch (type)
 			{
-				case UnitType.Settlers: unit = new Settlers(); break; 
+				case UnitType.Settlers: unit = new Settlers(); break;
 				case UnitType.Militia: unit = new Militia(); break;
 				case UnitType.Phalanx: unit = new Phalanx(); break;
 				case UnitType.Legion: unit = new Legion(); break;
@@ -417,13 +417,13 @@ namespace CivOne
 			_instance._units.Add(unit);
 			return unit;
 		}
-		
+
 		internal IUnit[] GetUnits(int x, int y)
 		{
 			while (x < 0) x += Map.WIDTH;
 			while (x >= Map.WIDTH) x-= Map.WIDTH;
 			if (y < 0) return null;
-			if (y >= Map.HEIGHT) return null; 
+			if (y >= Map.HEIGHT) return null;
 			return _units.Where(u => u.X == x && u.Y == y).OrderBy(u => (u == ActiveUnit) ? 0 : (u.Fortify || u.FortifyActive ? 1 : 2)).ToArray();
 		}
 
@@ -453,7 +453,7 @@ namespace CivOne
 		public bool WonderObsolete<T>() where T : IWonder, new() => WonderObsolete(new T());
 
 		public bool WonderObsolete(IWonder wonder) => (wonder.ObsoleteTech != null && _players.Any(x => x.HasAdvance(wonder.ObsoleteTech)));
-		
+
 		public void DisbandUnit(IUnit unit)
 		{
 			IUnit activeUnit = ActiveUnit;
@@ -469,7 +469,7 @@ namespace CivOne
 					subUnit.X = 255;
 					subUnit.Y = 255;
 					_units.Remove(subUnit);
-				} 
+				}
 			}
 			unit.X = 255;
 			unit.Y = 255;
@@ -484,28 +484,29 @@ namespace CivOne
 		}
 
 		public void UnitWait() => _activeUnit++;
-		
+
 		public IUnit ActiveUnit
 		{
 			get
 			{
 				if (_units.Count(u => u.Owner == _currentPlayer && !u.Busy) == 0)
 					return null;
-				
+
 				// If the unit counter is too high, return to 0
 				if (_activeUnit >= _units.Count)
 					_activeUnit = 0;
-					
+
 				// Does the current unit still have moves left?
-				if (_units[_activeUnit].Owner == _currentPlayer && (_units[_activeUnit].MovesLeft > 0 || _units[_activeUnit].PartMoves > 0) && !_units[_activeUnit].Sentry && !_units[_activeUnit].Fortify)
+				if (_units[_activeUnit].Owner == _currentPlayer && !_units[_activeUnit].Busy)
 					return _units[_activeUnit];
 
 				// Task busy, don't change the active unit
 				if (GameTask.Any())
 					return _units[_activeUnit];
-				
+
+				IUnit nextUnit = _units.Find(u => u.Owner == _currentPlayer && !u.Busy);
 				// Check if any units are still available for this player
-				if (!_units.Any(u => u.Owner == _currentPlayer && (u.MovesLeft > 0 || u.PartMoves > 0) && !u.Busy))
+				if (nextUnit == null)
 				{
 					if (CurrentPlayer == HumanPlayer && !EndOfTurn && !GameTask.Any() && (Common.TopScreen is GamePlay))
 					{
@@ -513,19 +514,14 @@ namespace CivOne
 					}
 					return null;
 				}
-				
-				// Loop through units
-				while (_units[_activeUnit].Owner != _currentPlayer || (_units[_activeUnit].MovesLeft == 0 && _units[_activeUnit].PartMoves == 0) || (_units[_activeUnit].Sentry || _units[_activeUnit].Fortify))
-				{
-					_activeUnit++;
-					if (_activeUnit >= _units.Count)
-						_activeUnit = 0;
-				}
+
+				_activeUnit = _units.IndexOf(nextUnit);
+
 				return _units[_activeUnit];
 			}
 			internal set
 			{
-				if (value == null || value.MovesLeft == 0 && value.PartMoves == 0)
+				if (value == null || (value.Busy && !value.Sentry && !value.Fortify))
 					return;
 				value.Sentry = false;
 				value.Fortify = false;
@@ -536,7 +532,7 @@ namespace CivOne
 		public IUnit MovingUnit => _units.FirstOrDefault(u => u.Moving);
 
 		public static bool Started => (_instance != null);
-		
+
 		private static Game _instance;
 		public static Game Instance
 		{

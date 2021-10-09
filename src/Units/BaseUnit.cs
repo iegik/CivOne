@@ -50,7 +50,7 @@ namespace CivOne.Units
 		{
 			get
 			{
-				return (Sentry || Fortify || MovesSkip >= 0);
+				return MovesLeft <= 0 || PartMoves <= 0 && (Sentry || Fortify || _order != Order.None);
 			}
 			set
 			{
