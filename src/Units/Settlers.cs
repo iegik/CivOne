@@ -228,6 +228,7 @@ namespace CivOne.Units
 					foreach (Settlers settlers in Map[X, Y].Units.Where(u => (u is Settlers) && (u as Settlers).order == Order.Road).Select(u => (u as Settlers)))
 					{
 						settlers.MovesSkip = 0;
+						settlers.order = Order.None;
 					}
 				}
 				else
