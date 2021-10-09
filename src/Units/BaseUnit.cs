@@ -41,6 +41,7 @@ namespace CivOne.Units
 			set
 			{
 				_order = value;
+				MovesSkip = 0;
 				MovesLeft = Move;
 				PartMoves = 0; // KBR
 			}
@@ -49,7 +50,7 @@ namespace CivOne.Units
 		{
 			get
 			{
-				return (Sentry || Fortify || MovesSkip > 0);
+				return (Sentry || Fortify || MovesSkip >= 0);
 			}
 			set
 			{
