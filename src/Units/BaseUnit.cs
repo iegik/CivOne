@@ -74,10 +74,7 @@ namespace CivOne.Units
 				if (Class != UnitClass.Land) return;
 				if (this is Settlers) return;
 				if (!value)
-				{
 					_fortify = false;
-					FortifyActive = false;
-				}
 				else if (Fortify)
 					return;
 				else
@@ -840,12 +837,11 @@ namespace CivOne.Units
 				SkipTurn(MovesSkip);
 				return;
 			}
-			// Fortify sets in one turn
-			// if (FortifyActive)
-			// {
-			// 	FortifyActive = false;
-			// 	_fortify = true;
-			// }
+			if (FortifyActive)
+			{
+				FortifyActive = false;
+				_fortify = true;
+			}
 			if (order == Order.Pillage)
 			{
 				if (Tile.Irrigation)
