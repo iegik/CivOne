@@ -61,7 +61,11 @@ namespace CivOne
 						landUnit.Sentry = false;
 					}
 					if (unit.Tile.Units.Any(x => x.Class == UnitClass.Land && x.MovesLeft > 0))
-						Game.UnitWait();
+					{
+						Log($"{unit.Name} will wait for next turn");
+						// Game.UnitWait(); // Recursion noticed here
+						unit.SkipTurn();
+					}
 					else
 						unit.SkipTurn();
 					return;
@@ -70,7 +74,7 @@ namespace CivOne
 				if (unit.Goto.IsEmpty)
 				{
 					if (!Game.GetCities().Any(x => x.Owner != 0 && x.HasBuilding<Palace>())) Game.DisbandUnit(unit);
-					
+
 					City nearestCity = Game.GetCities().Where(x => x.Owner != 0 && x.HasBuilding<Palace>()).OrderBy(x => Common.DistanceToTile(x.X, x.Y, unit.X, unit.Y)).First();
 					if (Common.DistanceToTile(unit.X, unit.Y, nearestCity.X, nearestCity.Y) > 10) Game.DisbandUnit(unit);
 					unit.Goto = new Point(nearestCity.X, nearestCity.Y);
@@ -143,7 +147,9 @@ namespace CivOne
 
 				if (unit.Tile.Units.Any(x => !(x is Diplomat) && x.MovesLeft > 0))
 				{
-					Game.UnitWait();
+					Log($"Diplomat will wait for next turn");
+					// Game.UnitWait(); // Recursion noticed here
+					unit.SkipTurn();
 					return;
 				}
 
@@ -170,7 +176,7 @@ namespace CivOne
             ITile[] tiles = unit.Tile.GetBorderTiles().Where(t => !((unit.Tile.IsOcean || unit is Diplomat) && t.City != null) && !t.IsOcean && t.Units.Any(u => u.Owner != 0)).ToArray();
 			if (tiles.Length == 0)
 			{
-				// No adjecent units found
+				// No adjacent units found
 				if (Common.Random.Next(100) < 95)
 				{
 					for (int i = 0; i < 1000; i++)
