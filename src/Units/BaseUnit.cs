@@ -832,9 +832,9 @@ namespace CivOne.Units
 		public virtual void ExecuteOrder()
 		{
 			// Decrease counter before
-			if (--MovesSkip > 0)
+			if (MovesSkip > 0)
 			{
-				SkipTurn(MovesSkip);
+				SkipTurn(--MovesSkip);
 				return;
 			}
 			if (FortifyActive)
