@@ -21,7 +21,7 @@ namespace CivOne.Tiles
 		public override sbyte IrrigationFoodBonus => -2;
 		public override byte IrrigationCost => 10;
 		public override sbyte MiningShieldBonus => -4;
-		public override byte MiningCost => 10;
+		public override byte MiningCost => 8;
 		public override byte RoadCost => 4;
 		public override byte RailRoadCost => 4;
 
