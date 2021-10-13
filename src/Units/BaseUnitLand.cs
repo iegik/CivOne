@@ -25,8 +25,7 @@ namespace CivOne.Units
 		{
 			if (previousTile.IsOcean || Tile.IsOcean)
 			{
-				MovesLeft = 0;
-				PartMoves = 0;
+				SkipTurn();
 			}
 
 			Tile.Visit(Owner);
@@ -58,8 +57,7 @@ namespace CivOne.Units
 			{
 				if (!previousTile.IsOcean)
 				{
-					MovesLeft = 0;
-					PartMoves = 0;
+					SkipTurn();
 				}
 				Sentry = true;
 				foreach (IUnit unit in Tile.Units.Where(u => u is IBoardable))

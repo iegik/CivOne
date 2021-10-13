@@ -82,8 +82,7 @@ namespace CivOne.Units
 			{
 				unit.Sentry = false;
 			}
-			MovesLeft = 0;
-			PartMoves = 0;
+			SkipTurn();
 			return true;
 		}
 
