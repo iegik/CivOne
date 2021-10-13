@@ -497,15 +497,16 @@ namespace CivOne
 					_activeUnit = 0;
 					
 				// Does the current unit still have moves left?
-				if (_units[_activeUnit].Owner == _currentPlayer && (_units[_activeUnit].MovesLeft > 0 || _units[_activeUnit].PartMoves > 0) && !_units[_activeUnit].Sentry && !_units[_activeUnit].Fortify)
+				if (_units[_activeUnit].Owner == _currentPlayer && !_units[_activeUnit].Busy)
 					return _units[_activeUnit];
 
 				// Task busy, don't change the active unit
 				if (GameTask.Any())
 					return _units[_activeUnit];
 				
+				IUnit nextUnit = _units.Find(u => u.Owner == _currentPlayer && !u.Busy);
 				// Check if any units are still available for this player
-				if (!_units.Any(u => u.Owner == _currentPlayer && (u.MovesLeft > 0 || u.PartMoves > 0) && !u.Busy))
+				if (nextUnit == null)
 				{
 					if (CurrentPlayer == HumanPlayer && !EndOfTurn && !GameTask.Any() && (Common.TopScreen is GamePlay))
 					{
@@ -513,19 +514,14 @@ namespace CivOne
 					}
 					return null;
 				}
-				
-				// Loop through units
-				while (_units[_activeUnit].Owner != _currentPlayer || (_units[_activeUnit].MovesLeft == 0 && _units[_activeUnit].PartMoves == 0) || (_units[_activeUnit].Sentry || _units[_activeUnit].Fortify))
-				{
-					_activeUnit++;
-					if (_activeUnit >= _units.Count)
-						_activeUnit = 0;
-				}
+
+				_activeUnit = _units.IndexOf(nextUnit);
+
 				return _units[_activeUnit];
 			}
 			internal set
 			{
-				if (value == null || value.MovesLeft == 0 && value.PartMoves == 0)
+				if (value == null || (value.Busy && !value.Sentry && !value.Fortify))
 					return;
 				value.Sentry = false;
 				value.Fortify = false;
