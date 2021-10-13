@@ -386,8 +386,8 @@ namespace CivOne.Units
 					}
 
                     // fire-eggs 20190702 capture barbarian leader, get ransom
-                    var attackedUnits = Map[X, Y][relX, relY].Units;
-                    if (attackedUnits.All(x=>x is Diplomat) && 
+					IUnit[] attackedUnits = moveTarget.Units;
+                    if (attackedUnits.Length > 0 && attackedUnits.All(x=>x is Diplomat) &&
                         attackedUnits[0] is Diplomat &&
                         ((BaseUnit) attackedUnits[0]).Player.Civilization is Barbarian)
                     {
