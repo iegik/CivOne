@@ -1,16 +1,16 @@
 <!--
 	CivOne
-	
+
 	To the extent possible under law, the person who associated CC0 with
 	CivOne has waived all copyright and related or neighboring rights
 	to CivOne.
-	
+
 	You should have received a copy of the CC0 legalcode along with this
 	work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>net5.0</TargetFramework>
 		<AssemblyName>CivOne</AssemblyName>
 		<RootNamespace>CivOne</RootNamespace>
 		<OutputType>Library</OutputType>
@@ -31,9 +31,6 @@
 		<DefineConstants Condition="$(Configuration.StartsWith('Release'))">RELEASE</DefineConstants>
 		<Optimize>true</Optimize>
 	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="FSharp.Core" Version="4.3.4" />
-	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="api/CivOne.API.csproj" />
 	</ItemGroup>
