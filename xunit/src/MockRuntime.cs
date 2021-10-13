@@ -21,11 +21,12 @@ namespace CivOne.UnitTests
         public event ScreenEventHandler MouseMove;
         public Platform CurrentPlatform { get; }
 
-        // TODO fire-eggs this needs to point at Civ Data to load earth map. Needs to be able to be changed.
-        public string StorageDirectory => @"E:\proj\CivOne";
+        public string StorageDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CivOne");
 
         public string GetSetting(string key)
         {
+            if (key == "GraphicsMode")
+                return GraphicsMode.Graphics256.ToString();
             return null;
         }
 
@@ -41,15 +42,23 @@ namespace CivOne.UnitTests
         public IBitmap Cursor { get; set; }
         public int CanvasWidth { get; }
         public int CanvasHeight { get; }
+
+        //private static Mutex _mutex = new Mutex();
+
         public void Log(string text, params object[] parameters)
         {
+            // TODO tests apparently keep stepping on each other trying to access the log file; using mutex lock doesn't seem to help
+#if false
             var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Civ.log");
+            //_mutex.WaitOne();
             using (TextWriter tw = new StreamWriter(path, append: true))
             {
                 tw.WriteLine(text, parameters);
                 tw.Flush();
                 tw.Close();
             }
+            //_mutex.ReleaseMutex();
+#endif
 
             Console.WriteLine(text, parameters);
         }
