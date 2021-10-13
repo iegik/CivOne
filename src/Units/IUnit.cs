@@ -46,6 +46,16 @@ namespace CivOne.Units
 		bool MoveTo(int relX, int relY);
 		byte Owner { get; set; }
 		byte Status { get; set; }
+		/// <summary>
+		/// Current Order for Unit.
+		/// Unit can handle only order per turn. Each order can cost some amount of turns.
+		/// (See `MovesSkip`)
+		/// </summary>
+		Order order { get; set; }
+		/// <summary>
+		/// How many turns Unit should skip to complete the `Order`
+		/// </summary>
+		int MovesSkip { get; set; }
 		byte MovesLeft { get; set; }
 		byte PartMoves { get; set; }
 		void SkipTurn();

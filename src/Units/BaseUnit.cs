@@ -31,17 +31,33 @@ namespace CivOne.Units
 	{
 		protected int _x, _y;
 
+		protected Order _order;
+		public Order order
+		{
+			get
+			{
+				return _order;
+			}
+			set
+			{
+				_order = value;
+				MovesSkip = 0;
+				MovesLeft = Move;
+				PartMoves = 0;
+			}
+		}
 		public virtual bool Busy
 		{
 			get
 			{
-				return (Sentry || Fortify);
+				return MovesLeft <= 0 || PartMoves <= 0 && (Sentry || Fortify || _order != Order.None);
 			}
 			set
 			{
 				Sentry = false;
 				Fortify = false;
 				FortifyActive = false;
+				MovesSkip = 0;
 			}
 		}
 		public bool Veteran { get; set; }
@@ -78,8 +94,7 @@ namespace CivOne.Units
 				if (_sentry == value) return;
                 _sentry = value;
 				if (!_sentry || !Game.Started) return;
-				MovesLeft = 0;
-				PartMoves = 0;
+				SkipTurn();
 				MovementDone(Map[X, Y]);
 			}
 		}
@@ -126,7 +141,7 @@ namespace CivOne.Units
 			{
 				attackStrength += (attackStrength / 2);
 			}
-			
+
 			// Step 7: If the attacking unit has only 0.2 movement points left, multiply the attack strength by 2, then divide it by 3. If the attacking unit has only 0.1 movement points left, then just divide by 3 instead.
 			if (MovesLeft == 0)
 			{
@@ -172,7 +187,7 @@ namespace CivOne.Units
 				// Step 2: If the defending unit is a ground unit, multiply the defense strength by the Terrain Modifier.
 				// This modifier effectively includes a factor of 2.
 				defendStrength *= defendUnit.Tile.Defense;
-				
+
 				if (!cityWalls || attackUnit.Attack == 12)
 				{
 					// Step 3: If the defending unit is a ground unit, multiply the defense strength by the Fortification Modifier.
@@ -228,23 +243,9 @@ namespace CivOne.Units
 				if (win && !attackUnit.Veteran) attackUnit.Veteran = true;
 				if (!win && !defendUnit.Veteran) defendUnit.Veteran = true;
 			}
-			
+
 			return win;
 		}
-
-        //private class SimpleTask : GameTask
-        //{
-        //    private Player _who;
-
-        //    public SimpleTask(Player who)
-        //    {
-        //        _who = who;
-        //    }
-        //    public override void Run()
-        //    {
-        //        _who.IsDestroyed();
-        //    }
-        //};
 
 		internal virtual bool Confront(int relX, int relY)
 		{
@@ -257,7 +258,7 @@ namespace CivOne.Units
 			}
 
 			Movement = new MoveUnit(relX, relY);
-			
+
 			ITile moveTarget = Map[X, Y][relX, relY];
 			if (moveTarget == null) return false;
 			if (moveTarget.Units.Length == 0 && moveTarget.City != null && moveTarget.City.Owner != Owner)
@@ -306,8 +307,8 @@ namespace CivOne.Units
                         Game.GetPlayer(capturedCity.Owner).Gold -= (short)captureGold;
                         Game.CurrentPlayer.Gold += (short)captureGold;
 
-                        string[] lines = { $"{Game.CurrentPlayer.TribeNamePlural} capture", 
-                                           $"{capturedCity.Name}. {captureGold} gold", 
+                        string[] lines = { $"{Game.CurrentPlayer.TribeNamePlural} capture",
+                                           $"{capturedCity.Name}. {captureGold} gold",
                                            "pieces plundered." };
 
                         EventHandler doneCapture = (s1,a1) =>
@@ -409,7 +410,7 @@ namespace CivOne.Units
                         GameTask.Insert(task);
                         //GameTask.Insert(Show.DestroyUnit(unit, true));
 					}
-					
+
 					if (MovesLeft == 0)
 					{
 						PartMoves = 0;
@@ -458,7 +459,7 @@ namespace CivOne.Units
 			GameTask.Insert(Movement);
 			return false;
 		}
-		
+
 		private IList<IAdvance> GetAdvancesToSteal(Player victim)
 		{
 			return victim.Advances
@@ -494,7 +495,7 @@ namespace CivOne.Units
             // TODO fire-eggs: isn't this all land unit logic? refactor MoveTo into BaseUnitLand?
 
 			if (Movement != null) return false;
-			
+
 			ITile moveTarget = Map[X, Y][relX, relY];
 			if (moveTarget == null) return false;
 			if (moveTarget.Units.Any(u => u.Owner != Owner))
@@ -503,7 +504,7 @@ namespace CivOne.Units
 
 				if (Class == UnitClass.Land && Tile.IsOcean) // can't attack enemy unit on land when on a ship
 				{
-					if (Human == Owner) 
+					if (Human == Owner)
                         GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText($"ERROR/AMPHIB")));
 					return false;
 				}
@@ -521,7 +522,7 @@ namespace CivOne.Units
             {
                 if (!CanMoveTo(relX, relY))
                 {
-                    if( Human == Owner ) 
+                    if( Human == Owner )
                     {
                        Goto = Point.Empty;             // Cancel any goto mode ( maybe for AI too ?? )
                        GameTask.Enqueue( Message.Error( "-- Civilization Note --", TextFile.Instance.GetGameText( $"ERROR/ZOC" ) ) );
@@ -583,7 +584,7 @@ namespace CivOne.Units
 				Goto = Point.Empty;
 			}
 			Movement = null;
-			
+
 			Explore();
 			MovementDone(previousTile);
 		}
@@ -611,7 +612,7 @@ namespace CivOne.Units
 				Tile.Hut = false;
 			}
 		}
-		
+
 		private static readonly IBitmap[] _iconCache = new IBitmap[28];
 		public virtual IBitmap Icon { get; private set; }
 		private string _name;
@@ -636,11 +637,11 @@ namespace CivOne.Units
 					Log("Invalid page number: {0}", pageNumber);
 					break;
 			}
-			
+
 			Picture output = new Picture(320, 200);
-			
+
 			output.AddLayer(this.ToBitmap(1), 215, 47);
-			
+
 			int yy = 76;
 			foreach (string line in text)
 			{
@@ -648,7 +649,7 @@ namespace CivOne.Units
 				output.DrawText(line, 6, 1, 12, yy);
 				yy += 9;
 			}
-			
+
 			if (pageNumber == 2)
 			{
 				yy += 8;
@@ -660,10 +661,10 @@ namespace CivOne.Units
 				output.DrawText(string.Format("Defense Strength: {0}", Defense), 6, 12, 100, yy); yy += 8;
 				output.DrawText(string.Format("Movement Rate: {0}", Move), 6, 5, 100, yy);
 			}
-			
+
 			return output;
 		}
-		
+
 		private IAdvance _requiredTech;
 		public IAdvance RequiredTech
 		{
@@ -708,7 +709,7 @@ namespace CivOne.Units
 			get => Modifications.LastOrDefault(x => x.Attack.HasValue)?.Attack.Value ?? _attack;
 			protected set => _attack = value;
 		}
-		
+
 		private byte _defense;
 		public byte Defense
 		{
@@ -753,7 +754,7 @@ namespace CivOne.Units
 		}
 
 		public Point Goto { get; set; }
-		
+
 		public ITile Tile => Map[_x, _y];
 
 		private byte _owner;
@@ -806,6 +807,7 @@ namespace CivOne.Units
 			}
 		}
 		public byte MovesLeft { get; set; }
+		public int MovesSkip { get; set; }
 		public byte PartMoves { get; set; }
 		
 		public virtual void NewTurn()
@@ -815,8 +817,14 @@ namespace CivOne.Units
 				FortifyActive = false;
 				_fortify = true;
 			}
+			if (MovesSkip > 0)
+			{
+				--MovesSkip;
+				SkipTurn();
+			}
+
 			MovesLeft = Move;
-            PartMoves = 0; // KBR
+            PartMoves = 0;
 			Explore();
 		}
 
@@ -827,7 +835,7 @@ namespace CivOne.Units
 		}
 
 		public void SetHome(City city) => Home = city;
-		
+
 		public void Pillage()
 		{
 			if (!(Tile.Irrigation || Tile.Mine || Tile.Road || Tile.RailRoad))
@@ -844,9 +852,7 @@ namespace CivOne.Units
 				Tile.RailRoad = false;
 				Tile.Road = true;
 			}
-			
-			MovesLeft = 0;
-			PartMoves = 0;
+			SkipTurn();			
 		}
 
 		public virtual void SkipTurn()
@@ -866,19 +872,19 @@ namespace CivOne.Units
 		}
 
 		protected MenuItem<int> MenuNoOrders() => MenuItem<int>.Create("No Orders").SetShortcut("space").OnSelect((s, a) => SkipTurn());
-		
+
 		protected MenuItem<int> MenuFortify() => MenuItem<int>.Create("Fortify").SetShortcut("f").OnSelect((s, a) => Fortify = true);
-		
+
 		protected MenuItem<int> MenuWait() => MenuItem<int>.Create("Wait").SetShortcut("w").OnSelect((s, a) => Game.UnitWait());
-		
+
 		protected MenuItem<int> MenuSentry() => MenuItem<int>.Create("Sentry").SetShortcut("s").OnSelect((s, a) => Sentry = true);
-		
+
 		protected MenuItem<int> MenuGoTo() => MenuItem<int>.Create("GoTo").OnSelect((s, a) => GameTask.Enqueue(Show.Goto));
-		
+
 		protected MenuItem<int> MenuPillage() => MenuItem<int>.Create("Pillage").SetShortcut("P").OnSelect((s, a) => Pillage());
-		
+
 		protected MenuItem<int> MenuHomeCity() => MenuItem<int>.Create("Home City").SetShortcut("h").OnSelect((s, a) => SetHome());
-		
+
 		protected MenuItem<int> MenuDisbandUnit() => MenuItem<int>.Create("Disband Unit").SetShortcut("D").OnSelect((s, a) => Game.DisbandUnit(this));
 
 		public abstract IEnumerable<MenuItem<int>> MenuItems { get; }
@@ -924,7 +930,7 @@ namespace CivOne.Units
 			Log("Finished applying unit modifications");
 		}
 		public IEnumerable<UnitModification> Modifications => _modifications.ContainsKey(Type) ? _modifications[Type].ToArray() : new UnitModification[0];
-		
+
 		protected BaseUnit(byte price = 1, byte attack = 1, byte defense = 1, byte move = 1)
 		{
 			Price = price;
@@ -937,6 +943,7 @@ namespace CivOne.Units
 			Goto = Point.Empty;
 			Owner = 0;
 			Status = 0;
+			MovesSkip = 0;
 			RequiredWonder = null;
 		}
 	}

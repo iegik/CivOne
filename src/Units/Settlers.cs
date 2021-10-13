@@ -14,52 +14,59 @@ using CivOne.Tasks;
 using CivOne.Tiles;
 using CivOne.UserInterface;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace CivOne.Units
 {
     internal class Settlers : BaseUnitLand
 	{
-		public override bool Busy
-		{
-			get
-			{
-				return (base.Busy || BuildingRoad > 0 || BuildingIrrigation > 0 || BuildingMine > 0 || BuildingFortress > 0);
-			}
-			set
-			{
-				base.Busy = false;
-				BuildingRoad = 0;
-				BuildingIrrigation = 0;
-				BuildingMine = 0;
-				BuildingFortress = 0;
-			}
-		}
-		public int BuildingRoad { get; private set; }
-		public int BuildingIrrigation { get; private set; }
-		public int BuildingMine { get; private set; }
-		public int BuildingFortress { get; private set; }
-
-        public int CleaningPollution { get; private set; }
-
 		internal void SetStatus(bool[] bits)
 		{
-			BuildingRoad = (bits[1] && !bits[6] && !bits[7]) ? 2 : 0;
-			BuildingIrrigation = (!bits[1] && bits[6] && !bits[7]) ? 3 : 0;
-			BuildingMine = (!bits[1] && !bits[6] && bits[7]) ? 4 : 0;
-			BuildingFortress = (!bits[1] && bits[6] && bits[7]) ? 5 : 0;
-            CleaningPollution = (bits[1] && !bits[6] && bits[7]) ? 5 : 0; // TODO verify pollution cost
+			// TODO initialize MovesSkip value
+			// TODO need to set MovesSkip from savefile format [see TODO in GetStatus]
+			if (bits[1] && !bits[6] && !bits[7])
+			{
+				order = Order.Road;
+			}
+			if (!bits[1] && bits[6] && !bits[7])
+			{
+				order = Order.Irrigate;
+			}
+			if (!bits[1] && !bits[6] && bits[7])
+			{
+				order = Order.Mines;
+			}
+			if (!bits[1] && bits[6] && bits[7])
+			{
+				order = Order.Fortress;
+			}
+            if (bits[1] && !bits[6] && bits[7])
+			{
+				order = Order.ClearPollution;
+			}
         }
 
         internal void GetStatus(ref byte result)
         {
+			// TODO need to save MovesSkip value to savefile
             // translate internal state to save file format
-            if (BuildingRoad != 0) result |= 2;
-            if (BuildingIrrigation != 0) result |= 64;
-            if (BuildingMine != 0) result |= 128;
-            if (BuildingFortress != 0) result |= (64 + 128);
-            if (CleaningPollution != 0) result |= (2 + 128);
+			switch (order) {
+				case Order.Road:
+					result |= 0b00000010;
+					break;
+				case Order.Irrigate:
+					result |= 0b01000000;
+					break;
+            	case Order.Mines:
+					result |= 0b10000000;
+					break;
+            	case Order.Fortress:
+					result |= 0b11000000;
+					break;
+            	case Order.ClearPollution:
+					result |= 0b10000010;
+					break;
+			}
         }
 
 		public bool BuildRoad()
@@ -73,18 +80,20 @@ namespace CivOne.Units
 			}
 			if (!tile.IsOcean && !tile.Road && tile.City == null)
 			{
+				// TODO in classic CIV, allowed to build road on Ocean!
+
 				if ((tile is River) && !Game.CurrentPlayer.HasAdvance<BridgeBuilding>())
 					return false;
-                BuildingRoad = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 2; // cheat for human
-                MovesLeft = 0;
-				PartMoves = 0;
+				order = Order.Road;
+				SkipTurn(2);
 				return true;
 			}
 			if (Game.CurrentPlayer.HasAdvance<RailRoad>() && !tile.IsOcean && tile.Road && !tile.RailRoad && tile.City == null)
 			{
-                BuildingRoad = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
-                MovesLeft = 0;
-				PartMoves = 0;
+				// TODO in classic CIV, allowed to build railroad on Ocean!
+
+				order = Order.Road;
+				SkipTurn(3);
 				return true;
 			}
 			return false;
@@ -101,39 +110,10 @@ namespace CivOne.Units
             // Changing terrain type
 			if (tile.IrrigationChangesTerrain())
 			{
-                // TODO fire-eggs setting BuildingIrrigation to true should clear moves
-                BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 4; // cheat for human
-                MovesLeft = 0;
-				PartMoves = 0;
+				order = Order.Irrigate;
+				SkipTurn(4);
 				return true;
 			}
-
-            //bool irrigate1 = (tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) && 
-            //                                                 (t.City == null) && 
-            //                                                 (t.IsOcean || t.Irrigation || (t is River)))) || 
-            //                 (tile is River);
-            //bool irrigate1a =
-            //    tile.CrossTiles().Any(t => !t.HasCity && (t.IsOcean || t.Irrigation || t.Type == Terrain.River)) ||
-            //    tile.Type == Terrain.River;
-
-            //Debug.Assert(irrigate1 == irrigate1a);
-
-            //bool irrigate2 = tile.AllowIrrigation();
-            //bool irrigate2a = tile.AllowIrrigation() || tile.Type == Terrain.River;
-            //Debug.Assert(irrigate2a == irrigate1);
-
-            //bool irrigate3 = !tile.IsOcean &&       // always false
-            //                 !(tile.Irrigation) &&  // always false
-            //                 ((tile is Desert) || 
-            //                  (tile is Grassland) || 
-            //                  (tile is Hills) || 
-            //                  (tile is Plains) ||
-            //                  (tile is River));
-
-            //bool irrigate4 =
-            //    (((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)) &&
-            //     tile.City == null);
-            //Debug.Assert(irrigate4 == irrigate3);
 
             if (!tile.TerrainAllowsIrrigation())
             {
@@ -144,43 +124,14 @@ namespace CivOne.Units
 
             if (tile.AllowIrrigation() || tile.Type == Terrain.River)
             {
-                BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
-                MovesLeft = 0;
-                PartMoves = 0;
+				order = Order.Irrigate;
+				SkipTurn(3);
                 return true;
             }
 
             if (Human == Owner)
                 GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
             return false;
-
-////			if ((tile.GetBorderTiles().Any(t => (t.X == X || t.Y == Y) && (t.City == null) && (t.IsOcean || t.Irrigation || (t is River)))) || (tile is River))
-//            if (tile.AllowIrrigation() || tile.Type == Terrain.River) // source of water for irrigation available
-//            {
-//				//if (!tile.IsOcean && !(tile.Irrigation) && ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)))
-//                if (tile.TerrainAllowsIrrigation()) // irrigation may be applied
-//				{
-//                    BuildingIrrigation = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 3; // cheat for human
-//                    MovesLeft = 0;
-//					PartMoves = 0;
-//					return true;
-//				}
-//				if (Human == Owner)
-//					GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
-//				return false;
-//			}
-
-//			{
-//				if (((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River)) && tile.City == null)
-//				{
-//					if (Human == Owner)
-//						GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOWATER")));
-//					return false;
-//				}
-//				if (Human == Owner)
-//					GameTask.Enqueue(Message.Error("-- Civilization Note --", TextFile.Instance.GetGameText("ERROR/NOIRR")));
-//			}
-//			return false;
 		}
 
 		public bool BuildMines()
@@ -188,9 +139,8 @@ namespace CivOne.Units
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Mine) && ((tile is Desert) || (tile is Hills) || (tile is Mountains) || (tile is Jungle) || (tile is Grassland) || (tile is Plains) || (tile is Swamp)))
 			{
-                BuildingMine = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 4; // cheat for human
-                MovesLeft = 0;
-				PartMoves = 0;
+				order = Order.Mines;
+				SkipTurn(4);
 				return true;
 			}
 			return false;
@@ -204,9 +154,8 @@ namespace CivOne.Units
 			ITile tile = Map[X, Y];
 			if (!tile.IsOcean && !(tile.Fortress) && tile.City == null)
 			{
-                BuildingFortress = (Human == Owner && Settings.Instance.AutoSettlers) ? 1 : 5; // cheat for human
-				MovesLeft = 0;
-				PartMoves = 0;
+				order = Order.Fortress;
+				SkipTurn(5);
 				return true;
 			}
 			return false;
@@ -215,71 +164,52 @@ namespace CivOne.Units
 		public override void NewTurn()
 		{
 			base.NewTurn();
-			if (BuildingRoad > 0)
+			if (MovesSkip > 0)
 			{
-				BuildingRoad--;
-				// fire-eggs if (BuildingRoad > 0)
+				return;
+			}
+
+			if (order == Order.Road)
+			{
+				if (Map[X, Y].Road)
 				{
-					if (Map[X, Y].Road)
+					if (Human.HasAdvance<RailRoad>()) // TODO is this 'Human' or 'Owner'?
 					{
-						if (Human.HasAdvance<RailRoad>()) // TODO is this 'Human' or 'Owner'?
-						{
-							Map[X, Y].RailRoad = true;
-						}
-						else
-						{
-							foreach (Settlers settlers in Map[X, Y].Units.Where(u => (u is Settlers) && (u as Settlers).BuildingRoad > 0).Select(u => (u as Settlers)))
-							{
-								settlers.BuildingRoad = 0;
-							}
-						}
+						Map[X, Y].RailRoad = true;
 					}
-					Map[X, Y].Road = true;
-					// fire-eggs MovesLeft = 0;
-					// fire-eggs PartMoves = 0;
-                    MovesLeft = 1;
-                    PartMoves = 0;
-                }
-            }
-			else if (BuildingIrrigation > 0)
-			{
-				BuildingIrrigation--;
-				//if (BuildingIrrigation > 0)
-				//{
-				//	MovesLeft = 0;
-				//	PartMoves = 0;
-				//}
-				//else 
-                if (Map[X, Y] is Forest)
+					// TODO why is this done for railroad but not road/irrigate/mine/etc?
+					foreach (Settlers settlers in Map[X, Y].Units.Where(u => (u is Settlers) && (u as Settlers).order == Order.Road).Select(u => (u as Settlers)))
+					{
+						settlers.order = Order.None;
+					}
+				}
+				else
 				{
-					Map[X, Y].Irrigation = false;
-					Map[X, Y].Mine = false;
+					Map[X, Y].Road = true;
+				}
+				order = Order.None;
+			}
+			else if (order == Order.Irrigate)
+			{
+				Map[X, Y].Irrigation = false;
+				Map[X, Y].Mine = false;
+				if (Map[X, Y] is Forest)
+				{
 					Map.ChangeTileType(X, Y, Terrain.Plains);
 				}
 				else if ((Map[X, Y] is Jungle) || (Map[X, Y] is Swamp))
 				{
-					Map[X, Y].Irrigation = false;
-					Map[X, Y].Mine = false;
 					Map.ChangeTileType(X, Y, Terrain.Grassland1);
 				}
 				else
 				{
 					Map[X, Y].Irrigation = true;
-					Map[X, Y].Mine = false;
 				}
-                MovesLeft = 1;
-                PartMoves = 0;
-            }
-            else if (BuildingMine > 0)
+				order = Order.None;
+			}
+			else if (order == Order.Mines)
 			{
-				BuildingMine--;
-				//if (BuildingMine > 0)
-				//{
-				//	MovesLeft = 0;
-				//	PartMoves = 0;
-				//}
-				//else 
-                if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
+				if ((Map[X, Y] is Jungle) || (Map[X, Y] is Grassland) || (Map[X, Y] is Plains) || (Map[X, Y] is Swamp))
 				{
 					Map[X, Y].Irrigation = false;
 					Map[X, Y].Mine = false;
@@ -290,24 +220,13 @@ namespace CivOne.Units
 					Map[X, Y].Irrigation = false;
 					Map[X, Y].Mine = true;
 				}
-                MovesLeft = 1;
-                PartMoves = 0;
-            }
-            else if (BuildingFortress > 0)
+				order = Order.None;
+			}
+			else if (order == Order.Fortress)
 			{
-				BuildingFortress--;
-				//if (BuildingFortress > 0)
-				//{
-				//	MovesLeft = 0;
-				//	PartMoves = 0;
-				//}
-				//else
-				{
-					Map[X, Y].Fortress = true;
-				}
-                MovesLeft = 1;
-                PartMoves = 0;
-            }
+				Map[X, Y].Fortress = true;
+				order = Order.None;
+			}
         }
 
 		private MenuItem<int> MenuFoundCity() => MenuItem<int>
@@ -339,7 +258,7 @@ namespace CivOne.Units
 			.SetShortcut("f")
 			.SetEnabled(Game.CurrentPlayer.HasAdvance<Construction>())
 			.OnSelect((s, a) => GameTask.Enqueue(Orders.BuildFortress(this)));
-		
+
 		public override IEnumerable<MenuItem<int>> MenuItems
 		{
 			get
@@ -352,7 +271,8 @@ namespace CivOne.Units
 					yield return MenuFoundCity();
 				}
 				if (!tile.IsOcean && (!tile.Road || (Human.HasAdvance<RailRoad>() && !tile.RailRoad)))
-				{	
+				{
+					// TODO classic CIV allowed building road/railroad on ocean
 					yield return MenuBuildRoad();
 				}
 				if (!tile.Irrigation && (tile.TerrainAllowsIrrigation() || tile.IrrigationChangesTerrain())) // ((tile is Desert) || (tile is Grassland) || (tile is Hills) || (tile is Plains) || (tile is River) || (tile is Forest) || (tile is Jungle) || (tile is Swamp)))
@@ -382,6 +302,18 @@ namespace CivOne.Units
 				yield return null;
 				yield return MenuDisbandUnit();
 			}
+		}
+
+		/// <summary>
+		/// A settlers-specific version of SkipTurn to manage MovesSkip
+		/// </summary>
+		/// <param name="turns">The number of turns to set MovesSkip</param>
+		public void SkipTurn(int turns = 0)
+		{
+			base.SkipTurn();
+			MovesSkip = turns;
+			bool cheatEnabled = Human == Owner && Settings.Instance.AutoSettlers; // cheat for human
+			if (turns > 1 && cheatEnabled) MovesSkip = 1;
 		}
 
 		public Settlers() : base(4, 0, 1, 1)
