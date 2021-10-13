@@ -61,7 +61,11 @@ namespace CivOne
 						landUnit.Sentry = false;
 					}
 					if (unit.Tile.Units.Any(x => x.Class == UnitClass.Land && x.MovesLeft > 0))
-						Game.UnitWait();
+					{
+						Log($"{unit.Name} will wait for next turn");
+						// Game.UnitWait(); // Recursion noticed here
+						unit.SkipTurn();
+					}
 					else
 						unit.SkipTurn();
 					return;
@@ -143,7 +147,9 @@ namespace CivOne
 
 				if (unit.Tile.Units.Any(x => !(x is Diplomat) && x.MovesLeft > 0))
 				{
-					Game.UnitWait();
+					Log($"Diplomat will wait for next turn");
+					// Game.UnitWait(); // Recursion noticed here
+					unit.SkipTurn();
 					return;
 				}
 
