@@ -26,7 +26,13 @@ namespace CivOne.Units
 		IWonder RequiredWonder { get; }
 		IAdvance ObsoleteTech { get; }
 		UnitClass Class { get; }
+		/// <summary>
+		/// Defines type of the unit
+		/// </summary>
 		UnitType Type { get; }
+		/// <summary>
+		/// Defines home (supporting city) of the unit
+		/// </summary>
 		City Home { get; }
 		UnitRole Role { get; }
 		byte Attack { get; }
