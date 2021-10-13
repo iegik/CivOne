@@ -85,7 +85,7 @@ namespace CivOne.Units
 				if ((tile is River) && !Game.CurrentPlayer.HasAdvance<BridgeBuilding>())
 					return false;
 				order = Order.Road;
-				SkipTurn(2);
+				SkipTurn(tile.RoadCost);
 				return true;
 			}
 			if (Game.CurrentPlayer.HasAdvance<RailRoad>() && !tile.IsOcean && tile.Road && !tile.RailRoad && tile.City == null)
@@ -93,7 +93,7 @@ namespace CivOne.Units
 				// TODO in classic CIV, allowed to build railroad on Ocean!
 
 				order = Order.Road;
-				SkipTurn(3);
+				SkipTurn(tile.RailRoadCost);
 				return true;
 			}
 			return false;
@@ -111,7 +111,7 @@ namespace CivOne.Units
 			if (tile.IrrigationChangesTerrain())
 			{
 				order = Order.Irrigate;
-				SkipTurn(4);
+				SkipTurn(tile.IrrigationCost);
 				return true;
 			}
 
@@ -125,7 +125,7 @@ namespace CivOne.Units
             if (tile.AllowIrrigation() || tile.Type == Terrain.River)
             {
 				order = Order.Irrigate;
-				SkipTurn(3);
+				SkipTurn(tile.IrrigationCost);
                 return true;
             }
 
@@ -140,7 +140,7 @@ namespace CivOne.Units
 			if (!tile.IsOcean && !(tile.Mine) && ((tile is Desert) || (tile is Hills) || (tile is Mountains) || (tile is Jungle) || (tile is Grassland) || (tile is Plains) || (tile is Swamp)))
 			{
 				order = Order.Mines;
-				SkipTurn(4);
+				SkipTurn(tile.MiningCost);
 				return true;
 			}
 			return false;
@@ -155,7 +155,7 @@ namespace CivOne.Units
 			if (!tile.IsOcean && !(tile.Fortress) && tile.City == null)
 			{
 				order = Order.Fortress;
-				SkipTurn(5);
+				SkipTurn(5); // TODO IUnit.FortressCost?
 				return true;
 			}
 			return false;

@@ -27,12 +27,26 @@ namespace CivOne.Tiles
 		sbyte Shield { get; }
 		sbyte Trade { get; }	
 		sbyte IrrigationFoodBonus { get; }
+		/// <summary>
+		/// Number of turns required to irrigate this terrain
+		/// </summary>
 		byte IrrigationCost { get; }
 		sbyte MiningShieldBonus { get; }
+		/// <summary>
+		/// Number of turns required to build mines on this terrain
+		/// </summary>
 		byte MiningCost { get; }
 		byte Borders { get; }
 		bool Road { get; set; }
+		/// <summary>
+		/// Number of turns required to build a road on this terrain
+		/// </summary>
+		byte RoadCost { get; }
 		bool RailRoad { get; set; }
+		/// <summary>
+		/// Number of turns required to build a railroad on terrain with road
+		/// </summary>
+		byte RailRoadCost { get; }
 		bool Irrigation { get; set; }
 		bool Fortress { get; set; }
 		bool Mine { get; set; }

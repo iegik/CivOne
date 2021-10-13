@@ -183,7 +183,9 @@ namespace CivOne.Tiles
 				_road = value;
 			}
 		}
+		public virtual byte RoadCost => 2;
 		public virtual bool RailRoad { get; set; }
+		public virtual byte RailRoadCost => 2;
 		public virtual bool Irrigation { get; set; }
 		public virtual bool Mine { get; set; }
 		public virtual bool Fortress { get; set; }

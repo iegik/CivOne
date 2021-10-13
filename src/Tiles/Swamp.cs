@@ -22,7 +22,9 @@ namespace CivOne.Tiles
 		public override byte IrrigationCost => 15;
 		public override sbyte MiningShieldBonus => 2;
 		public override byte MiningCost => 15;
-		
+		public override byte RoadCost => 4;
+		public override byte RailRoadCost => 4;
+
 		public Swamp(int x, int y, bool special) : base(x, y, special)
 		{
 			Type = Terrain.Swamp;

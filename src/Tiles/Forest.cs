@@ -22,7 +22,9 @@ namespace CivOne.Tiles
 		public override byte IrrigationCost => 5;
 		public override sbyte MiningShieldBonus => -1;
 		public override byte MiningCost => 0;
-		
+		public override byte RoadCost => 4;
+		public override byte RailRoadCost => 4;
+
 		public Forest(int x, int y, bool special) : base(x, y, special)
 		{
 			Type = Terrain.Forest;
