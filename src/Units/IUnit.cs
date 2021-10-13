@@ -35,16 +35,43 @@ namespace CivOne.Units
 		int X { get; set; }
 		int Y { get; set; }
 		Point Goto { get; set; }
+		/// <summary>
+		/// Current tile of `Map` that Unit sit on
+		/// </summary>
 		ITile Tile { get; }
+		/// <summary>
+		/// Tells either Unit can move/make its turn or not
+		/// </summary>
 		bool Busy { get; set; }
+		/// <summary>
+		/// Unit has Veteran grade
+		/// </summary>
 		bool Veteran { get; set; }
+		/// <summary>
+		/// Unit in Sentry state
+		/// </summary>
 		bool Sentry { get; set; }
+		/// <summary>
+		/// Unit got Fortify command
+		/// </summary>
 		bool FortifyActive { get; }
+		/// <summary>
+		/// Unit in Fortify state
+		/// </summary>
 		bool Fortify { get; set; }
+		/// <summary>
+		/// Unit is Moving now
+		/// </summary>
 		bool Moving { get; }
 		MoveUnit Movement { get; }
 		bool MoveTo(int relX, int relY);
+		/// <summary>
+		/// Tells who is owner [player/civilization/barbarian] for this Unit
+		/// </summary>
 		byte Owner { get; set; }
+		/// <summary>
+		/// The Status property is for saving/restoring state with the savefile
+		/// </summary>
 		byte Status { get; set; }
 		/// <summary>
 		/// Current Order for Unit.
@@ -56,15 +83,35 @@ namespace CivOne.Units
 		/// How many turns Unit should skip to complete the `Order`
 		/// </summary>
 		int MovesSkip { get; set; }
+		/// <summary>
+		/// How many movement points the unit has remaining this turn
+		/// </summary>
 		byte MovesLeft { get; set; }
+		/// <summary>
+		/// How many partial movement points the unit has remaining this turn. A partial
+		/// movement point may allow moving off a road onto other terrain, depending on 
+		/// the terrain movement cost.
+		/// </summary>
 		byte PartMoves { get; set; }
+		/// <summary>
+		/// Completes the turn for Unit
+		/// </summary>
 		void SkipTurn();
 		IEnumerable<ITile> MoveTargets { get; }
 		void Explore();
+		/// <summary>
+		/// Establishes the unit's home (supporting) city [called when unit built in a city]
+		/// </summary>
 		void SetHome();
+		/// <summary>
+		/// Establishes the unit's home (supporting) city.
+		/// </summary>
 		void SetHome(City city);
 		IEnumerable<MenuItem<int>> MenuItems { get; }
 		IEnumerable<UnitModification> Modifications { get; }
+		/// <summary>
+		/// Perform pillaging activity
+		/// </summary>
 		void Pillage();
 	}
 }
