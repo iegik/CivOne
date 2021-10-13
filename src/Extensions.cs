@@ -9,10 +9,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using CivOne.Advances;
 using CivOne.Enums;
@@ -74,6 +72,7 @@ namespace CivOne
 			return bytes;
 		}
 
+		// TODO move to a save/load specific file?
 		private static byte GetId(this City city)
 		{
 			if (city != null)
@@ -85,6 +84,7 @@ namespace CivOne
 			return 0xFF;
 		}
 
+		// TODO move to a save/load specific file?
 		private static CityData GetCityData(this City city, byte id)
 		{
             // TODO fire-eggs fails to take 'fortifyING' into account?
@@ -108,6 +108,7 @@ namespace CivOne
 			};
 		}
 
+		// TODO move to a save/load specific file?
 		public static IEnumerable<CityData> GetCityData(this IEnumerable<City> cityList)
 		{
 			byte index = 0;
@@ -117,6 +118,64 @@ namespace CivOne
 			}
 		}
 
+		// TODO move to a save/load specific file?
+		/// <summary>
+		/// Fetch Settler-specific "Status" data from internal state.
+		/// </summary>
+		/// <param name="unit">which unit to fetch for</param>
+		/// <param name="result">the bitfield to modify</param>
+		private static void GetSettlerStatus(this IUnit unit, ref byte result)
+        {
+			switch (unit.order)
+			{
+				case Order.Road:
+					result |= 0b00000010;
+					break;
+				case Order.Irrigate:
+					result |= 0b01000000;
+					break;
+				case Order.Mines:
+					result |= 0b10000000;
+					break;
+				case Order.Fortress:
+					result |= 0b11000000;
+					break;
+				case Order.ClearPollution:
+					result |= 0b10000010;
+					break;
+			}
+		}
+
+		// TODO move to a save/load specific file?
+		/// <summary>
+		/// Translate internal fields to savefile Status field.
+		/// </summary>
+		/// <param name="unit">which unit to fetch status for</param>
+		/// <returns>the status bitfield</returns>
+		private static byte GetUnitStatus(this IUnit unit)
+        {
+			byte result = 0;
+			if (unit.Sentry)
+				result |= 0x1;
+			if (unit.FortifyActive)
+				result |= 0x4;
+			if (unit.Fortify)  // TODO not the same as _fortify?
+				result |= 0x8;
+			if (unit.Veteran)
+				result |= 0x20; // fire-eggs 20190710 incorrect hex value
+
+			(unit as Settlers)?.GetSettlerStatus(ref result);
+
+			return result;
+		}
+
+		// TODO move to a save/load specific file?
+		/// <summary>
+		/// Translate internal state data to savefile format.
+		/// </summary>
+		/// <param name="unit">IUnit object to fetch data for</param>
+		/// <param name="id">the unit id</param>
+		/// <returns></returns>
 		private static UnitData GetUnitData(this IUnit unit, byte id)
 		{
 			byte gotoX = 0xFF, gotoY = 0;
@@ -126,9 +185,11 @@ namespace CivOne
 				gotoY = (byte)unit.Goto.Y;
 			}
 
+			// TODO need to save (Settlers.)MovesSkip value to savefile
+
 			return new UnitData {
 				Id = id,
-				Status = unit.Status,
+				Status = unit.GetUnitStatus(),
 				X = (byte)unit.X,
 				Y = (byte)unit.Y,
 				TypeId = (byte)unit.Type,
@@ -155,6 +216,7 @@ namespace CivOne
 			return unitList;
 		}
 
+		// TODO move to a save/load specific file?
 		public static IEnumerable<UnitData> GetUnitData(this IEnumerable<IUnit> unitList)
 		{
             // TODO fire-eggs don't do this - only applicable in specific situation which no-one understands!

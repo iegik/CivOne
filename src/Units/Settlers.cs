@@ -46,29 +46,6 @@ namespace CivOne.Units
 			}
         }
 
-        internal void GetStatus(ref byte result)
-        {
-			// TODO need to save MovesSkip value to savefile
-            // translate internal state to save file format
-			switch (order) {
-				case Order.Road:
-					result |= 0b00000010;
-					break;
-				case Order.Irrigate:
-					result |= 0b01000000;
-					break;
-            	case Order.Mines:
-					result |= 0b10000000;
-					break;
-            	case Order.Fortress:
-					result |= 0b11000000;
-					break;
-            	case Order.ClearPollution:
-					result |= 0b10000010;
-					break;
-			}
-        }
-
 		public bool BuildRoad()
 		{
 			ITile tile = Map[X, Y];

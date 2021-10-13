@@ -78,7 +78,7 @@ namespace CivOne.Units
 		/// <summary>
 		/// The Status property is for saving/restoring state with the savefile
 		/// </summary>
-		byte Status { get; set; }
+		byte Status { set; }
 		/// <summary>
 		/// Current Order for Unit.
 		/// Unit can handle only order per turn. Each order can cost some amount of turns.

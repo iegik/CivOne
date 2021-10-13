@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using CivOne.Advances;
@@ -772,23 +771,6 @@ namespace CivOne.Units
 
 		public byte Status
 		{
-            get
-            {
-                byte result = 0;
-                if (Sentry)
-                    result |= 0x1;
-                if (FortifyActive)
-                    result |= 0x4;
-                if (_fortify)
-                    result |= 0x8;
-                if (Veteran)
-                    result |= 0x20; // fire-eggs 20190710 incorrect hex value
-
-                (this as Settlers)?.GetStatus(ref result);
-
-                Debug.Assert((result & 3) != 3);
-                return result;
-            }
 			set
 			{
 				bool[] bits = new bool[8];
