@@ -146,5 +146,73 @@ namespace CivOne.UnitTests
             Game.Instance.ActiveUnit = chariot1;
             Assert.True(((BaseUnit)chariot1).CanMoveTo(0, +1));
         }
+
+        /// <summary>
+        /// Common setup for MarineAttackTests.
+        /// </summary>
+        /// <returns>the chariot onboard a ship</returns>
+        private IUnit SetupMarineAttackTest()
+        {
+            // Issue #116: in MicroproseCiv, can move from ship to any unoccupied land space. Broken after 
+            // changes for issue #93 [see above]
+
+            // Using seed of 7595, Earth, Chinese, the initial city is
+            // like so:
+            //  P P O  - P: plains         P 1 O  - ship at location 2
+            //  P C O  - O: ocean          P C 2  - any unit on ship should be able
+            //  M P P  - M: Mtns, C: city  M 3 4  - to move to locations 1, 3, 4
+
+            // Establish initial city
+            var unit = Game.Instance.GetUnits().First(x => playa == x.Owner);
+            City acity = Game.Instance.AddCity(playa, 1, unit.X, unit.Y);
+
+            // Confirm it was set up properly
+            ITile tile = Map.Instance[unit.X, unit.Y];
+            Assert.Equal(true, tile.HasCity);
+            Assert.True(tile is Grassland); // NOTE: if the tile is Ocean, likely failed to load MAP.PIC
+
+            // find another player
+            var otherP = Game.Instance.Players.First(p => p.Civilization.Name != "Chinese");
+            var enemyShip = Game.Instance.CreateUnit(UnitType.Trireme, unit.X + 1, unit.Y, Game.Instance.PlayerNumber(otherP));
+            var enemyChariot = Game.Instance.CreateUnit(UnitType.Chariot, unit.X + 1, unit.Y, Game.Instance.PlayerNumber(otherP));
+
+            Game.Instance._currentPlayer = Game.Instance.PlayerNumber(otherP);
+            Game.Instance.ActiveUnit = enemyChariot;
+
+            return enemyChariot;
+        }
+
+        [Fact]
+        public void MarineAttackTest1()
+        {
+            // Test a shipborne unit can land on an location next to an enemy city
+            // Location '1', see setup routine above
+            BaseUnit enemyChariot = (BaseUnit)SetupMarineAttackTest();
+            Assert.True(enemyChariot.CanMoveTo(-1, -1));
+        }
+
+        [Fact]
+        public void MarineAttackTest3()
+        {
+            // Test a shipborne unit can land on an location next to an enemy city
+            // Location '3', see setup routine above
+            BaseUnit enemyChariot = (BaseUnit)SetupMarineAttackTest();
+            Assert.True(enemyChariot.CanMoveTo(-1, +1));
+        }
+        [Fact]
+        public void MarineAttackTest4()
+        {
+            // Test a shipborne unit can land on an location next to an enemy city
+            // Location '4', see setup routine above
+            BaseUnit enemyChariot = (BaseUnit)SetupMarineAttackTest();
+            Assert.True(enemyChariot.CanMoveTo(0, +1));
+        }
+        [Fact]
+        public void MarineAttackTestF1()
+        {
+            // Exercise the opposite case: shipboard unit cannot goto city because it is defended
+            BaseUnit enemyChariot = (BaseUnit)SetupMarineAttackTest();
+            Assert.False(enemyChariot.CanMoveTo(-1, 0));
+        }
     }
 }

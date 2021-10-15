@@ -470,11 +470,19 @@ namespace CivOne.Units
 
         public bool CanMoveTo(int relX, int relY)
         {
+			// TODO only referenced by land units, move to BaseUnitLand?
+
             // Issue #93: fix problems with zone-of-control.
 
             // refactored out for unit testability
             ITile moveTarget = Map[X, Y][relX, relY];
             if (moveTarget == null) return false;
+
+			// Issue #116: allow ship-borne units to move to any unoccupied tile
+			if (Map[X,Y].IsOcean)
+            {
+				return !moveTarget.Units.Any(u => u.Owner != Owner);
+            }
 
             var thisUnits = Map[X, Y].GetBorderTiles().SelectMany(t => t.Units);
             var destUnits = moveTarget.GetBorderTiles().SelectMany(t => t.Units);
