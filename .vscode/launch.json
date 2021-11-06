@@ -16,6 +16,18 @@
 			"internalConsoleOptions": "openOnSessionStart"
 		},
 		{
+			"name": "Quick Launch Game (seed -32768)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build",
+			"program": "${workspaceRoot}/runtime/sdl/bin/Debug/net5.0/CivOne.SDL.dll",
+			"args": ["--seed", "-32768", "--skip-credits", "--skip-intro", "--no-sound", "--no-data-check"],
+			"cwd": "${workspaceRoot}",
+			"stopAtEntry": false,
+			"console": "internalConsole",
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
 			"name": "Launch Setup",
 			"type": "coreclr",
 			"request": "launch",
