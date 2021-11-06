@@ -112,7 +112,7 @@ namespace CivOne
 		}
 
 		internal int ShieldIncome => ShieldTotal - ShieldCosts;
-		
+
 		internal int FoodCosts
 		{
 			get
@@ -232,7 +232,7 @@ namespace CivOne
 						distance = 10;
 						break;
 					default:
-						if (HasBuilding<Palace>()) 
+						if (HasBuilding<Palace>())
 							return 0;
 						City capital = Game.GetPlayer(Owner).GetCapital();
 						distance = capital == null ? 32 : Common.DistanceToTile(X, Y, capital.X, capital.Y);
@@ -293,7 +293,7 @@ namespace CivOne
 			get
 			{
 				if (Size == 0) return 0;
-				
+
 				byte output = 0;
 				if (Map[X, Y].GetBorderTiles().Any(t => t.IsOcean)) output |= (0x01 << 1); // Coastal city
 				if (BuildingSold) output |= (0x01 << 7); // Building sold this turn
@@ -333,7 +333,7 @@ namespace CivOne
 				if (tiles.Count() > 0)
 					_resourceTiles.Add(tiles.First());
 			}
-			
+
 			UpdateSpecialists();
 		}
 
@@ -398,7 +398,7 @@ namespace CivOne
 			if (((gameData[0] >> 5) & 1) > 0) _resourceTiles.Add(Tile[1, 1]);
 			if (((gameData[0] >> 6) & 1) > 0) _resourceTiles.Add(Tile[-1, 1]);
 			if (((gameData[0] >> 7) & 1) > 0) _resourceTiles.Add(Tile[-1, -1]);
-			
+
 			if (((gameData[1] >> 0) & 1) > 0) _resourceTiles.Add(Tile[0, -2]);
 			if (((gameData[1] >> 1) & 1) > 0) _resourceTiles.Add(Tile[2, 0]);
 			if (((gameData[1] >> 2) & 1) > 0) _resourceTiles.Add(Tile[0, 2]);
@@ -407,7 +407,7 @@ namespace CivOne
 			if (((gameData[1] >> 5) & 1) > 0) _resourceTiles.Add(Tile[1, -2]);
 			if (((gameData[1] >> 6) & 1) > 0) _resourceTiles.Add(Tile[2, -1]);
 			if (((gameData[1] >> 7) & 1) > 0) _resourceTiles.Add(Tile[2, 1]);
-			
+
 			if (((gameData[2] >> 0) & 1) > 0) _resourceTiles.Add(Tile[1, 2]);
 			if (((gameData[2] >> 1) & 1) > 0) _resourceTiles.Add(Tile[-1, 2]);
 			if (((gameData[2] >> 2) & 1) > 0) _resourceTiles.Add(Tile[-2, 1]);
@@ -610,7 +610,7 @@ namespace CivOne
                     start.happy = happ;
                     start.content = cont;
                     start.unhappy = unha;
-					
+
                     Debug.Assert(start.Sum() == Size);
                     Debug.Assert(start.Valid());
 
@@ -828,7 +828,7 @@ namespace CivOne
 						Show disorderCity = Show.DisorderCity(this);
  						GameTask.Insert(disorderCity);
 					}
-					
+
 					Log($"City {Name} belonging to {Player.TribeName} has gone into disorder");
 				}
  				if (WasInDisorder && Player.Government is Governments.Democracy)
@@ -851,7 +851,7 @@ namespace CivOne
 			{
 				// we love the president day
 				if (Player.Government is Governments.Democracy || Player.Government is Republic)
-				{ 
+				{
 					if (Food > 0)
 					{
 						Size++;
@@ -972,7 +972,7 @@ namespace CivOne
 							_buildings.RemoveAll(x => x is Courthouse);
 						}
 						_buildings.Add(CurrentProduction as IBuilding);
-						
+
 						Message message = Message.Newspaper(this, $"{this.Name} builds", $"{(CurrentProduction as ICivilopedia).Name}.");
 						message.Done += (s, a) => {
 							GameTask advisorMessage = Message.Advisor(Advisor.Foreign, true, $"{Player.TribeName} capital", $"moved to {Name}.");
@@ -1003,7 +1003,7 @@ namespace CivOne
 			GameTask.Enqueue(new ProcessScience(Player));
 
 			if (Player.IsHuman) return;
-			
+
 			Player.AI.CityProduction(this);
 		}
 
@@ -1020,14 +1020,14 @@ namespace CivOne
 
 			switch (Common.Random.Next(0, 9))
 			{
-				case 0: 
+				case 0:
 				{
 					// Earthquake
 					bool hillsNearby = CityTiles.Any(t => t.Type == Terrain.Hills);
 					IList<IBuilding> buildingsOtherThanPalace = Buildings.Where(b => !(b is Palace)).ToList();
 					if (!hillsNearby || !buildingsOtherThanPalace.Any())
 						return;
-					
+
 					IBuilding buildingToDestroy = buildingsOtherThanPalace[Common.Random.Next(0, buildingsOtherThanPalace.Count - 1)];
 					RemoveBuilding(buildingToDestroy);
 
@@ -1101,7 +1101,7 @@ namespace CivOne
 
 						message.Add($"Famine in {Name}!");
 						message.Add($"Citizens killed!");
-						message.Add($"Citizens demand POTTERY.");
+						message.Add($"Citizens demand GRANARY.");
 					}
 
 					break;
@@ -1153,7 +1153,7 @@ namespace CivOne
 
 					if (HappyCitizens >= UnhappyCitizens)
 						return;
-					
+
 					if (!HasBuilding<Temple>())
 						buildingDemanded = nameof(Temple);
 					else if (!HasBuilding<Courthouse>())
@@ -1162,7 +1162,7 @@ namespace CivOne
 						buildingDemanded = nameof(MarketPlace);
 					else if (!HasBuilding<Cathedral>())
 						buildingDemanded = nameof(Cathedral);
-					else 
+					else
 						buildingDemanded = "lower taxes";
 
 					Food = 0;
@@ -1173,10 +1173,10 @@ namespace CivOne
 
 					if (HasBuilding<Palace>())
 						return;
-					
+
 					if (Player.Cities.Length < 4)
 						return;
-					
+
 					City admired = null;
 					int mostAppeal = 0;
 
@@ -1232,7 +1232,7 @@ namespace CivOne
 
 					}
 
-					break;				
+					break;
 			}
 
 			if (message.Count > 0 && (Player.IsHuman || humanGetsCity))
