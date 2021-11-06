@@ -11,18 +11,19 @@ using System;
 using CivOne.Enums;
 using CivOne.Events;
 using CivOne.Graphics;
+using CivOne.Tiles;
 
 namespace CivOne.Screens
 {
 	internal class Goto : BaseScreen
 	{
 		private readonly int _x, _y;
-		
+
 		private bool _update = true;
 
 		public int X { get; private set; }
 		public int Y { get; private set; }
-		
+
 		protected override bool HasUpdate(uint gameTick)
 		{
 			if (_update)
@@ -32,26 +33,60 @@ namespace CivOne.Screens
 			}
 			return false;
 		}
-		
+
 		public override bool KeyDown(KeyboardEventArgs args)
 		{
 			Destroy();
 			return true;
 		}
-		
-		public override bool MouseDown(ScreenEventArgs args)
-		{
+
+		ITile fromCanvas(int x, int y) {
 			int offsetX = 80;
 			if (Settings.RightSideBar) offsetX = 0;
 			int offsetY = 8;
-			
-			int xx = (int)Math.Floor((double)(args.X - offsetX) / 16);
-			int yy = (int)Math.Floor((double)(args.Y - offsetY) / 16);
 
-			if (xx >= 0 && yy >= 0)
+			int xx = (int)Math.Floor((double)(x - offsetX) / 16);
+			int yy = (int)Math.Floor((double)(y - offsetY) / 16);
+
+			if (xx < 0 || yy < 0)
 			{
-				X = _x + xx;
-				Y = _y + yy;
+				return null;
+			}
+
+			return Map[_x + xx, _y + yy];
+		}
+		ITile fromMinimap(int x, int y) {
+			int offsetX = 1;
+			if (Settings.RightSideBar) offsetX = 241;
+			int offsetY = 9;
+
+			int xx = (int)(x - offsetX);
+			int yy = (int)(y - offsetY);
+
+			if (xx < 0 || yy < 0)
+			{
+				return null;
+			}
+
+			return Map[xx, yy];
+		}
+		public override bool MouseDown(ScreenEventArgs args)
+		{
+
+			ITile tile = fromCanvas(args.X, args.Y);
+			if (tile != null)
+			{
+				X = tile.X;
+				Y = tile.Y;
+				while (X < 0) X += Map.WIDTH;
+				while (X >= Map.WIDTH) X -= Map.WIDTH;
+			}
+
+			tile = fromMinimap(args.X, args.Y);
+			if (tile != null)
+			{
+				X = tile.X;
+				Y = tile.Y;
 				while (X < 0) X += Map.WIDTH;
 				while (X >= Map.WIDTH) X -= Map.WIDTH;
 			}
@@ -66,7 +101,7 @@ namespace CivOne.Screens
 			_y = y;
 			X = -1;
 			Y = -1;
-			
+
 			Palette = Common.TopScreen.Palette;
 		}
 	}
